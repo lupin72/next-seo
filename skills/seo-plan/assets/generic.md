@@ -1,3 +1,4 @@
+<!-- Updated: 2026-02-07 -->
 # Generic Business SEO Strategy Template
 
 ## Overview
@@ -130,3 +131,14 @@ Adjust this template based on:
 3. **Content Type**: Product-focused vs content-heavy
 4. **Competition Level**: Niche vs competitive market
 5. **Resources**: Budget and team capacity
+
+## Generative Engine Optimization (GEO) Checklist
+
+- [ ] Include clear, quotable facts and statistics that AI systems can extract and cite
+- [ ] Use structured data (Schema.org) to help AI systems understand content
+- [ ] Build topical authority through comprehensive content clusters
+- [ ] Provide original data, research, or unique perspectives AI cannot find elsewhere
+- [ ] Maintain consistent entity information (brand, people, products) across the web
+- [ ] Structure content with clear headings, definitions, and step-by-step formats
+- [ ] Consider adding an `llms.txt` file at site root (emerging convention for AI crawlers — Google treats it as a regular text file)
+- [ ] Monitor AI citation across Google AI Overviews, ChatGPT, Perplexity, and Bing Copilot

@@ -1,3 +1,4 @@
+<!-- Updated: 2026-02-07 -->
 # E-commerce SEO Strategy Template
 
 ## Industry Characteristics
@@ -50,6 +51,16 @@
 | Category Page | CollectionPage, ItemList, BreadcrumbList |
 | Brand Page | Brand, Organization |
 | Blog | Article, BlogPosting |
+
+### Additional E-commerce Schema (2025)
+
+- **ProductGroup**: Use for products with variants (size, color). Wraps individual Product entries with `variesBy` and `hasVariant` properties. See `schema/templates.json`.
+- **Certification**: For product certifications (Energy Star, safety, organic). Replaced EnergyConsumptionDetails (April 2025). Use `hasCertification` on Product.
+- **OfferShippingDetails**: Include shipping rate, handling time, and transit time. Critical for Merchant Center eligibility.
+
+> **Google Merchant Center Free Listings:** Products can appear in Google Shopping for free. Ensure Product structured data is in the initial server-rendered HTML (not JavaScript-injected) with required properties: `name`, `image`, `price`, `priceCurrency`, `availability`.
+
+> **JS Rendering Note:** Product structured data should be in initial server-rendered HTML — not dynamically injected via JavaScript (per December 2025 Google JS SEO guidance).
 
 ### Product Schema Example
 ```json
@@ -142,3 +153,15 @@
 - Category page rankings
 - Click-through rate (rich results)
 - Average order value from organic
+
+## Generative Engine Optimization (GEO) for E-commerce
+
+AI search platforms increasingly answer product queries directly. Optimize for AI citation:
+
+- [ ] Include clear product specifications, dimensions, materials in structured format
+- [ ] Use ProductGroup schema for variant products
+- [ ] Provide original product photography with descriptive alt text
+- [ ] Include genuine customer review content (AggregateRating schema)
+- [ ] Maintain consistent product entity data across all platforms (site, Amazon, Merchant Center)
+- [ ] Structure comparison content with clear feature tables AI can parse
+- [ ] Add detailed FAQ content for common product questions

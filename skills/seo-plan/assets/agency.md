@@ -1,3 +1,4 @@
+<!-- Updated: 2026-02-07 -->
 # Agency/Consultancy SEO Strategy Template
 
 ## Industry Characteristics
@@ -161,3 +162,14 @@
 - Contact form submissions from organic
 - Time on page for key content
 - Blog → service page conversion
+
+## Generative Engine Optimization (GEO) for Agencies
+
+- [ ] Publish original case studies with specific, citable metrics and results
+- [ ] Use Person schema with sameAs links for all team members (builds entity authority)
+- [ ] Use ProfilePage schema for team member pages
+- [ ] Include clear, quotable expertise statements in service page descriptions
+- [ ] Produce original industry research and surveys AI systems can cite
+- [ ] Structure thought leadership content with clear headings and extractable insights
+- [ ] Maintain consistent agency entity information across directories, social profiles, and industry sites
+- [ ] Monitor AI citation in ChatGPT, Perplexity, and Google AI Overviews for brand and key service terms
