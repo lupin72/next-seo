@@ -61,6 +61,9 @@ Google's documentation explicitly recommends JSON-LD over Microdata and RDFa.
 | LearningVideo | Retired from rich results | June 2025 | Use VideoObject instead |
 | ClaimReview | Retired from rich results | June 2025 | Fact-check markup no longer generates rich results |
 | VehicleListing | Retired from rich results | June 2025 | Vehicle listing structured data discontinued |
+| Book Actions | Deprecated then REVERSED | June 2025 | **Still functional as of Feb 2026** — historical note only |
+| Practice Problem | Retired from rich results | Late 2025 | Educational practice problems no longer displayed |
+| Dataset | Retired from rich results | Late 2025 | Dataset Search feature discontinued |
 
 ---
 

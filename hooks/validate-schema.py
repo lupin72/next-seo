@@ -100,6 +100,8 @@ def _validate_schema_object(obj: dict, block_num: int) -> List[str]:
         "CourseInfo": "retired June 2025",
         "EstimatedSalary": "retired June 2025",
         "LearningVideo": "retired June 2025",
+        "ClaimReview": "retired June 2025 — fact-check rich results discontinued",
+        "VehicleListing": "retired June 2025 — vehicle listing structured data discontinued",
     }
     if schema_type in deprecated:
         errors.append(f"{prefix}: @type '{schema_type}' is {deprecated[schema_type]}")
