@@ -1,3 +1,4 @@
+<!-- Updated: 2026-02-07 -->
 # Claude SEO
 
 Comprehensive SEO analysis skill for Claude Code. Covers technical SEO, on-page analysis, content quality (E-E-A-T), schema markup, image optimization, sitemap architecture, AI search optimization (GEO), and strategic planning.
@@ -177,6 +178,10 @@ See `schema/templates.json` for ready-to-use JSON-LD snippets.
 ```bash
 curl -fsSL https://raw.githubusercontent.com/AgriciDaniel/claude-seo/main/uninstall.sh | bash
 ```
+
+### MCP Integrations
+
+Integrates with MCP servers for live SEO data — including official servers from **Ahrefs** (`@ahrefs/mcp`) and **Semrush**, plus community servers for Google Search Console, PageSpeed Insights, and DataForSEO. See [MCP Integration Guide](docs/MCP-INTEGRATION.md) for setup.
 
 ## Documentation
 

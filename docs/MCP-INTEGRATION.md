@@ -1,3 +1,4 @@
+<!-- Updated: 2026-02-07 -->
 # MCP Integration
 
 ## Overview
@@ -22,26 +23,57 @@ curl "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=URL&key=YOU
 
 ### Google Search Console
 
-For organic search data, use the Google Search Console API or community MCP servers.
+For organic search data, use the `mcp-server-gsc` MCP server by [ahonn](https://github.com/ahonn/mcp-server-gsc). Provides search performance data, URL inspection, and sitemap management.
 
-**Community Options:**
-- Search for `mcp-server-gsc` or similar community packages
-- Configure with your Google Cloud credentials
+**Configuration:**
 
-### Custom MCP Configuration
+```json
+{
+  "mcpServers": {
+    "google-search-console": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-gsc"],
+      "env": {
+        "GOOGLE_CREDENTIALS_PATH": "/path/to/credentials.json"
+      }
+    }
+  }
+}
+```
 
-Add to `~/.claude/settings.json`:
+### PageSpeed Insights MCP Server
+
+Use `mcp-server-pagespeed` by [enemyrr](https://github.com/enemyrr/mcp-server-pagespeed) for Lighthouse audits, CWV metrics, and performance scoring via MCP.
+
+**Configuration:**
 
 ```json
 {
   "mcpServers": {
     "pagespeed": {
-      "command": "your-pagespeed-mcp-command",
-      "args": ["--api-key", "YOUR_KEY"]
+      "command": "npx",
+      "args": ["-y", "mcp-server-pagespeed"],
+      "env": {
+        "PAGESPEED_API_KEY": "your-api-key"
+      }
     }
   }
 }
 ```
+
+### Official SEO MCP Servers (2025-2026)
+
+The MCP ecosystem for SEO has matured significantly. These are production-ready integrations:
+
+| Tool | Package / Endpoint | Type | Notes |
+|------|-------------------|------|-------|
+| **Ahrefs** | `@ahrefs/mcp` | Official | Launched July 2025. Supports local and remote modes. Backlinks, keywords, site audit data. |
+| **Semrush** | `https://mcp.semrush.com/v1/mcp` | Official (remote) | Full API access via remote MCP endpoint. Domain analytics, keyword research, backlink data. |
+| **Google Search Console** | `mcp-server-gsc` | Community | By ahonn. Search performance, URL inspection, sitemaps. |
+| **PageSpeed Insights** | `mcp-server-pagespeed` | Community | By enemyrr. Lighthouse audits, CWV metrics, performance scoring. |
+| **DataForSEO** | `dataforseo-mcp-server` | Community | By Skobyn (GitHub: Skobyn/dataforseo-mcp-server). SERP data, keyword data, backlinks. |
+| **kwrds.ai** | kwrds MCP server | Community | Keyword research, search volume, difficulty scoring. |
+| **SEO Review Tools** | SEO Review Tools MCP | Community | Site auditing and on-page analysis API. |
 
 ## API Usage Examples
 
