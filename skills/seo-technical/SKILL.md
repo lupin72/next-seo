@@ -1,3 +1,4 @@
+<!-- Updated: 2026-02-07 -->
 ---
 name: seo-technical
 description: >
@@ -18,6 +19,46 @@ description: >
 - Crawl depth: important pages within 3 clicks of homepage
 - JavaScript rendering: check if critical content requires JS execution
 - Crawl budget: for large sites (>10k pages), efficiency matters
+
+#### AI Crawler Management
+
+As of 2025-2026, AI companies actively crawl the web to train models and power AI search. Managing these crawlers via robots.txt is a critical technical SEO consideration.
+
+**Known AI crawlers:**
+
+| Crawler | Company | robots.txt token | Purpose |
+|---------|---------|-----------------|---------|
+| GPTBot | OpenAI | `GPTBot` | Model training |
+| ChatGPT-User | OpenAI | `ChatGPT-User` | Real-time browsing |
+| ClaudeBot | Anthropic | `ClaudeBot` | Model training |
+| PerplexityBot | Perplexity | `PerplexityBot` | Search index + training |
+| Bytespider | ByteDance | `Bytespider` | Model training |
+| Google-Extended | Google | `Google-Extended` | Gemini training (NOT search) |
+| CCBot | Common Crawl | `CCBot` | Open dataset |
+
+**Key distinctions:**
+- Blocking `Google-Extended` prevents Gemini training use but does NOT affect Google Search indexing or AI Overviews (those use `Googlebot`)
+- Blocking `GPTBot` prevents OpenAI training but does NOT prevent ChatGPT from citing your content via browsing (`ChatGPT-User`)
+- ~3-5% of websites now use AI-specific robots.txt rules
+
+**Example — selective AI crawler blocking:**
+```
+# Allow search indexing, block AI training crawlers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+# Allow all other crawlers (including Googlebot for search)
+User-agent: *
+Allow: /
+```
+
+**Recommendation:** Consider your AI visibility strategy before blocking. Being cited by AI systems drives brand awareness and referral traffic. Cross-reference the `seo-geo` skill for full AI visibility optimization.
 
 ### 2. Indexability
 - Canonical tags: self-referencing, no conflicts with noindex
@@ -49,7 +90,7 @@ description: >
 - Touch targets: minimum 48x48px with 8px spacing
 - Font size: minimum 16px base
 - No horizontal scroll
-- Mobile-first indexing: Google indexes mobile version
+- Mobile-first indexing: Google indexes mobile version. **Mobile-first indexing is 100% complete as of July 5, 2024.** Google now crawls and indexes ALL websites exclusively with the mobile Googlebot user-agent.
 
 ### 6. Core Web Vitals
 - **LCP** (Largest Contentful Paint): target <2.5s
@@ -69,6 +110,17 @@ description: >
 - Identify client-side rendered (CSR) vs server-side rendered (SSR)
 - Flag SPA frameworks (React, Vue, Angular) that may cause indexing issues
 - Verify dynamic rendering setup if applicable
+
+#### JavaScript SEO — Canonical & Indexing Guidance (December 2025)
+
+Google updated its JavaScript SEO documentation in December 2025 with critical clarifications:
+
+1. **Canonical conflicts:** If a canonical tag in raw HTML differs from one injected by JavaScript, Google may use EITHER one. Ensure canonical tags are identical between server-rendered HTML and JS-rendered output.
+2. **noindex with JavaScript:** If raw HTML contains `<meta name="robots" content="noindex">` but JavaScript removes it, Google MAY still honor the noindex from raw HTML. Serve correct robots directives in the initial HTML response.
+3. **Non-200 status codes:** Google does NOT render JavaScript on pages returning non-200 HTTP status codes. Any content or meta tags injected via JS on error pages will be invisible to Googlebot.
+4. **Structured data in JavaScript:** Product, Article, and other structured data injected via JS may face delayed processing. For time-sensitive structured data (especially e-commerce Product markup), include it in the initial server-rendered HTML.
+
+**Best practice:** Serve critical SEO elements (canonical, meta robots, structured data, title, meta description) in the initial server-rendered HTML rather than relying on JavaScript injection.
 
 ### 9. IndexNow Protocol
 - Check if site supports IndexNow for Bing, Yandex, Naver
