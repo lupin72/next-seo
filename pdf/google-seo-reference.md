@@ -1,3 +1,4 @@
+<!-- Updated: 2026-02-07 -->
 # Google SEO Quick Reference (February 2026)
 
 Concise reference guide for subagents. Summarizes key Google Search concepts,
@@ -71,7 +72,7 @@ Measured at the 75th percentile of real user data (field data).
 | **CLS** (Cumulative Layout Shift) | ≤ 0.1 | 0.1 – 0.25 | > 0.25 |
 
 **Key facts:**
-- INP replaced FID (First Input Delay) on March 12, 2024. Do NOT reference FID.
+- INP replaced FID (First Input Delay) on March 12, 2024. FID was fully removed from all Chrome tools (CrUX API, PageSpeed Insights, Lighthouse) on September 9, 2024. Do NOT reference FID.
 - Core Web Vitals are a confirmed ranking signal (since June 2021)
 - Field data (CrUX) is preferred over lab data (Lighthouse) for assessment
 - Passing all three metrics at "Good" is the target
@@ -118,7 +119,7 @@ Google Search Console notifications for violations. Common causes:
 
 ### Algorithmic Demotions
 No manual notification — detected through ranking drops. Common causes:
-- **Helpful Content Update**: Low-value, AI-generated, or unhelpful content at scale
+- **Helpful Content System**: Merged into Google's core ranking in March 2024 — no longer a standalone system. Helpfulness signals are now evaluated within every core update. Low-value, AI-generated, or unhelpful content at scale still triggers demotions via core updates.
 - **Core Updates**: Broad quality reassessment across all signals
 - **Spam Updates**: Automated detection of spam patterns
 - **Link Spam Updates**: Devaluation of manipulative link patterns
@@ -146,3 +147,5 @@ No manual notification — detected through ranking drops. Common causes:
 - [Google Search Central Blog](https://developers.google.com/search/blog)
 - [Spam Policies](https://developers.google.com/search/docs/essentials/spam-policies)
 - [E-E-A-T and Quality Rater Guidelines](https://developers.google.com/search/docs/fundamentals/creating-helpful-content)
+
+> **Mobile-first indexing** is 100% complete as of July 5, 2024. Google now crawls and indexes ALL websites exclusively with the mobile Googlebot user-agent.

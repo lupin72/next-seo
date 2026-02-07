@@ -54,7 +54,7 @@ description: >
 ### 6. Core Web Vitals
 - **LCP** (Largest Contentful Paint): target <2.5s
 - **INP** (Interaction to Next Paint): target <200ms
-  - INP replaced FID on March 12, 2024. Do NOT reference FID anywhere.
+  - INP replaced FID on March 12, 2024. FID was fully removed from all Chrome tools (CrUX API, PageSpeed Insights, Lighthouse) on September 9, 2024. Do NOT reference FID anywhere.
 - **CLS** (Cumulative Layout Shift): target <0.1
 - Evaluation uses 75th percentile of real user data
 - Use PageSpeed Insights API or CrUX data if MCP available

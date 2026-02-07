@@ -1,3 +1,4 @@
+<!-- Updated: 2026-02-07 -->
 # Core Web Vitals Thresholds (February 2026)
 
 ## Current Metrics
@@ -9,7 +10,7 @@
 | CLS (Cumulative Layout Shift) | ≤0.1 | 0.1–0.25 | >0.25 |
 
 ## Key Facts
-- INP replaced FID (First Input Delay) on **March 12, 2024**. FID is fully deprecated.
+- INP replaced FID (First Input Delay) on **March 12, 2024**. FID was fully removed from all Chrome tools (CrUX API, PageSpeed Insights, Lighthouse) on **September 9, 2024**. INP is the sole interactivity metric.
 - Evaluation uses the **75th percentile** of real user data (field data from CrUX).
 - Google assesses at the **page level** and the **origin level**.
 - Core Web Vitals are a **tiebreaker** ranking signal — they matter most when content quality is similar between competitors.
@@ -96,3 +97,12 @@ curl "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=URL&key=API
 # Lighthouse CLI
 npx lighthouse URL --output json --output-path report.json
 ```
+
+## Performance Tooling Updates (2025)
+
+- **Lighthouse 13.0** (October 2025): Major audit restructuring with reorganized performance categories and updated scoring weights. Lighthouse is a lab tool (simulated conditions) — always cross-reference with CrUX field data for real-world performance.
+- **CrUX Vis** replaced the CrUX Dashboard (November 2025). The old Looker Studio dashboard was deprecated. Use [CrUX Vis](https://cruxvis.withgoogle.com) or the CrUX API directly.
+- **LCP subparts** added to CrUX (February 2025): Time to First Byte (TTFB), resource load delay, resource load time, and element render delay are now available as sub-components of LCP in CrUX data.
+- **Google Search Console 2025 features** (December 2025): AI-powered configuration for automated analysis. Branded vs. non-branded queries filter. Hourly data available in API. Custom chart annotations. Social channels tracking.
+
+> **Mobile-first indexing** is 100% complete as of July 5, 2024. Google now crawls and indexes ALL websites exclusively with the mobile Googlebot user-agent. Ensure your mobile version contains all critical content, structured data, and meta tags.

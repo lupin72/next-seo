@@ -111,7 +111,7 @@ Validate and generate hreflang tags for multi-language sites.
 - **INP** (Interaction to Next Paint): Target < 200ms
 - **CLS** (Cumulative Layout Shift): Target < 0.1
 
-> Note: INP replaced FID on March 12, 2024.
+> Note: INP replaced FID on March 12, 2024. FID was fully removed from all Chrome tools on September 9, 2024.
 
 ### E-E-A-T Analysis
 Updated to September 2025 Quality Rater Guidelines:

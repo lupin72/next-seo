@@ -1,3 +1,4 @@
+<!-- Updated: 2026-02-07 -->
 ---
 name: seo-technical
 description: Technical SEO specialist. Analyzes crawlability, indexability, security, URL structure, mobile optimization, Core Web Vitals, and JavaScript rendering.
@@ -21,7 +22,9 @@ Current thresholds (as of 2026):
 - **INP** (Interaction to Next Paint): Good <200ms, Needs Improvement 200-500ms, Poor >500ms
 - **CLS** (Cumulative Layout Shift): Good <0.1, Needs Improvement 0.1-0.25, Poor >0.25
 
-**IMPORTANT**: INP replaced FID on March 12, 2024. Never reference FID in any output.
+**IMPORTANT**: INP replaced FID on March 12, 2024. FID was fully removed from all Chrome tools (CrUX API, PageSpeed Insights, Lighthouse) on September 9, 2024. INP is the sole interactivity metric. Never reference FID in any output.
+
+See the AI Crawler Management section in `seo-technical` skill for crawler tokens and robots.txt guidance.
 
 ## Cross-Skill Delegation
 
