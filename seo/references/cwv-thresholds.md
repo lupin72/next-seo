@@ -13,6 +13,35 @@
 - Evaluation uses the **75th percentile** of real user data (field data from CrUX).
 - Google assesses at the **page level** and the **origin level**.
 - Core Web Vitals are a **tiebreaker** ranking signal — they matter most when content quality is similar between competitors.
+- **Thresholds unchanged since original definitions** — ignore claims of "tightened thresholds" from SEO blogs.
+- December 2025 core update appeared to weight **mobile CWV more heavily**.
+- As of October 2025: **57.1%** desktop sites and **49.7%** mobile sites pass all three CWV.
+
+## LCP Subparts (February 2025 CrUX Addition)
+
+LCP can now be broken into diagnostic subparts:
+
+| Subpart | What It Measures | Target |
+|---------|------------------|--------|
+| **TTFB** | Time to First Byte (server response) | <800ms |
+| **Resource Load Delay** | Time from TTFB to resource request start | Minimize |
+| **Resource Load Time** | Time to download the LCP resource | Depends on size |
+| **Element Render Delay** | Time from resource loaded to rendered | Minimize |
+
+**Total LCP = TTFB + Resource Load Delay + Resource Load Time + Element Render Delay**
+
+Use this breakdown to identify which phase is causing LCP issues.
+
+## Soft Navigations API (Experimental)
+
+**Chrome 139+ Origin Trial (July 2025)** — First step toward measuring CWV in SPAs.
+
+- Addresses the long-standing SPA measurement blind spot
+- Currently experimental, **no ranking impact yet**
+- Detects "soft navigations" (URL changes without full page load)
+- May affect future SPA CWV measurement
+
+**Detection:** Check for SPA frameworks (React, Vue, Angular, Svelte) and warn about current CWV measurement limitations.
 
 ## Measurement Sources
 

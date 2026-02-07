@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-07
+
+### Security (CRITICAL)
+- **urllib3 ≥2.6.3**: Fixes CVE-2026-21441 (CVSS 8.9) - decompression bypass vulnerability
+- **lxml ≥6.0.2**: Updated from 5.3.2 for additional libxml2 security patches
+- **Pillow ≥12.1.0**: Fixes CVE-2025-48379
+- **playwright ≥1.55.1**: Fixes CVE-2025-59288 (macOS)
+- **requests ≥2.32.4**: Fixes CVE-2024-47081, CVE-2024-35195
+
+### Added
+- **GEO (Generative Engine Optimization) major enhancement**:
+  - Brand mention analysis (3× more important than backlinks for AI visibility)
+  - AI crawler detection (GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot, etc.)
+  - llms.txt standard detection and recommendations
+  - RSL 1.0 (Really Simple Licensing) detection
+  - Passage-level citability scoring (optimal 134-167 words)
+  - Platform-specific optimization (Google AI Overviews vs ChatGPT vs Perplexity)
+  - Server-side rendering checks for AI crawler accessibility
+- **LCP Subparts analysis**: TTFB, resource load delay, resource load time, render delay
+- **Soft Navigations API detection** for SPA CWV measurement limitations
+- **Schema.org v29.4 additions**: ConferenceEvent, PerformingArtsEvent, LoyaltyProgram
+- **E-commerce schema updates**: returnPolicyCountry now required, organization-level policies
+
+### Changed
+- **E-E-A-T framework**: Updated for December 2025 core update - now applies to ALL competitive queries, not just YMYL
+- **SKILL.md description**: Expanded to leverage new 1024-character limit
+- **Schema deprecations expanded**: Added ClaimReview, VehicleListing (June 2025)
+- **WebApplication schema**: Added as correct type for browser-based SaaS (vs SoftwareApplication)
+
+### Fixed
+- Schema-types.md now correctly distinguishes SoftwareApplication (apps) vs WebApplication (SaaS)
+
+---
+
 ## [1.0.0] - 2026-02-07
 
 ### Added

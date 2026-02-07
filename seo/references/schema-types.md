@@ -1,8 +1,12 @@
 # Schema.org Types — Status & Recommendations (February 2026)
 
+**Schema.org Version:** 29.4 (December 8, 2025)
+
 ## Format Preference
 Always use **JSON-LD** (`<script type="application/ld+json">`).
 Google's documentation explicitly recommends JSON-LD over Microdata and RDFa.
+
+**AI Search Note:** Content with proper schema has ~2.5× higher chance of appearing in AI-generated answers (confirmed by Google and Microsoft, March 2025).
 
 ---
 
@@ -12,7 +16,8 @@ Google's documentation explicitly recommends JSON-LD over Microdata and RDFa.
 |------|----------|----------------|
 | Organization | Company info | name, url, logo, contactPoint, sameAs |
 | LocalBusiness | Physical businesses | name, address, telephone, openingHours, geo, priceRange |
-| SoftwareApplication | SaaS products | name, operatingSystem, applicationCategory, offers, aggregateRating |
+| SoftwareApplication | Desktop/mobile apps | name, operatingSystem, applicationCategory, offers, aggregateRating |
+| WebApplication | Browser-based SaaS | name, applicationCategory, offers, browserRequirements, featureList |
 | Product | Physical/digital products | name, image, description, sku, brand, offers, review |
 | Offer | Pricing | price, priceCurrency, availability, url, validFrom |
 | Service | Service businesses | name, provider, areaServed, description, offers |
@@ -54,6 +59,8 @@ Google's documentation explicitly recommends JSON-LD over Microdata and RDFa.
 | CourseInfo | Retired from rich results | June 2025 | Merged into Course |
 | EstimatedSalary | Retired from rich results | June 2025 | No longer displayed |
 | LearningVideo | Retired from rich results | June 2025 | Use VideoObject instead |
+| ClaimReview | Retired from rich results | June 2025 | Fact-check markup no longer generates rich results |
+| VehicleListing | Retired from rich results | June 2025 | Vehicle listing structured data discontinued |
 
 ---
 
@@ -64,6 +71,19 @@ Google's documentation explicitly recommends JSON-LD over Microdata and RDFa.
 | Product Certification markup | April 2025 | Energy ratings, safety certifications |
 | DiscussionForumPosting | 2024 | For forum/community content |
 | Speakable | Updated 2024 | For voice search optimization |
+| LoyaltyProgram | June 2025 | Member pricing, loyalty card structured data |
+| Organization-level shipping/return policies | November 2025 | Configure via Search Console without Merchant Center |
+| ConferenceEvent | December 2025 | Schema.org v29.4 addition |
+| PerformingArtsEvent | December 2025 | Schema.org v29.4 addition |
+
+## E-commerce Requirements (Updated)
+
+| Requirement | Status | Since |
+|-------------|--------|-------|
+| `returnPolicyCountry` in MerchantReturnPolicy | **Required** | March 2025 |
+| Product variant structured data | Expanded | 2025 — includes apparel, cosmetics, electronics |
+
+> **Note:** Content API for Shopping sunsets August 18, 2026. Migrate to Merchant API.
 
 ---
 

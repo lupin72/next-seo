@@ -1,12 +1,17 @@
 ---
 name: seo
 description: >
-  Comprehensive SEO analysis for any website or business type. Use when the user
-  asks to analyze a website's SEO, audit technical SEO, check schema markup,
-  optimize images, analyze content quality, generate sitemaps, plan SEO strategy,
-  or optimize for AI search / AI Overviews. Triggers on: "SEO", "audit site",
-  "check schema", "page speed", "Core Web Vitals", "sitemap", "E-E-A-T",
-  "content analysis", "image optimization", "AI Overviews", "GEO".
+  Comprehensive SEO analysis for any website or business type. Performs full site
+  audits, single-page deep analysis, technical SEO checks (crawlability, indexability,
+  Core Web Vitals with INP), schema markup detection/validation/generation, content
+  quality assessment (E-E-A-T framework per Dec 2025 update extending to all
+  competitive queries), image optimization, sitemap analysis, and Generative Engine
+  Optimization (GEO) for AI Overviews, ChatGPT, and Perplexity citations. Analyzes
+  AI crawler accessibility (GPTBot, ClaudeBot, PerplexityBot), llms.txt compliance,
+  brand mention signals, and passage-level citability. Industry detection for SaaS,
+  e-commerce, local business, publishers, agencies. Triggers on: "SEO", "audit",
+  "schema", "Core Web Vitals", "sitemap", "E-E-A-T", "AI Overviews", "GEO",
+  "technical SEO", "content quality", "page speed", "structured data".
 ---
 
 # SEO — Universal SEO Analysis Skill

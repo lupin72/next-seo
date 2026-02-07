@@ -1,5 +1,6 @@
 # E-E-A-T Evaluation Framework
 ## Updated per Google Quality Rater Guidelines — September 11, 2025
+## Plus December 2025 Core Update Implications
 
 ## Overview
 
@@ -8,9 +9,28 @@ E-E-A-T = **E**xperience, **E**xpertise, **A**uthoritativeness, **T**rustworthin
 Trustworthiness is the most important factor. It is assessed based on the
 other three signals plus direct trust indicators.
 
+## CRITICAL: December 2025 Core Update
+
+> **E-E-A-T now applies to ALL competitive queries, not just YMYL.**
+
+The December 2025 core update was described as a "watershed moment" that:
+- Extended E-E-A-T evaluation to virtually all competitive queries
+- Made author attribution standards tighter across all categories
+- Penalized anonymous or generic authorship even for non-YMYL content
+- Significantly improved AI content quality detection
+
+**Impact by industry:**
+| Industry | Traffic Drops |
+|----------|--------------|
+| Affiliate sites | 71% average decline |
+| Health/YMYL | 67% average decline |
+| E-commerce | 52% average decline |
+
+**Key takeaway:** Even entertainment and lifestyle content now requires demonstrated expertise. Generic content no longer ranks.
+
 ## YMYL (Your Money or Your Life)
 
-Topics requiring highest E-E-A-T standards:
+Topics requiring **highest** E-E-A-T standards (but E-E-A-T now matters everywhere):
 - Health and safety
 - Financial advice and transactions
 - Legal information
@@ -129,6 +149,24 @@ Raters now formally evaluate whether content appears AI-generated:
 
 ### AI Overview Evaluation
 Raters assess quality of AI-generated summaries in search results.
+
+### RSL 1.0 (Really Simple Licensing)
+New machine-readable content licensing standard (December 2025) for AI training:
+- Backed by: Reddit, Yahoo, Medium, Quora, Cloudflare, Akamai, Creative Commons
+- Allows publishers to specify AI licensing terms
+- Augments robots.txt for AI-specific permissions
+
+---
+
+## Experience Signals Are Critical Differentiators
+
+The December 2025 update elevated the "Experience" dimension as a key differentiator:
+- First-person narrative ("I tested this...", "In my experience...")
+- Original photos and screenshots (not stock images)
+- Specific examples with verifiable details
+- Process documentation showing actual work done
+
+**Why:** AI can generate expertise-sounding content but cannot fabricate genuine experience.
 
 ---
 
