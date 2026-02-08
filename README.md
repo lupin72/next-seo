@@ -1,4 +1,7 @@
-<!-- Updated: 2026-02-07 -->
+<!-- Updated: 2026-02-08 -->
+
+![Claude SEO](screenshots/cover-image.jpeg)
+
 # Claude SEO
 
 Comprehensive SEO analysis skill for Claude Code. Covers technical SEO, on-page analysis, content quality (E-E-A-T), schema markup, image optimization, sitemap architecture, AI search optimization (GEO), and strategic planning.
@@ -49,6 +52,16 @@ claude
 # Optimize for AI search
 /seo geo https://example.com
 ```
+
+### Demo
+
+**`/seo` command — single-page analysis:**
+
+![SEO Command Demo](screenshots/seo-command-demo.gif)
+
+**`/seo audit` — full site audit with parallel subagents:**
+
+![SEO Audit Demo](screenshots/seo-audit-demo.gif)
 
 ## Commands
 
