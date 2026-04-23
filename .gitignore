@@ -118,6 +118,12 @@ indexnow-submit.sh
 # SEO Drift Monitor (SQLite baselines)
 *.db
 
+# Client Manager (sensitive client data)
+/clients/*
+!/clients/.gitkeep
+/.active-project
+*.db-backup
+
 # Generated cluster maps
 cluster-map.html
 CLUSTER-REPORT*.md

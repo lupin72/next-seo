@@ -22,10 +22,13 @@ claude-seo/
   .claude-plugin/
     plugin.json                    # Plugin manifest (v1.9.0)
     marketplace.json               # Marketplace catalog for distribution
-  skills/                            # 23 skills (auto-discovered)
+  skills/                            # 24 skills (auto-discovered)
     seo/                           # Main orchestrator skill
       SKILL.md                     # Entry point, routing table, core rules
       references/                  # On-demand knowledge files (12 files)
+    seo-client-manager/            # Client and project management
+      SKILL.md                     # Multi-client organization
+      references/                  # Folder structure documentation
     seo-audit/SKILL.md            # Full site audit with parallel agents
     seo-page/SKILL.md            # Deep single-page analysis
     seo-technical/SKILL.md       # Technical SEO (9 categories)
@@ -81,7 +84,12 @@ claude-seo/
     seo-ecommerce.md             # E-commerce SEO analysis
   hooks/                           # Quality gate hooks
     hooks.json                   # PostToolUse schema validation
-  scripts/                         # Python execution scripts (28 tracked + 2 dev-only)
+  clients/                         # Client project data (gitignored)
+    .clients.db                  # SQLite database (clients, projects, audits)
+    {client-slug}/               # Individual client folders
+      {project-slug}/            # Project folders with reports, images, data
+  scripts/                         # Python execution scripts (29 tracked + 2 dev-only)
+    client_manager.py            # Client/project CRUD operations (SQLite)
     google_auth.py               # Credential management (OAuth, SA, API key, 4-tier detection)
     backlinks_auth.py            # Backlink API credential management (Moz, Bing)
     moz_api.py                   # Moz Link Explorer API (DA/PA, spam, domains, anchors)
@@ -122,6 +130,15 @@ claude-seo/
 
 | Command | Purpose |
 |---------|---------|
+| **Client Management** | |
+| `/seo-client add <name>` | Add new client with folder structure |
+| `/seo-client list` | List all clients with project counts |
+| `/seo-client info <name>` | Show client details and projects |
+| `/seo-project add <client> <name> <url>` | Add new project to client |
+| `/seo-project set <client> <project>` | Set active project (all audits save here) |
+| `/seo-project list [client]` | List projects, optionally filtered by client |
+| `/seo-project info` | Show active project details |
+| **SEO Analysis** | |
 | `/seo audit <url>` | Full site audit with up to 15 parallel subagents |
 | `/seo page <url>` | Deep single-page analysis |
 | `/seo technical <url>` | Technical SEO audit (9 categories) |
@@ -149,6 +166,100 @@ claude-seo/
 | `/seo firecrawl [command] <url>` | Full-site crawling and site mapping (extension) |
 | `/seo dataforseo [command]` | Live SEO data via DataForSEO MCP (extension) |
 | `/seo image-gen [use-case] <desc>` | AI image generation for SEO assets (extension) |
+
+## Multi-Client Workflow
+
+This repository supports managing SEO projects for multiple clients with organized folder structures.
+
+### Quick Start
+
+1. **Add a client:**
+   ```
+   /seo-client add "Client Name"
+   ```
+
+2. **Add a project:**
+   ```
+   /seo-project add "client-name" "Project Name" https://example.com
+   ```
+
+3. **Set active project:**
+   ```
+   /seo-project set "client-name" "project-name"
+   ```
+
+4. **Run audits** (automatically saves to project folder):
+   ```
+   /seo-technical https://example.com
+   ```
+
+### Folder Structure
+
+When you add a client and project, the following structure is created:
+
+```
+clients/
+  └── client-slug/
+      ├── CLIENT.md                    # Client notes
+      └── project-slug/
+          ├── PROJECT.md               # Project config (URL, WordPress API, etc)
+          ├── reports/                 # All audit reports saved here
+          │   ├── 2026-04-23_technical-audit.md
+          │   ├── 2026-04-23_page-audit.md
+          │   └── 2026-04-23_full-audit.pdf
+          ├── images/
+          │   ├── original/            # Source images
+          │   └── optimized/           # Optimized for WordPress
+          ├── data/
+          │   ├── baseline.json        # SEO drift baseline
+          │   ├── crux-history.json    # Core Web Vitals trends
+          │   └── backlinks.json       # Backlink snapshots
+          └── wordpress/
+              ├── config.json          # WP REST API credentials
+              └── publish-log.json     # Publishing history
+```
+
+### Active Project Context
+
+When a project is set as active, all SEO commands automatically save reports to that project's folder. The active project is stored in `.active-project` (gitignored) and tracked in SQLite database.
+
+**Example workflow:**
+```bash
+# Setup
+/seo-client add "Example Client"
+/seo-project add "example-client" "Main Site" https://example.com
+/seo-project set "example-client" "main-site"
+
+# Run audits (saves to clients/example-client/main-site/reports/)
+/seo-technical https://example.com
+/seo-page https://example.com
+/seo-audit https://example.com
+
+# Switch to another project
+/seo-project set "other-client" "other-project"
+```
+
+### Database
+
+Client and project data is stored in `clients/.clients.db` (SQLite). This tracks:
+- Clients (name, slug, created_at)
+- Projects (name, slug, url, last_audit_at)
+- Audits (type, date, report_path, score)
+- Active project
+
+### Security
+
+- `clients/` folder is **gitignored** (contains sensitive client data)
+- `.active-project` is **gitignored** (local state)
+- Database has 600 permissions (owner read/write only)
+- WordPress credentials are stored encrypted in `wordpress/config.json`
+
+### Integration with WordPress (Future)
+
+The `seo-wordpress` skill (Phase 3) will:
+- Optimize images in `images/original/` → save to `images/optimized/`
+- Upload optimized images to WordPress Media Library
+- Track uploads in `wordpress/publish-log.json`
 
 ## Development Rules
 
