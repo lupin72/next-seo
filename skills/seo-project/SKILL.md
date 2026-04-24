@@ -1,74 +1,33 @@
-# SEO Client Manager
+---
+name: seo-project
+description: >
+  Manage SEO projects within clients. Create projects, set active project context,
+  list projects with audit history, and view project details. All SEO audit reports
+  automatically save to the active project folder. Use when user says "add project",
+  "set active project", "list projects", "project info", or "switch project".
+user-invokable: true
+argument-hint: "[add|set|list|info] ..."
+license: MIT
+metadata:
+  author: AgriciDaniel
+  version: "1.0.0"
+  category: seo
+---
+
+# SEO Project Manager
 
 ## Overview
 
-Manages clients and projects for multi-client SEO operations. Creates organized folder structures, tracks active project context, and enables all SEO skills to save reports in the correct client/project directories.
+Manages projects within clients for multi-client SEO operations. Creates organized folder structures, tracks active project context, and enables all SEO skills to save reports in the correct client/project directories.
 
 ## Use Cases
 
-- Agency managing multiple client websites
-- Freelancer tracking projects for different clients
-- In-house SEO managing multiple domains/brands
+- Organizing multiple websites per client
+- Switching between projects quickly
+- Automatic report saving to project folders
 - Historical audit tracking per project
 
 ## Commands
-
-### `/seo-client add <client-name>`
-
-Creates a new client with folder structure.
-
-**Arguments:**
-- `client-name` (required): Client name (will be slugified for folder name)
-
-**Example:**
-```
-/seo-client add "Example Client"
-```
-
-**Creates:**
-```
-clients/
-  └── example-client/
-      └── CLIENT.md
-```
-
-**Output:**
-- Client slug
-- Folder path
-- Success confirmation
-
----
-
-### `/seo-client list`
-
-Lists all clients with project counts.
-
-**Output:**
-```
-Clients:
-  1. example-client (2 projects)
-  2. example-corp (1 project)
-
-Total: 2 clients
-```
-
----
-
-### `/seo-client info <client-name>`
-
-Shows detailed information about a client.
-
-**Arguments:**
-- `client-name` (required): Client name or slug
-
-**Output:**
-- Client name
-- Folder path
-- Projects list
-- Last audit date per project
-- Total reports count
-
----
 
 ### `/seo-project add <client-name> <project-name> <url>`
 
@@ -103,11 +62,19 @@ clients/
 - Full folder path
 - Confirmation with next steps
 
+**Implementation:**
+```bash
+python scripts/client_manager.py add-project \
+  --client "client-slug" \
+  --name "Project Name" \
+  --url "https://example.com"
+```
+
 ---
 
 ### `/seo-project set <client-name> <project-name>`
 
-Sets the active project. All SEO commands will use this context.
+Sets the active project. **All SEO commands will save reports to this project folder.**
 
 **Arguments:**
 - `client-name` (required): Client name or slug
@@ -126,6 +93,13 @@ Sets the active project. All SEO commands will use this context.
 **Behavior:**
 - Creates `.active-project` file in repo root with project context
 - All SEO skills read this file to know where to save reports
+
+**Implementation:**
+```bash
+python scripts/client_manager.py set-active \
+  --client "client-slug" \
+  --project "project-slug"
+```
 
 ---
 
@@ -158,6 +132,11 @@ Projects:
     Last audit: 2026-04-20
 ```
 
+**Implementation:**
+```bash
+python scripts/client_manager.py list-projects [--client "client-slug"]
+```
+
 ---
 
 ### `/seo-project info`
@@ -169,9 +148,14 @@ Shows detailed information about the currently active project.
 - Project name
 - URL
 - Folder structure
-- Reports count
-- Last audit dates by type
+- Reports count by type
+- Last audit dates
 - WordPress configuration (if set)
+
+**Implementation:**
+```bash
+python scripts/client_manager.py get-active
+```
 
 ---
 
@@ -198,14 +182,6 @@ When a project is set as active via `/seo-project set`, the system creates:
 
 ## Folder Structure
 
-### Client Level
-```
-clients/
-  └── {client-slug}/
-      ├── CLIENT.md           # Client notes, contact info
-      └── {project-slug}/     # Projects...
-```
-
 ### Project Level
 ```
 clients/{client-slug}/{project-slug}/
@@ -227,117 +203,6 @@ clients/{client-slug}/{project-slug}/
   └── wordpress/
       ├── config.json         # WP REST API credentials
       └── publish-log.json    # Publishing history
-```
-
----
-
-## Integration with SEO Skills
-
-All SEO skills automatically save reports to the active project folder:
-
-**Before (without client manager):**
-```
-/seo-technical https://example.com
-# Saves to: reports/technical-audit-2026-04-23.md (repo root)
-```
-
-**After (with active project):**
-```
-/seo-project set "Client A" "Project 1"
-/seo-technical https://example.com
-# Saves to: clients/client-a/project-1/reports/2026-04-23_technical-audit.md
-```
-
-**Skills that integrate:**
-- `/seo-technical` → `reports/YYYY-MM-DD_technical-audit.md`
-- `/seo-page` → `reports/YYYY-MM-DD_page-audit.md`
-- `/seo-audit` → `reports/YYYY-MM-DD_full-audit.md`
-- `/seo-content` → `reports/YYYY-MM-DD_content-audit.md`
-- `/seo-schema` → `reports/YYYY-MM-DD_schema-audit.md`
-- `/seo-local` → `reports/YYYY-MM-DD_local-audit.md`
-- `/seo-drift baseline` → `data/baseline.json`
-- `/seo-drift compare` → `reports/YYYY-MM-DD_drift-report.md`
-- `/seo-google crux` → `data/crux-history.json`
-- `/seo-backlinks` → `data/backlinks.json`
-
----
-
-## Database Schema
-
-SQLite database at `clients/.clients.db`:
-
-```sql
-CREATE TABLE clients (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    slug TEXT UNIQUE NOT NULL,
-    name TEXT NOT NULL,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL
-);
-
-CREATE TABLE projects (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    client_id INTEGER NOT NULL,
-    slug TEXT NOT NULL,
-    name TEXT NOT NULL,
-    url TEXT NOT NULL,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL,
-    last_audit_at TEXT,
-    FOREIGN KEY (client_id) REFERENCES clients(id),
-    UNIQUE(client_id, slug)
-);
-
-CREATE TABLE audits (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    project_id INTEGER NOT NULL,
-    audit_type TEXT NOT NULL,
-    audit_date TEXT NOT NULL,
-    report_path TEXT NOT NULL,
-    score INTEGER,
-    FOREIGN KEY (project_id) REFERENCES projects(id)
-);
-
-CREATE TABLE active_project (
-    id INTEGER PRIMARY KEY CHECK (id = 1),
-    project_id INTEGER NOT NULL,
-    set_at TEXT NOT NULL,
-    FOREIGN KEY (project_id) REFERENCES projects(id)
-);
-```
-
----
-
-## Templates
-
-### CLIENT.md Template
-
-Created automatically when adding a new client:
-
-```markdown
-# {Client Name}
-
-## Contact Information
-
-- **Company:**
-- **Contact Person:**
-- **Email:**
-- **Phone:**
-- **Billing Contact:**
-
-## Business Information
-
-- **Industry:**
-- **Target Markets:**
-- **Main Competitors:**
-
-## Projects
-
-- [{Project Name}]({project-slug}/) - {URL}
-
-## Notes
-
-<!-- Add client-specific notes, requirements, preferences -->
 ```
 
 ### PROJECT.md Template
@@ -380,33 +245,71 @@ Created automatically when adding a new project:
 
 ---
 
-## Implementation Details
+## Integration with SEO Skills
 
-**Script:** `scripts/client_manager.py`
+All SEO skills automatically save reports to the active project folder:
 
-**Usage (from skills):**
-```python
-import subprocess
-import json
+**Before (without active project):**
+```
+/seo-technical https://example.com
+# Saves to: reports/technical-audit-2026-04-23.md (repo root)
+```
 
-# Add client
-result = subprocess.run([
-    'python', 'scripts/client_manager.py',
-    'add-client',
-    '--name', 'Client Name'
-], capture_output=True, text=True)
+**After (with active project):**
+```
+/seo-project set "Client A" "Project 1"
+/seo-technical https://example.com
+# Saves to: clients/client-a/project-1/reports/2026-04-23_technical-audit.md
+```
 
-data = json.loads(result.stdout)
-# {"success": true, "client_slug": "client-name", "path": "clients/client-name"}
+**Skills that integrate:**
+- `/seo-technical` → `reports/YYYY-MM-DD_technical-audit.md`
+- `/seo-page` → `reports/YYYY-MM-DD_page-audit.md`
+- `/seo-audit` → `reports/YYYY-MM-DD_full-audit.md`
+- `/seo-content` → `reports/YYYY-MM-DD_content-audit.md`
+- `/seo-schema` → `reports/YYYY-MM-DD_schema-audit.md`
+- `/seo-local` → `reports/YYYY-MM-DD_local-audit.md`
+- `/seo-drift baseline` → `data/baseline.json`
+- `/seo-drift compare` → `reports/YYYY-MM-DD_drift-report.md`
+- `/seo-google crux` → `data/crux-history.json`
+- `/seo-backlinks` → `data/backlinks.json`
 
-# Get active project
-result = subprocess.run([
-    'python', 'scripts/client_manager.py',
-    'get-active'
-], capture_output=True, text=True)
+---
 
-data = json.loads(result.stdout)
-# {"client": "client-name", "project": "project-slug", "url": "...", "path": "clients/..."}
+## Database Schema
+
+SQLite database at `clients/.clients.db`:
+
+```sql
+CREATE TABLE projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_id INTEGER NOT NULL,
+    slug TEXT NOT NULL,
+    name TEXT NOT NULL,
+    url TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    last_audit_at TEXT,
+    FOREIGN KEY (client_id) REFERENCES clients(id),
+    UNIQUE(client_id, slug)
+);
+
+CREATE TABLE audits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    audit_type TEXT NOT NULL,
+    audit_date TEXT NOT NULL,
+    report_path TEXT NOT NULL,
+    score INTEGER,
+    FOREIGN KEY (project_id) REFERENCES projects(id)
+);
+
+CREATE TABLE active_project (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    project_id INTEGER NOT NULL,
+    set_at TEXT NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES projects(id)
+);
 ```
 
 ---
@@ -415,10 +318,9 @@ data = json.loads(result.stdout)
 
 | Scenario | Action |
 |----------|--------|
-| Client already exists | Return error, suggest using existing slug |
 | Project already exists | Return error, suggest using different name |
-| No active project set | Prompt user to run `/seo-project set` |
 | Client not found | List available clients |
+| No active project set | Prompt user to run `/seo-project set` |
 | Invalid URL format | Validate and reject with error message |
 | Database locked | Retry with exponential backoff |
 
@@ -427,29 +329,41 @@ data = json.loads(result.stdout)
 ## Best Practices
 
 1. **Naming Convention:**
-   - Use descriptive client names: "Example Client" not "Cliente 1"
    - Use descriptive project names: "Main Site" not "Progetto A"
+   - Project names should describe the website/domain
 
 2. **Active Project:**
    - Always set active project before running SEO commands
    - Verify with `/seo-project info` before audits
+   - Switch projects with `/seo-project set` when working on different sites
 
 3. **Organization:**
-   - One client = one business entity
    - One project = one domain/website
-   - Update CLIENT.md and PROJECT.md with relevant info
+   - Multiple projects can belong to the same client
+   - Update PROJECT.md with relevant SEO goals and configurations
 
-4. **Backups:**
-   - `.clients.db` should be backed up regularly
-   - `clients/` folder should be in `.gitignore` (sensitive data)
+4. **Security:**
+   - `clients/` folder is gitignored by default (sensitive data)
+   - WordPress credentials stored encrypted in `wordpress/config.json`
 
 ---
 
-## Security
+## Workflow Example
 
-- **Sensitive Data:** `clients/` folder is gitignored by default
-- **WordPress Credentials:** Stored in `{project}/wordpress/config.json` (encrypted)
-- **Database:** SQLite file permissions set to 600 (owner read/write only)
+```bash
+# Setup
+/seo-client add "Example Client"
+/seo-project add "example-client" "Main Site" https://example.com
+/seo-project set "example-client" "main-site"
+
+# Run audits (saves to clients/example-client/main-site/reports/)
+/seo-technical https://example.com
+/seo-page https://example.com
+/seo-audit https://example.com
+
+# Switch to another project
+/seo-project set "other-client" "other-project"
+```
 
 ---
 
@@ -459,7 +373,7 @@ After setting up a project:
 
 1. Set as active: `/seo-project set <client> <project>`
 2. Run initial audit: `/seo-audit <url>`
-3. Set up WordPress integration: `/seo-wordpress setup`
+3. Set up WordPress integration: `/seo-wordpress setup` (future)
 4. Configure baseline: `/seo-drift baseline <url>`
 
 ---

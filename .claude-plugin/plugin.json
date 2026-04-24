@@ -42,5 +42,83 @@
     "google-shopping",
     "cultural-profiles",
     "content-parity"
-  ]
+  ],
+  "skills": {
+    "seo-client": {
+      "args": [
+        {
+          "label": "add <client-name>",
+          "description": "Create a new client with folder structure"
+        },
+        {
+          "label": "list",
+          "description": "List all clients with project counts"
+        },
+        {
+          "label": "info <client-name>",
+          "description": "Show detailed client information"
+        }
+      ]
+    },
+    "seo-project": {
+      "args": [
+        {
+          "label": "add <client> <project> <url>",
+          "description": "Create a new project under a client"
+        },
+        {
+          "label": "set <client> <project>",
+          "description": "Set active project (all audits save here)"
+        },
+        {
+          "label": "list [client]",
+          "description": "List all projects or filter by client"
+        },
+        {
+          "label": "info",
+          "description": "Show active project details"
+        }
+      ]
+    },
+    "seo-wordpress": {
+      "args": [
+        {
+          "label": "setup",
+          "description": "Configure WordPress connection (checks .env, prompts for credentials)"
+        },
+        {
+          "label": "test",
+          "description": "Test existing WordPress connection"
+        },
+        {
+          "label": "info",
+          "description": "Display WordPress connection configuration"
+        }
+      ]
+    },
+    "seo-images-manager": {
+      "args": [
+        {
+          "label": "analyze",
+          "description": "Scan images/original/ and extract metadata (EXIF, dimensions, filesize)"
+        },
+        {
+          "label": "plan <target-url>",
+          "description": "Analyze page context and propose SEO keywords for images (checks cannibalization)"
+        },
+        {
+          "label": "rename",
+          "description": "Rename and optimize images with SEO-friendly filenames (compress, resize)"
+        },
+        {
+          "label": "upload [--all | --id <id>]",
+          "description": "Upload optimized images to WordPress with metadata (synced = true)"
+        },
+        {
+          "label": "status",
+          "description": "Show image SEO status (total, synced, pending)"
+        }
+      ]
+    }
+  }
 }

@@ -22,13 +22,12 @@ claude-seo/
   .claude-plugin/
     plugin.json                    # Plugin manifest (v1.9.0)
     marketplace.json               # Marketplace catalog for distribution
-  skills/                            # 24 skills (auto-discovered)
+  skills/                            # 25 skills (auto-discovered)
     seo/                           # Main orchestrator skill
       SKILL.md                     # Entry point, routing table, core rules
       references/                  # On-demand knowledge files (12 files)
-    seo-client-manager/            # Client and project management
-      SKILL.md                     # Multi-client organization
-      references/                  # Folder structure documentation
+    seo-client/SKILL.md           # Client management (add, list, info)
+    seo-project/SKILL.md          # Project management (add, set, list, info)
     seo-audit/SKILL.md            # Full site audit with parallel agents
     seo-page/SKILL.md            # Deep single-page analysis
     seo-technical/SKILL.md       # Technical SEO (9 categories)
