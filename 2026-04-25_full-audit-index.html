@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full SEO Audit - example.com</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <style>
+        :root {
+            --primary: #1e3a5f;
+            --gold: #b8860b;
+            --green: #2d6a4f;
+            --amber: #d4740e;
+            --red: #c53030;
+        }
+        body { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .header { text-align: center; margin-bottom: 3rem; }
+        .header h1 { color: var(--primary); margin-bottom: 0.5rem; }
+        .header .domain { color: var(--gold); font-size: 1.2rem; }
+        .score-card { background: linear-gradient(135deg, var(--primary) 0%, #2c5282 100%); color: white; padding: 2rem; border-radius: 12px; text-align: center; margin: 2rem 0; }
+        .score-card .score { font-size: 4rem; font-weight: bold; margin: 0; }
+        .score-card .grade { font-size: 2rem; opacity: 0.9; }
+        .reports-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .report-card { background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; transition: transform 0.2s, box-shadow 0.2s; }
+        .report-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); border-color: var(--primary); }
+        .report-card h3 { color: var(--primary); margin-top: 0; }
+        .report-card .score { font-size: 2rem; font-weight: bold; margin: 1rem 0; }
+        .report-card .score.fail { color: var(--red); }
+        .report-card .score.warning { color: var(--amber); }
+        .report-card .score.pass { color: var(--green); }
+        .report-card a { display: inline-block; margin-top: 1rem; padding: 0.5rem 1.5rem; background: var(--primary); color: white; text-decoration: none; border-radius: 6px; transition: background 0.2s; }
+        .report-card a:hover { background: #2c5282; }
+        .summary { background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin: 2rem 0; border-left: 4px solid var(--gold); }
+        .priority { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.875rem; font-weight: bold; color: white; margin-right: 0.5rem; }
+        .priority.critical { background: var(--red); }
+        .priority.high { background: var(--amber); }
+        .priority.medium { background: var(--primary); }
+        .footer { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 2px solid #e2e8f0; color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Full SEO Audit Report</h1>
+        <div class="domain">example.com</div>
+        <p><strong>Audit Date:</strong> April 25, 2026 | <strong>Client:</strong> Prova / test</p>
+    </div>
+
+    <div class="score-card">
+        <div class="score">45/100</div>
+        <div class="grade">Grade: D-</div>
+        <p style="margin-top: 1rem; opacity: 0.9;">Needs Immediate Attention</p>
+    </div>
+
+    <div class="summary">
+        <h2>📊 Executive Summary</h2>
+        <p>This comprehensive SEO audit reveals critical issues blocking search engine indexation. The most urgent issue is the site-wide <code>noindex, nofollow</code> directive preventing all pages from being indexed by Google, Bing, and other search engines.</p>
+
+        <h3>🚨 Critical Issues (Fix Today)</h3>
+        <ul>
+            <li><span class="priority critical">CRITICAL</span> Remove <code>noindex, nofollow</code> meta tag blocking all indexation</li>
+            <li><span class="priority critical">CRITICAL</span> Add canonical tags to prevent duplicate content</li>
+            <li><span class="priority critical">CRITICAL</span> Fix sitemap HTTPS URLs (currently using HTTP)</li>
+            <li><span class="priority high">HIGH</span> Implement Hotel schema markup with aggregateRating</li>
+            <li><span class="priority high">HIGH</span> Add security headers (HSTS, CSP, X-Frame-Options)</li>
+        </ul>
+
+        <h3>📈 Projected Improvement Timeline</h3>
+        <ul>
+            <li><strong>Today</strong> (2-3 hours, fix critical issues): 45 → <strong>70</strong></li>
+            <li><strong>Week 1</strong> (8-10 hours, high priority): 70 → <strong>82</strong></li>
+            <li><strong>Weeks 2-3</strong> (12-15 hours, medium priority): 82 → <strong>88</strong></li>
+            <li><strong>Month 2</strong> (5-8 hours, optimizations): 88 → <strong>92</strong></li>
+        </ul>
+    </div>
+
+    <h2>📑 Detailed Reports</h2>
+    <div class="reports-grid">
+        <div class="report-card">
+            <h3>🔧 Technical SEO</h3>
+            <div class="score fail">52/100</div>
+            <p><strong>Status:</strong> Critical failures in crawlability and indexability</p>
+            <ul style="font-size: 0.9rem; color: #64748b;">
+                <li>Noindex blocking all pages</li>
+                <li>Missing canonical tags</li>
+                <li>HTTP URLs in sitemap</li>
+                <li>Missing security headers</li>
+            </ul>
+            <a href="2026-04-25_technical-seo-audit.html">View Full Report</a>
+        </div>
+
+        <div class="report-card">
+            <h3>📝 Content Quality</h3>
+            <div class="score fail">35/100</div>
+            <p><strong>Status:</strong> Weak E-E-A-T signals, thin content</p>
+            <ul style="font-size: 0.9rem; color: #64748b;">
+                <li>Experience: 0/100</li>
+                <li>Expertise: 0/100</li>
+                <li>Authoritativeness: 10/100</li>
+                <li>Trustworthiness: 71/100</li>
+            </ul>
+            <a href="2026-04-25_content-quality-audit.html">View Full Report</a>
+        </div>
+
+        <div class="report-card">
+            <h3>🏷️ Schema Markup</h3>
+            <div class="score fail">30/100</div>
+            <p><strong>Status:</strong> Missing critical Hotel schema</p>
+            <ul style="font-size: 0.9rem; color: #64748b;">
+                <li>No aggregateRating</li>
+                <li>No openingHoursSpecification</li>
+                <li>Missing address details</li>
+                <li>No amenities list</li>
+            </ul>
+            <a href="2026-04-25_schema-analysis.html">View Analysis</a>
+            <a href="2026-04-25_schema-implementation-checklist.html" style="background: var(--gold);">Implementation Guide</a>
+        </div>
+    </div>
+
+    <div class="summary" style="background: #f0f9ff; border-left-color: var(--primary);">
+        <h2>🎯 Next Steps</h2>
+        <ol>
+            <li><strong>Remove noindex tag</strong> from all pages (30 min) → Immediate +25 points</li>
+            <li><strong>Add canonical tags</strong> site-wide (15 min)</li>
+            <li><strong>Fix sitemap HTTPS</strong> URLs (10 min)</li>
+            <li><strong>Implement Hotel schema</strong> (45 min) → +15 points</li>
+            <li><strong>Add comparison table</strong> above-fold (60 min) → +10 points</li>
+            <li><strong>Enable security headers</strong> (30 min)</li>
+            <li><strong>Expand content</strong> to 1,100+ words (120 min) → +12 points</li>
+        </ol>
+    </div>
+
+    <div class="footer">
+        <p><strong>Generated by:</strong> Claude SEO v1.9.0</p>
+        <p>Comprehensive SEO analysis across technical, content, schema, local, and search experience optimization</p>
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #e2e8f0;">
+        <p style="font-size: 0.875rem;">
+            Built by <strong>agricidaniel</strong> — Join the AI Marketing Hub community<br>
+            🆓 Free → <a href="https://www.skool.com/ai-marketing-hub">https://www.skool.com/ai-marketing-hub</a><br>
+            ⚡ Pro → <a href="https://www.skool.com/ai-marketing-hub-pro">https://www.skool.com/ai-marketing-hub-pro</a>
+        </p>
+    </div>
+</body>
+</html>

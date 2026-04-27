@@ -70,7 +70,7 @@ def analyze_images(project_path):
         "images": results
     }
 
-def plan_seo(project_path, target_url):
+def plan_seo(project_path, target_url, selected_ids=None):
     """
     Plan SEO keywords and metadata for images.
 
@@ -79,7 +79,7 @@ def plan_seo(project_path, target_url):
     from image_seo_planner import ImageSEOPlanner
 
     planner = ImageSEOPlanner(project_path)
-    plan = planner.create_plan(target_url)
+    plan = planner.create_plan(target_url, selected_ids)
 
     return {
         "success": True,
@@ -87,7 +87,7 @@ def plan_seo(project_path, target_url):
         "plan": plan
     }
 
-def rename_images(project_path):
+def rename_images(project_path, selected_ids=None):
     """
     Rename and optimize images based on SEO plan.
 
@@ -96,7 +96,7 @@ def rename_images(project_path):
     from image_optimizer import ImageOptimizer
 
     optimizer = ImageOptimizer(project_path)
-    results = optimizer.process_all()
+    results = optimizer.process_all(selected_ids)
 
     return {
         "success": True,
@@ -104,7 +104,7 @@ def rename_images(project_path):
         "results": results
     }
 
-def upload_images(project_path, image_id=None, upload_all=False):
+def upload_images(project_path, image_id=None, upload_all=False, selected_ids=None):
     """
     Upload optimized images to WordPress.
 
@@ -114,20 +114,34 @@ def upload_images(project_path, image_id=None, upload_all=False):
 
     uploader = ImageUploader(project_path)
 
-    if upload_all:
+    if selected_ids:
+        results = uploader.upload_by_ids(selected_ids)
+    elif upload_all:
         results = uploader.upload_all_pending()
     elif image_id:
         results = uploader.upload_by_id(image_id)
     else:
         return {
             "success": False,
-            "error": "Specify --all or --id <id>"
+            "error": "Specify --all, --id <id>, or --ids <id1,id2,id3>"
         }
 
     return {
         "success": True,
         "uploaded": len(results),
         "results": results
+    }
+
+def list_images_cmd(project_path, filter_status='all'):
+    """List images with status information."""
+    from image_selector import list_images
+    images = list_images(project_path, filter_status)
+
+    return {
+        "success": True,
+        "total": len(images),
+        "filter": filter_status,
+        "images": images
     }
 
 def show_status(project_path):
@@ -178,20 +192,29 @@ def main():
     analyze_parser = subparsers.add_parser("analyze", help="Analyze images in original/ folder")
     analyze_parser.add_argument("--project", required=True, help="Project path")
 
+    # List command
+    list_parser = subparsers.add_parser("list", help="List images with status")
+    list_parser.add_argument("--project", required=True, help="Project path")
+    list_parser.add_argument("--filter", choices=['all', 'pending', 'planned', 'optimized', 'synced'],
+                            default='all', help="Filter images by status")
+
     # Plan command
     plan_parser = subparsers.add_parser("plan", help="Plan SEO keywords for images")
     plan_parser.add_argument("--project", required=True, help="Project path")
     plan_parser.add_argument("--url", required=True, help="Target page URL")
+    plan_parser.add_argument("--ids", help="Comma-separated image IDs to process (e.g., 1,2,3)")
 
     # Rename command
     rename_parser = subparsers.add_parser("rename", help="Rename and optimize images")
     rename_parser.add_argument("--project", required=True, help="Project path")
+    rename_parser.add_argument("--ids", help="Comma-separated image IDs to process (e.g., 1,2,3)")
 
     # Upload command
     upload_parser = subparsers.add_parser("upload", help="Upload images to WordPress")
     upload_parser.add_argument("--project", required=True, help="Project path")
     upload_parser.add_argument("--all", action="store_true", help="Upload all pending images")
     upload_parser.add_argument("--id", type=int, help="Upload specific image by ID")
+    upload_parser.add_argument("--ids", help="Comma-separated image IDs to upload (e.g., 1,2,3)")
 
     # Status command
     status_parser = subparsers.add_parser("status", help="Show image SEO status")
@@ -204,19 +227,34 @@ def main():
         sys.exit(1)
 
     # Initialize database for project
-    if args.command in ['analyze', 'plan', 'rename', 'upload']:
+    if args.command in ['analyze', 'plan', 'rename', 'upload', 'list']:
         db_path = get_db_path(args.project)
         init_database(db_path)
+
+    # Parse IDs if provided
+    selected_ids = None
+    if hasattr(args, 'ids') and args.ids:
+        try:
+            selected_ids = [int(id.strip()) for id in args.ids.split(',')]
+        except ValueError:
+            result = {"success": False, "error": "Invalid IDs format. Use: 1,2,3"}
+            print(json.dumps(result, indent=2))
+            sys.exit(1)
 
     # Execute command
     if args.command == "analyze":
         result = analyze_images(args.project)
+    elif args.command == "list":
+        result = list_images_cmd(args.project, args.filter)
     elif args.command == "plan":
-        result = plan_seo(args.project, args.url)
+        result = plan_seo(args.project, args.url, selected_ids)
     elif args.command == "rename":
-        result = rename_images(args.project)
+        result = rename_images(args.project, selected_ids)
     elif args.command == "upload":
-        result = upload_images(args.project, args.id, args.all)
+        if selected_ids:
+            result = upload_images(args.project, None, False, selected_ids)
+        else:
+            result = upload_images(args.project, args.id, args.all)
     elif args.command == "status":
         result = show_status(args.project)
     else:

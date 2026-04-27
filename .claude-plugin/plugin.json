@@ -103,15 +103,19 @@
           "description": "Scan images/original/ and extract metadata (EXIF, dimensions, filesize)"
         },
         {
-          "label": "plan <target-url>",
+          "label": "list [--filter pending|planned|optimized|synced]",
+          "description": "List all images with status badges (📸 pending, 📝 planned, ⚙️ optimized, ✅ synced)"
+        },
+        {
+          "label": "plan <target-url> [--ids 1,2,3]",
           "description": "Analyze page context and propose SEO keywords for images (checks cannibalization)"
         },
         {
-          "label": "rename",
+          "label": "rename [--ids 1,2,3]",
           "description": "Rename and optimize images with SEO-friendly filenames (compress, resize)"
         },
         {
-          "label": "upload [--all | --id <id>]",
+          "label": "upload [--all | --id <id> | --ids 1,2,3]",
           "description": "Upload optimized images to WordPress with metadata (synced = true)"
         },
         {

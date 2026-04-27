@@ -40,9 +40,12 @@ class ImageOptimizer:
         # Create optimized directory
         self.optimized_dir.mkdir(parents=True, exist_ok=True)
 
-    def process_all(self):
+    def process_all(self, selected_ids=None):
         """
-        Process all images with SEO metadata.
+        Process all images with SEO metadata (or selected images).
+
+        Args:
+            selected_ids: Optional list of image IDs to process
 
         Returns:
             list: Optimization results for each image
@@ -51,13 +54,25 @@ class ImageOptimizer:
         conn.row_factory = sqlite3.Row
 
         # Get images with SEO metadata but not yet optimized
-        images = conn.execute("""
-            SELECT id, original_filename, original_path, seo_filename,
-                   alt_text, title, caption
-            FROM images
-            WHERE seo_filename IS NOT NULL AND optimized_path IS NULL
-            ORDER BY created_at ASC
-        """).fetchall()
+        if selected_ids:
+            # Filter by specific IDs
+            placeholders = ','.join('?' * len(selected_ids))
+            query = f"""
+                SELECT id, original_filename, original_path, seo_filename,
+                       alt_text, title, caption
+                FROM images
+                WHERE id IN ({placeholders}) AND seo_filename IS NOT NULL
+                ORDER BY created_at ASC
+            """
+            images = conn.execute(query, selected_ids).fetchall()
+        else:
+            images = conn.execute("""
+                SELECT id, original_filename, original_path, seo_filename,
+                       alt_text, title, caption
+                FROM images
+                WHERE seo_filename IS NOT NULL AND optimized_path IS NULL
+                ORDER BY created_at ASC
+            """).fetchall()
 
         if not images:
             conn.close()

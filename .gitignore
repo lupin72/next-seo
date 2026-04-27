@@ -144,3 +144,5 @@ scripts/generate_setup_guide.py
 
 # Generated site builds
 site/
+
+NEXT-SEO-SPEC.md

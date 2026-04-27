@@ -38,12 +38,13 @@ class ImageSEOPlanner:
         self.project_path = Path(project_path)
         self.db_path = self.project_path / "images" / "images.db"
 
-    def create_plan(self, target_url):
+    def create_plan(self, target_url, selected_ids=None):
         """
-        Create SEO plan for all unsynced images.
+        Create SEO plan for all unsynced images (or selected images).
 
         Args:
             target_url: URL of page where images will be used
+            selected_ids: Optional list of image IDs to process
 
         Returns:
             dict: Plan with keyword proposals for each image
@@ -55,12 +56,24 @@ class ImageSEOPlanner:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
 
-        images = conn.execute("""
-            SELECT id, original_filename, dimensions, exif_data
-            FROM images
-            WHERE synced = 0 AND target_url IS NULL
-            ORDER BY created_at ASC
-        """).fetchall()
+        if selected_ids:
+            # Filter by specific IDs
+            placeholders = ','.join('?' * len(selected_ids))
+            query = f"""
+                SELECT id, original_filename, dimensions, exif_data
+                FROM images
+                WHERE id IN ({placeholders})
+                ORDER BY created_at ASC
+            """
+            images = conn.execute(query, selected_ids).fetchall()
+        else:
+            # Get all unsynced images without target_url
+            images = conn.execute("""
+                SELECT id, original_filename, dimensions, exif_data
+                FROM images
+                WHERE synced = 0 AND target_url IS NULL
+                ORDER BY created_at ASC
+            """).fetchall()
 
         if not images:
             conn.close()

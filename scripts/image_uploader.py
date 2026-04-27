@@ -154,6 +154,42 @@ class ImageUploader:
         conn.close()
         return result
 
+    def upload_by_ids(self, image_ids):
+        """Upload multiple images by database IDs."""
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+
+        # Get images ready for upload
+        placeholders = ','.join('?' * len(image_ids))
+        query = f"""
+            SELECT id, seo_filename, optimized_path,
+                   alt_text, title, caption, target_url
+            FROM images
+            WHERE id IN ({placeholders}) AND synced = 0
+            ORDER BY created_at ASC
+        """
+        images = conn.execute(query, image_ids).fetchall()
+
+        if not images:
+            conn.close()
+            return []
+
+        results = []
+        for img in images:
+            result = self.upload_image(
+                image_id=img['id'],
+                optimized_path=img['optimized_path'],
+                alt_text=img['alt_text'],
+                title=img['title'],
+                caption=img['caption'],
+                target_url=img['target_url'],
+                conn=conn
+            )
+            results.append(result)
+
+        conn.close()
+        return results
+
     def upload_image(self, image_id, optimized_path, alt_text, title, caption, target_url, conn):
         """
         Upload single image to WordPress.
