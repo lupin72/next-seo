@@ -21,18 +21,98 @@ images/original/          images/optimized/        WordPress
     |                          |                        |
     | 1. Analyze               |                        |
     | (EXIF, dimensions)       |                        |
+    | INCREMENTAL ✓            |                        |
     |                          |                        |
     | 2. Plan                  |                        |
     | (keywords, page context) |                        |
+    | 🔘 CHECKPOINT #1         |                        |
     |                          |                        |
     | 3. Rename & Optimize     |                        |
     | (SEO filename, compress) |--------> ✓             |
     |                          |                        |
     | 4. Upload                |                        |
-    | (synced = false)         |                 -----> ✓
+    | 🔘 CHECKPOINT #2 ⚠️      |                 -----> ✓
+    | (OBBLIGATORIO)           |                        |
     |                          |                        |
     | (synced = true)          |                        |
 ```
+
+**Key Features:**
+- ✅ **Incremental Analysis**: Scans ONLY new images not yet in database
+- ✅ **Interactive Checkpoints**: User confirms selections via checkbox at key stages
+- ✅ **Keyword Cannibalization**: Automatic detection and prevention
+- ✅ **WordPress Integration**: Direct upload with metadata sync
+
+---
+
+## Interactive Checkpoints
+
+This skill uses **interactive checkpoints** to give you full control over which images to process at each stage.
+
+### Checkpoint #1: After Plan (Keyword Selection)
+
+**When:** After `/seo-images-manager plan <url>` generates keyword proposals
+
+**Purpose:** Select which images to optimize with the proposed keywords
+
+**UI:** Multi-select checkbox with:
+- Image ID and original filename
+- Proposed SEO filename
+- Target keyword
+- Alt text preview
+- ⚠️ Cannibalization warnings
+
+**Action:** System saves SEO metadata ONLY for selected images
+
+**Example:**
+```
+🔘 Quali immagini vuoi ottimizzare?
+
+☑ ID 1: IMG_1234.jpg → hotels-in-rome-luxury-suite.jpg
+  Keyword: hotels in rome luxury suite
+
+☐ ID 3: photo_01.png → rome-hotel-rooftop.jpg
+  Keyword: rome hotel rooftop ⚠️ Low quality
+
+[Conferma: 4/5 images selected]
+```
+
+---
+
+### Checkpoint #2: Before Upload (OBBLIGATORIO)
+
+**When:** ALWAYS before `/seo-images-manager upload`
+
+**Purpose:** Confirm WordPress upload to prevent accidental uploads
+
+**UI:** Multi-select checkbox with:
+- WordPress URL and media folder
+- Image filename and size
+- Alt text that will be set
+- Upload confirmation
+
+**Action:** Upload proceeds ONLY for confirmed images
+
+**Example:**
+```
+⚠️ CONFERMA UPLOAD SU WORDPRESS
+
+WordPress: https://example.com
+Folder: seo-optimized/
+
+🔘 Confermi l'upload?
+
+☑ ID 1: hotels-in-rome-luxury-suite.jpg | 450 KB
+  Alt: Hotels in rome luxury suite - Top 10...
+
+[Conferma: 3/4 images]
+```
+
+---
+
+**Implementation Details:** See [UX-CHECKPOINTS.md](UX-CHECKPOINTS.md) for complete checkpoint implementation guide.
+
+---
 
 ## Commands
 
@@ -72,24 +152,73 @@ Scan `images/original/` directory, extract EXIF metadata, save to database.
 python scripts/image_manager.py analyze --project clients/prova/test
 ```
 
+**Note:** Analysis is **incremental** - only scans images not yet in database.
+
 ---
 
-### `/seo-images-manager plan <target-url>`
+### `/seo-images-manager list [--filter <status>]`
+
+List all images with status badges for visual inspection.
+
+**Arguments:**
+- `--filter` (optional): Filter by status
+  - `pending`: Images analyzed but not planned
+  - `planned`: Images with keywords but not optimized
+  - `optimized`: Images optimized but not uploaded
+  - `synced`: Images already uploaded to WordPress
+  - `all`: All images (default)
+
+**Output:**
+```
+📊 Immagini da pianificare
+
+📸 ID 1 | IMG_1234.jpg | 2.5 MB
+📸 ID 2 | IMG_5678.jpg | 3.8 MB
+📝 ID 3 | rome-hotel.jpg | KW: rome hotel breakfast
+⚙️ ID 4 | hotels-rome.jpg | 450 KB | KW: hotels in rome
+✅ ID 5 | colosseum.jpg | WP #123 | KW: rome colosseum
+
+Total: 5 images
+```
+
+**Status Badges:**
+- 📸 **Pending**: Not yet planned
+- 📝 **Planned**: Keywords assigned, ready for optimization
+- ⚙️ **Optimized**: File optimized, ready for upload
+- ✅ **Synced**: Uploaded to WordPress
+
+**Implementation:**
+```bash
+python scripts/image_manager.py list --project clients/prova/test --filter pending
+```
+
+**Use Cases:**
+- Check which images are ready for planning
+- Verify optimized images before upload
+- Inspect synced images with WordPress Media IDs
+- Quick status overview at any stage
+
+---
+
+### `/seo-images-manager plan <target-url> [--ids <id1,id2,id3>]`
 
 Analyze target page and propose SEO keywords for each image, checking for cannibalization.
 
 **Arguments:**
 - `target-url` (required): URL of page where images will be used
+- `--ids` (optional): Process only specific image IDs (comma-separated)
 
 **Actions:**
 1. Fetches target page (title, H1, meta description, existing images)
 2. Extracts primary keyword from page context
-3. For each unsynced image:
+3. For each unsynced image (or specified via --ids):
    - Generates 5 keyword variants based on filename + page context
    - Checks cannibalization against existing image keywords
    - Checks similarity to page primary keyword (>80% = risk)
    - Proposes SEO filename, alt text, title, caption
 4. Returns proposals for user review
+5. **🔘 CHECKPOINT #1**: User selects which images to optimize via checkbox
+6. Saves SEO metadata ONLY for selected images
 
 **Output:**
 ```json
@@ -130,19 +259,32 @@ Analyze target page and propose SEO keywords for each image, checking for cannib
 
 **Implementation:**
 ```bash
+# Plan all pending images
 python scripts/image_manager.py plan \
   --project clients/prova/test \
   --url https://example.com/blog/post
+
+# Plan only specific images
+python scripts/image_manager.py plan \
+  --project clients/prova/test \
+  --url https://example.com/blog/post \
+  --ids 1,2,5
 ```
+
+**Checkpoint Behavior:**
+After showing proposals, skill will use `AskUserQuestion` with multi-select to let you choose which images to proceed with. See [UX-CHECKPOINTS.md](UX-CHECKPOINTS.md) for details.
 
 ---
 
-### `/seo-images-manager rename`
+### `/seo-images-manager rename [--ids <id1,id2,id3>]`
 
 Rename and optimize images based on SEO plan.
 
+**Arguments:**
+- `--ids` (optional): Process only specific image IDs (comma-separated)
+
 **Actions:**
-1. Reads images with `seo_filename` but no `optimized_path`
+1. Reads images with `seo_filename` but no `optimized_path` (or specified via --ids)
 2. For each image:
    - Opens original image
    - Resizes if needed (max 1600px width, maintains aspect ratio)
@@ -175,28 +317,38 @@ Rename and optimize images based on SEO plan.
 
 **Implementation:**
 ```bash
+# Rename all planned images
 python scripts/image_manager.py rename --project clients/prova/test
+
+# Rename only specific images
+python scripts/image_manager.py rename --project clients/prova/test --ids 1,2,4
 ```
 
 ---
 
-### `/seo-images-manager upload [--all | --id <id>]`
+### `/seo-images-manager upload [--all | --id <id> | --ids <id1,id2,id3>]`
 
-Upload optimized images to WordPress.
+Upload optimized images to WordPress with **mandatory confirmation checkpoint**.
 
 **Arguments:**
-- `--all` (optional): Upload all pending images
+- `--all` (optional): Show all pending images for selection
 - `--id <id>` (optional): Upload specific image by database ID
+- `--ids <id1,id2,id3>` (optional): Show specific images for selection
 
 **Actions:**
 1. Reads WordPress credentials from `.env`
 2. Detects REST API path (`/wp-json/` or `/index.php?rest_route=/`)
-3. For each image:
+3. **🔘 CHECKPOINT #2 (OBBLIGATORIO)**: Shows confirmation with:
+   - WordPress URL and media folder
+   - List of images with size and alt text
+   - Multi-select checkbox for confirmation
+4. For each CONFIRMED image:
    - Reads optimized file
    - Uploads via WordPress REST API
    - Sets alt text, title, caption
    - Updates database with WordPress media ID and URL
    - Sets `synced = true`
+5. Tracks skipped images for later upload
 
 **Output:**
 ```json
@@ -218,12 +370,20 @@ Upload optimized images to WordPress.
 
 **Implementation:**
 ```bash
-# Upload all pending
+# Show all pending for confirmation
 python scripts/image_manager.py upload --project clients/prova/test --all
 
-# Upload specific image
+# Show specific image for confirmation
 python scripts/image_manager.py upload --project clients/prova/test --id 1
+
+# Show multiple specific images for confirmation
+python scripts/image_manager.py upload --project clients/prova/test --ids 1,2,4
 ```
+
+**⚠️ Important:** Upload ALWAYS requires user confirmation via checkbox, even when using `--all` or `--id`. This prevents accidental uploads to WordPress.
+
+**Checkpoint Behavior:**
+After showing the list of images ready for upload, skill will use `AskUserQuestion` to confirm WordPress upload. User can deselect images from the confirmation dialog. See [UX-CHECKPOINTS.md](UX-CHECKPOINTS.md) for details.
 
 ---
 
@@ -404,7 +564,7 @@ WP_VERIFY_SSL=true
 
 ---
 
-## User Workflow Example
+## User Workflow Example (with Checkpoints)
 
 **Scenario:** User has 5 images to optimize for a blog post about Rome hotels.
 
@@ -414,16 +574,18 @@ WP_VERIFY_SSL=true
 cp ~/Photos/*.jpg clients/prova/test/images/original/
 ```
 
-**Step 2: Analyze images**
+**Step 2: Analyze images (INCREMENTAL)**
 ```
 /seo-images-manager analyze
 ```
 
 **Output:**
 ```
-✅ Found 5 images in images/original/
+🔍 Scanning images/original/...
 
-Images analyzed:
+✅ Found 5 NEW images (5 total in database)
+
+New images:
   1. IMG_1234.jpg (3000x2000, 2.5 MB)
   2. IMG_5678.jpg (4000x3000, 3.8 MB)
   3. photo_01.png (2400x1600, 1.2 MB)
@@ -433,12 +595,30 @@ Images analyzed:
 Database updated: 5 new records
 ```
 
-**Step 3: Plan SEO metadata**
+**Step 3: Review pending images (optional)**
+```
+/seo-images-manager list --filter pending
+```
+
+**Output:**
+```
+📊 Immagini da pianificare
+
+📸 ID 1 | IMG_1234.jpg | 2.5 MB
+📸 ID 2 | IMG_5678.jpg | 3.8 MB
+📸 ID 3 | photo_01.png | 1.2 MB
+📸 ID 4 | IMG_9999.jpg | 900 KB
+📸 ID 5 | colosseum.jpg | 1.5 MB
+
+Total: 5 images
+```
+
+**Step 4: Plan SEO metadata**
 ```
 /seo-images-manager plan https://example.com/blog/top-10-hotels-rome
 ```
 
-**Output:**
+**Output with CHECKPOINT #1:**
 ```
 📊 Page Context
    URL: https://example.com/blog/top-10-hotels-rome
@@ -449,72 +629,154 @@ Database updated: 5 new records
 📸 Keyword Proposals
 
 Image 1: IMG_1234.jpg
-  ✓ hotels in rome luxury suite (selected)
-  ✗ rome hotels (too similar to primary keyword)
-  ✓ luxury suite rome
+  ✓ hotels in rome luxury suite (RECOMMENDED)
+  ✗ rome hotels (too similar to primary - 100%)
 
   SEO Metadata:
     Filename: hotels-in-rome-luxury-suite.jpg
-    Alt text: Hotels in rome luxury suite - Top 10 Hotels in Rome
-    Title: Hotels In Rome Luxury Suite
+    Alt: Hotels in rome luxury suite - Top 10 Hotels in Rome
 
 Image 2: IMG_5678.jpg
-  ✓ rome hotel breakfast buffet (selected)
-  ✓ italian breakfast rome
+  ✓ rome hotel breakfast buffet (RECOMMENDED)
 
   SEO Metadata:
     Filename: rome-hotel-breakfast-buffet.jpg
-    Alt text: Rome hotel breakfast buffet - Top 10 Hotels in Rome
-    Title: Rome Hotel Breakfast Buffet
+    Alt: Rome hotel breakfast buffet - Top 10 Hotels in Rome
 
-[... 3 more images ...]
+[... Images 3, 4, 5 ...]
 
-✅ SEO plan created for 5 images
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔘 CHECKPOINT: Quali immagini vuoi ottimizzare?
+
+☑ ID 1: IMG_1234.jpg → hotels-in-rome-luxury-suite.jpg
+  Keyword: hotels in rome luxury suite
+
+☑ ID 2: IMG_5678.jpg → rome-hotel-breakfast-buffet.jpg
+  Keyword: rome hotel breakfast buffet
+
+☐ ID 3: photo_01.png → rome-hotel-rooftop.jpg
+  ⚠️ Low quality image
+
+☑ ID 4: IMG_9999.jpg → rome-hotel-spa-wellness.jpg
+  Keyword: rome hotel spa wellness
+
+☑ ID 5: colosseum.jpg → rome-colosseum-hotel-view.jpg
+  Keyword: rome colosseum hotel view
+
+[Conferma selezione: 4/5]
 ```
 
-**Step 4: Rename and optimize**
+**User selects 4/5 images (skips ID 3 for low quality):**
+
+```
+✅ SEO plan saved for 4 images
+⏭️ Skipped 1 image (ID 3)
+
+Next: /seo-images-manager rename
+```
+
+**Step 5: Rename and optimize**
 ```
 /seo-images-manager rename
 ```
 
 **Output:**
 ```
-⚙️ Optimizing 5 images...
+⚙️ Optimizing 4 images...
 
-✓ hotels-in-rome-luxury-suite.jpg (3000x2000 → 1600x1067, 2.5 MB → 450 KB, 82% saved)
-✓ rome-hotel-breakfast-buffet.jpg (4000x3000 → 1600x1200, 3.8 MB → 520 KB, 86% saved)
-✓ rome-hotel-rooftop-terrace.jpg (2400x1600 → 1600x1067, 1.2 MB → 380 KB, 68% saved)
-✓ rome-hotel-spa-wellness.jpg (1920x1080 → 1600x900, 900 KB → 320 KB, 64% saved)
-✓ rome-colosseum-hotel-view.jpg (2560x1440 → 1600x900, 1.5 MB → 420 KB, 72% saved)
+✓ ID 1: hotels-in-rome-luxury-suite.jpg
+  3000x2000 → 1600x1067 | 2.5 MB → 450 KB | 82% saved
 
-✅ 5 images optimized
-   Total saved: 6.83 MB → 2.09 MB (69% reduction)
+✓ ID 2: rome-hotel-breakfast-buffet.jpg
+  4000x3000 → 1600x1200 | 3.8 MB → 520 KB | 86% saved
 
-   Files ready in: clients/prova/test/images/optimized/
+✓ ID 4: rome-hotel-spa-wellness.jpg
+  1920x1080 → 1600x900 | 900 KB → 320 KB | 64% saved
+
+✓ ID 5: rome-colosseum-hotel-view.jpg
+  2560x1440 → 1600x900 | 1.5 MB → 420 KB | 72% saved
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Total saved: 8.70 MB → 1.71 MB (80% reduction)
+
+Files ready in: clients/prova/test/images/optimized/
 ```
 
-**Step 5: Upload to WordPress**
+**Step 6: Review optimized images (optional)**
 ```
-/seo-images-manager upload --all
+/seo-images-manager list --filter optimized
 ```
 
 **Output:**
 ```
-⬆️ Uploading to WordPress...
+📊 Immagini ottimizzate (pronte per upload)
 
-✓ hotels-in-rome-luxury-suite.jpg → WordPress Media ID: 123
-  URL: https://example.com/wp-content/uploads/2026/04/hotels-in-rome-luxury-suite.jpg
+⚙️ ID 1 | hotels-in-rome-luxury-suite.jpg | 450 KB | KW: hotels in rome luxury suite
+⚙️ ID 2 | rome-hotel-breakfast-buffet.jpg | 520 KB | KW: rome hotel breakfast buffet
+⚙️ ID 4 | rome-hotel-spa-wellness.jpg | 320 KB | KW: rome hotel spa wellness
+⚙️ ID 5 | rome-colosseum-hotel-view.jpg | 420 KB | KW: rome colosseum hotel view
 
-✓ rome-hotel-breakfast-buffet.jpg → WordPress Media ID: 124
-  URL: https://example.com/wp-content/uploads/2026/04/rome-hotel-breakfast-buffet.jpg
-
-[... 3 more uploads ...]
-
-✅ 5 images uploaded to WordPress
-   All images marked as synced ✓
+Total: 4 images ready for upload
 ```
 
-**Step 6: Check status**
+**Step 7: Upload to WordPress (CHECKPOINT #2 OBBLIGATORIO)**
+```
+/seo-images-manager upload --all
+```
+
+**Output with CHECKPOINT #2:**
+```
+⚠️ CONFERMA UPLOAD SU WORDPRESS
+
+WordPress: https://example.com
+Media Folder: seo-optimized/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔘 CHECKPOINT: Confermi l'upload di 4 immagini?
+
+☑ ID 1: hotels-in-rome-luxury-suite.jpg | 450 KB
+  Alt: Hotels in rome luxury suite - Top 10 Hotels in Rome
+
+☑ ID 2: rome-hotel-breakfast-buffet.jpg | 520 KB
+  Alt: Rome hotel breakfast buffet - Top 10 Hotels in Rome
+
+☐ ID 4: rome-hotel-spa-wellness.jpg | 320 KB
+  Alt: Rome hotel spa wellness center - Top 10 Hotels in Rome
+  (Voglio rivedere questa prima)
+
+☑ ID 5: rome-colosseum-hotel-view.jpg | 420 KB
+  Alt: Rome colosseum hotel view - Top 10 Hotels in Rome
+
+[Conferma selezione: 3/4]
+```
+
+**User confirms 3/4 images (temporarily skips ID 4):**
+
+```
+⬆️ Uploading 3 images to WordPress...
+
+✓ hotels-in-rome-luxury-suite.jpg
+  WordPress Media ID: 123
+  URL: https://example.com/wp-content/uploads/2026/04/hotels-in-rome-luxury-suite.jpg
+
+✓ rome-hotel-breakfast-buffet.jpg
+  WordPress Media ID: 124
+  URL: https://example.com/wp-content/uploads/2026/04/rome-hotel-breakfast-buffet.jpg
+
+✓ rome-colosseum-hotel-view.jpg
+  WordPress Media ID: 125
+  URL: https://example.com/wp-content/uploads/2026/04/rome-colosseum-hotel-view.jpg
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ 3 images uploaded successfully
+⏭️ 1 image skipped (ID 4) - upload later with: /seo-images-manager upload --id 4
+```
+
+**Step 8: Check status**
 ```
 /seo-images-manager status
 ```
@@ -524,11 +786,40 @@ Image 2: IMG_5678.jpg
 📊 Image SEO Status
 
 Total images: 5
-Synced: 5 ✓
-Pending: 0
+  Synced: 3 ✅
+  Optimized: 1 ⚙️ (ready to upload)
+  Pending: 1 📸
 
-All images synced to WordPress ✓
+Recent activity:
+  ✅ Uploaded today: 3 images
+  ⚙️ Ready: ID 4 (rome-hotel-spa-wellness.jpg)
+  📸 Not planned: ID 3 (photo_01.png)
 ```
+
+**Step 9 (optional): Upload skipped image**
+```
+/seo-images-manager upload --id 4
+```
+
+**Output:**
+```
+⬆️ Uploading 1 image...
+
+✓ rome-hotel-spa-wellness.jpg
+  WordPress Media ID: 126
+  URL: https://example.com/wp-content/uploads/2026/04/rome-hotel-spa-wellness.jpg
+
+✅ Upload complete!
+```
+
+---
+
+**Key Improvements with Checkpoints:**
+- ✅ Full control at each stage (plan, upload)
+- ✅ Can skip low-quality images during planning
+- ✅ Can defer upload of specific images for review
+- ✅ No accidental WordPress uploads
+- ✅ Clear next steps after each action
 
 ---
 
@@ -628,7 +919,15 @@ Fetch actual keyword data from GSC:
 
 ---
 
-**Version:** 1.0.0
-**Last Updated:** 2026-04-24
+## Implementation Reference
+
+For detailed checkpoint implementation with code examples, see:
+- **[UX-CHECKPOINTS.md](UX-CHECKPOINTS.md)** - Complete guide with `AskUserQuestion` examples, helper functions, and testing checklist
+- **[NEXT-SEO-SPEC.md](../../NEXT-SEO-SPEC.md)** - Full project specifications with database schema and workflow details
+
+---
+
+**Version:** 1.1.0
+**Last Updated:** 2026-04-27
 **Skill Type:** Workflow Automation
 **Dependencies:** `pillow`, `requests`, `beautifulsoup4`, `python-dotenv`

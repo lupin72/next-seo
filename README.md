@@ -1,17 +1,23 @@
-<!-- Updated: 2026-04-14 -->
+<!-- Updated: 2026-04-27 -->
 
-![Claude SEO](screenshots/cover-image.jpeg)
+![Claude Next SEO](screenshots/cover-image.jpeg)
 
-# Claude SEO - SEO Audit Skill for Claude Code
+> **Note:** This is **Claude Next SEO** - an enhanced fork of [Claude SEO](https://github.com/AgriciDaniel/claude-seo) with multi-client management, WordPress integration, and automated image optimization workflows.
 
-Comprehensive SEO analysis skill for Claude Code. 20 core sub-skills covering technical SEO, on-page analysis, content quality (E-E-A-T), schema markup, image optimization, sitemap architecture, AI search optimization (GEO), local SEO, maps intelligence, semantic topic clustering, search experience optimization (SXO), SEO drift monitoring, e-commerce SEO, international SEO with cultural profiles, Google SEO APIs (Search Console, PageSpeed, CrUX, GA4), PDF report generation, and strategic planning.
+# Claude Next SEO - Multi-Client SEO Management for Claude Code
+
+Professional SEO analysis and management tool for agencies and consultants. Built on Claude SEO with added enterprise features: **multi-client/project management**, **WordPress REST API integration**, **automated image SEO workflow** with cannibalization prevention, and organized report storage.
+
+**Core Features:** 20+ sub-skills covering technical SEO, on-page analysis, content quality (E-E-A-T), schema markup, image optimization, sitemap architecture, AI search optimization (GEO), local SEO, maps intelligence, semantic topic clustering, search experience optimization (SXO), SEO drift monitoring, e-commerce SEO, international SEO, Google SEO APIs (Search Console, PageSpeed, CrUX, GA4), PDF report generation, and strategic planning.
+
+**New in Next SEO:** Client/project organization, WordPress upload automation, interactive image workflow with checkpoint confirmations, and SQLite-based tracking.
 
 ![SEO Command Demo](screenshots/seo-command-demo.gif)
 
-[![CI](https://github.com/AgriciDaniel/claude-seo/actions/workflows/ci.yml/badge.svg)](https://github.com/AgriciDaniel/claude-seo/actions/workflows/ci.yml)
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/github/v/release/AgriciDaniel/claude-seo)](https://github.com/AgriciDaniel/claude-seo/releases)
+[![Based on Claude SEO](https://img.shields.io/badge/Based%20on-Claude%20SEO%20v1.9.0-green)](https://github.com/AgriciDaniel/claude-seo)
+[![Next SEO](https://img.shields.io/badge/Next%20SEO-Multi--Client-orange)](https://github.com/AgriciDaniel/claude-seo)
 
 ## Table of Contents
 
@@ -81,6 +87,8 @@ powershell -ExecutionPolicy Bypass -File claude-seo\install.ps1
 
 ## Quick Start
 
+### Standard SEO Workflow (Single Project)
+
 ```bash
 # Start Claude Code
 claude
@@ -100,6 +108,35 @@ claude
 # Optimize for AI search
 /seo geo https://example.com
 ```
+
+### Multi-Client Workflow (New in Next SEO)
+
+```bash
+# 1. Setup client and project
+/seo-client add "Example Client"
+/seo-project add "example-client" "Main Site" https://example.com
+/seo-project set "example-client" "main-site"
+
+# 2. Configure WordPress connection
+/seo-wordpress setup
+
+# 3. Run audits (auto-saves to project folder)
+/seo-technical https://example.com
+/seo-page https://example.com
+
+# 4. Optimize images with interactive workflow
+cp ~/Photos/*.jpg clients/example-client/main-site/images/original/
+/seo-images-manager analyze
+/seo-images-manager plan https://example.com/blog/post
+# → Checkpoint #1: Select images via checkbox
+/seo-images-manager rename
+/seo-images-manager upload --all
+# → Checkpoint #2: Confirm WordPress upload
+
+# 5. Check project status
+/seo-project info
+/seo-images-manager status
+```
 ### Demo:
 [Watch the full demo on YouTube](https://www.youtube.com/watch?v=COMnNlUakQk)
 
@@ -108,6 +145,34 @@ claude
 ![SEO Audit Demo](screenshots/seo-audit-demo.gif)
 
 ## Commands
+
+### Multi-Client Management (New in Next SEO)
+
+| Command | Description |
+|---------|-------------|
+| `/seo-client add <name>` | Create new client with folder structure |
+| `/seo-client list` | List all clients with project counts |
+| `/seo-client info <name>` | Show detailed client information |
+| `/seo-project add <client> <name> <url>` | Create project under client |
+| `/seo-project set <client> <project>` | Set active project (all audits save here) |
+| `/seo-project list [client]` | List projects with audit history |
+| `/seo-project info` | Show active project details |
+| `/seo-wordpress setup` | Configure WordPress REST API connection |
+| `/seo-wordpress test` | Test existing WordPress connection |
+| `/seo-wordpress info` | Display WordPress configuration |
+
+### Image SEO Workflow (New in Next SEO)
+
+| Command | Description |
+|---------|-------------|
+| `/seo-images-manager analyze` | Scan images/original/ (incremental, ONLY new images) |
+| `/seo-images-manager list [--filter]` | Show images with status badges (📸📝⚙️✅) |
+| `/seo-images-manager plan <url>` | Propose keywords + **CHECKPOINT #1** (select via checkbox) |
+| `/seo-images-manager rename` | Optimize images (resize 1600px, compress 85%) |
+| `/seo-images-manager upload [--all]` | Upload to WordPress + **CHECKPOINT #2** (confirm via checkbox) |
+| `/seo-images-manager status` | Show statistics (total, synced, pending) |
+
+### Core SEO Analysis
 
 | Command | Description |
 |---------|-------------|
@@ -177,6 +242,62 @@ Validate and generate hreflang tags for multi-language sites.
 
 ## Features
 
+### 🆕 Multi-Client Management (Next SEO Exclusive)
+
+**Built for agencies and freelancers managing multiple clients:**
+
+- **Client/Project Organization**: SQLite-backed database with folder structure
+- **Active Project Context**: All SEO commands auto-save to active project folder
+- **WordPress Integration**: REST API connection with Application Password security
+- **Report Organization**: `clients/{client}/{project}/reports/` structure
+- **Audit History Tracking**: Database tracks audit dates, scores, report paths
+
+**Folder Structure:**
+```
+clients/
+  └── client-slug/
+      ├── CLIENT.md
+      └── project-slug/
+          ├── PROJECT.md
+          ├── .env (WordPress credentials, gitignored)
+          ├── reports/           # All SEO audit reports
+          ├── images/
+          │   ├── original/      # Source images
+          │   ├── optimized/     # SEO-optimized
+          │   └── images.db      # Image tracking
+          ├── data/
+          │   ├── baseline.json  # SEO drift baseline
+          │   └── crux-history.json
+          └── wordpress/
+              └── config.json    # WP connection metadata
+```
+
+### 🆕 Automated Image SEO Workflow (Next SEO Exclusive)
+
+**End-to-end image optimization with interactive checkpoints:**
+
+- **Incremental Analysis**: Scans ONLY new images (not in database yet)
+- **Keyword Cannibalization Prevention**:
+  - Image-to-image duplicate check
+  - Page primary keyword similarity (>80% = risk)
+- **Interactive Checkpoints**:
+  - **Checkpoint #1** (plan): Select which images to optimize via checkbox
+  - **Checkpoint #2** (upload): MANDATORY confirmation before WordPress upload
+- **WordPress Upload**: Direct upload with alt text, title, caption metadata
+- **Status Tracking**: SQLite database tracks pending/planned/optimized/synced states
+
+**Status Badges:**
+- 📸 **Pending**: Not yet planned
+- 📝 **Planned**: Keywords assigned, ready for optimization
+- ⚙️ **Optimized**: File optimized, ready for upload
+- ✅ **Synced**: Uploaded to WordPress
+
+**Image Optimization:**
+- Resize: Max 1600px width (maintains aspect ratio)
+- Compress: 85% quality (progressive JPEG)
+- Metadata: EXIF data extraction and preservation
+- SEO Filename: Keyword-based slug (e.g., `hotels-in-rome-luxury-suite.jpg`)
+
 ### Core Web Vitals (Current Metrics)
 - **LCP** (Largest Contentful Paint): Target < 2.5s
 - **INP** (Interaction to Next Paint): Target < 200ms
@@ -237,6 +358,40 @@ Direct integration with Google's SEO data:
 
 ## Architecture
 
+**Next SEO extends Claude SEO with:**
+
+```
+next-seo/
+├── skills/                        # 25 skills (22 claude-seo + 3 next-seo)
+│   ├── seo/                      # Main orchestrator (from claude-seo)
+│   ├── seo-client/               # 🆕 Client management
+│   ├── seo-project/              # 🆕 Project management
+│   ├── seo-wordpress/            # 🆕 WordPress integration
+│   ├── seo-images-manager/       # 🆕 Image workflow with checkpoints
+│   │   ├── SKILL.md
+│   │   ├── UX-CHECKPOINTS.md    # Checkpoint implementation guide
+│   │   ├── IMPLEMENTATION-GUIDE.md
+│   │   └── helpers.py           # Python helper functions
+│   └── [21 other claude-seo skills]
+├── agents/                        # 17 subagents (from claude-seo)
+├── scripts/                       # 39 scripts (29 claude-seo + 10 next-seo)
+│   ├── client_manager.py         # 🆕 Client/project CRUD
+│   ├── wordpress_connect.py      # 🆕 WordPress API connection
+│   ├── image_manager.py          # 🆕 Image workflow CLI
+│   ├── image_analyzer.py         # 🆕 EXIF extraction
+│   ├── image_seo_planner.py      # 🆕 Keyword planning
+│   ├── image_optimizer.py        # 🆕 Image optimization
+│   ├── image_uploader.py         # 🆕 WordPress upload
+│   ├── image_selector.py         # 🆕 Image selection UI
+│   ├── content_quality.py        # 🆕 Content analysis
+│   └── [29 other claude-seo scripts]
+├── clients/                       # 🆕 Client data (gitignored)
+│   ├── .clients.db               # SQLite: clients, projects, audits
+│   └── {client-slug}/            # Individual client folders
+└── NEXT-SEO-SPEC.md              # 🆕 Complete specifications (850+ lines)
+```
+
+**Base Architecture (from Claude SEO):**
 ```
 ~/.claude/skills/seo/         # Main orchestrator skill
 ~/.claude/skills/seo-*/       # Sub-skills (20 + 3 extensions)
@@ -253,12 +408,74 @@ Additional schema types for video content, live streaming, and key moments:
 
 See `schema/templates.json` for ready-to-use JSON-LD snippets.
 
-### Recently Added
+### WordPress Integration Security (Next SEO)
+
+**Application Password-based authentication:**
+- ✅ Uses WordPress Application Passwords (NOT regular passwords)
+- ✅ Revocable without changing main password
+- ✅ Credentials stored in `.env` (gitignored, 600 permissions)
+- ✅ HTTPS-only connections (credentials in Base64)
+- ✅ Automatic REST API path detection
+
+**How to generate Application Password:**
+1. WordPress Dashboard → Users → Your Profile
+2. Scroll to "Application Passwords"
+3. Name: "Claude SEO Tools"
+4. Click "Add New Application Password"
+5. Copy generated password (format: `xxxx xxxx xxxx xxxx`)
+
+**`.env` format:**
+```bash
+WP_URL=https://example.com
+WP_USERNAME=admin
+WP_APP_PASSWORD=xxxx xxxx xxxx xxxx
+WP_MEDIA_FOLDER=seo-optimized
+WP_VERIFY_SSL=true
+```
+
+### Recently Added (Next SEO)
+- 🆕 **Multi-client management** (`/seo-client`, `/seo-project`)
+- 🆕 **WordPress REST API integration** (`/seo-wordpress`)
+- 🆕 **Automated image SEO workflow** (`/seo-images-manager`) with checkpoints
+- 🆕 **Keyword cannibalization prevention** (image-to-image, image-to-page)
+- 🆕 **Interactive checkpoint confirmations** (plan selection, upload confirmation)
+- 🆕 **SQLite tracking databases** (clients, projects, audits, images)
+
+### Recently Added (Claude SEO Base)
 - Programmatic SEO skill (`/seo programmatic`)
 - Competitor comparison pages skill (`/seo competitor-pages`)
 - Multi-language hreflang validation (`/seo hreflang`)
 - Video & Live schema types (VideoObject, BroadcastEvent, Clip, SeekToAction)
 - Google SEO quick-reference guide
+
+## What's Different from Claude SEO?
+
+**Next SEO = Claude SEO + Enterprise Features**
+
+| Feature | Claude SEO | Next SEO |
+|---------|------------|----------|
+| **Core SEO Analysis** | ✅ Full suite | ✅ Inherited |
+| **Client Management** | ❌ | ✅ SQLite database + folders |
+| **Project Organization** | ❌ | ✅ Multi-project per client |
+| **Active Project Context** | ❌ | ✅ Auto-save to project folder |
+| **WordPress Integration** | ❌ | ✅ REST API upload |
+| **Image SEO Workflow** | ⚠️ Basic audit | ✅ Full analyze → plan → optimize → upload |
+| **Cannibalization Check** | ❌ | ✅ Image-to-image + image-to-page |
+| **Interactive Checkpoints** | ❌ | ✅ Plan selection + upload confirmation |
+| **Image Status Tracking** | ❌ | ✅ SQLite: pending/planned/optimized/synced |
+| **Report Organization** | ⚠️ Repo root | ✅ `clients/{client}/{project}/reports/` |
+
+**Use Next SEO if you:**
+- Manage multiple clients/websites
+- Need organized report storage per project
+- Want automated WordPress image uploads
+- Need keyword cannibalization prevention for images
+- Prefer interactive checkpoints for safety
+
+**Use Claude SEO if you:**
+- Work on a single website
+- Don't need WordPress integration
+- Prefer simpler workflow without client management
 
 ## Requirements
 
@@ -266,6 +483,7 @@ See `schema/templates.json` for ready-to-use JSON-LD snippets.
 - Claude Code CLI
 - Optional: Playwright for screenshots
 - Optional: Google API credentials for enriched data (see `/seo google setup`)
+- Optional (Next SEO): WordPress 4.7+ with REST API enabled for image uploads
 
 ## Uninstall
 
@@ -368,6 +586,27 @@ Claude SEO is part of a family of Claude Code skills that work together:
 
 ## Documentation
 
+### Next SEO Specific
+
+- **[NEXT-SEO-SPEC.md](NEXT-SEO-SPEC.md)** - Complete specifications (850+ lines)
+  - Architecture overview
+  - Database schema (clients, projects, images)
+  - Workflow examples with checkpoints
+  - Script reference
+  - Security guidelines
+
+- **[UX-CHECKPOINTS.md](skills/seo-images-manager/UX-CHECKPOINTS.md)** - Checkpoint implementation
+  - `AskUserQuestion` examples
+  - Helper functions reference
+  - Testing checklist
+
+- **[IMPLEMENTATION-GUIDE.md](skills/seo-images-manager/IMPLEMENTATION-GUIDE.md)** - Step-by-step logic
+  - Plan checkpoint workflow
+  - Upload checkpoint workflow
+  - Flowchart diagrams
+
+### Claude SEO Base Documentation
+
 - [Installation Guide](docs/INSTALLATION.md)
 - [Commands Reference](docs/COMMANDS.md)
 - [Architecture](docs/ARCHITECTURE.md)
@@ -398,7 +637,12 @@ Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before sub
 
 ---
 
-Built for Claude Code by [@AgriciDaniel](https://github.com/AgriciDaniel)
+## About Next SEO
+
+**Next SEO** is a professional fork of [Claude SEO](https://github.com/AgriciDaniel/claude-seo) by [@AgriciDaniel](https://github.com/AgriciDaniel), extended with multi-client management and WordPress integration for agencies and consultants.
+
+**Original Claude SEO** by Agrici Daniel - AI Workflow Architect
+**Next SEO Extensions** by Pier Paolo Gorelli
 
 ---
 

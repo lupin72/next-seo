@@ -100,7 +100,7 @@
       "args": [
         {
           "label": "analyze",
-          "description": "Scan images/original/ and extract metadata (EXIF, dimensions, filesize)"
+          "description": "Scan images/original/ for NEW images only (incremental analysis) and extract metadata (EXIF, dimensions, filesize)"
         },
         {
           "label": "list [--filter pending|planned|optimized|synced]",
@@ -108,19 +108,19 @@
         },
         {
           "label": "plan <target-url> [--ids 1,2,3]",
-          "description": "Analyze page context and propose SEO keywords for images (checks cannibalization)"
+          "description": "Analyze page context, propose SEO keywords, check cannibalization. Includes CHECKPOINT #1: user selects images via checkbox"
         },
         {
           "label": "rename [--ids 1,2,3]",
-          "description": "Rename and optimize images with SEO-friendly filenames (compress, resize)"
+          "description": "Rename and optimize images with SEO-friendly filenames (compress to 85%, resize max 1600px width)"
         },
         {
           "label": "upload [--all | --id <id> | --ids 1,2,3]",
-          "description": "Upload optimized images to WordPress with metadata (synced = true)"
+          "description": "Upload to WordPress. Includes CHECKPOINT #2 (OBBLIGATORIO): user confirms upload via checkbox before proceeding"
         },
         {
           "label": "status",
-          "description": "Show image SEO status (total, synced, pending)"
+          "description": "Show image SEO status (total, synced, optimized, pending) with recent activity"
         }
       ]
     }
