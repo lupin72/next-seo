@@ -148,10 +148,19 @@ class GSCCache:
             GSC data dict or None if API unavailable
         """
         try:
+            # Check if google-api-python-client is available
+            try:
+                import googleapiclient
+            except ImportError:
+                # Google API client not installed - cannot use GSC
+                self._save_cache(page_url, None, status='error')
+                return None
+
             # Import gsc_query module
             import sys
             script_dir = Path(__file__).parent
             sys.path.insert(0, str(script_dir))
+
             from gsc_query import GSCQuery
 
             # Calculate date range
