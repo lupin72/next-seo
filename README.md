@@ -1,4 +1,4 @@
-<!-- Updated: 2026-04-27 -->
+<!-- Updated: 2026-04-27 | Version: 1.1.0 | GSC Integration Release -->
 
 ![Claude Next SEO](screenshots/cover-image.jpeg)
 
@@ -10,17 +10,58 @@ Professional SEO analysis and management tool for agencies and consultants. Buil
 
 **Core Features:** 20+ sub-skills covering technical SEO, on-page analysis, content quality (E-E-A-T), schema markup, image optimization, sitemap architecture, AI search optimization (GEO), local SEO, maps intelligence, semantic topic clustering, search experience optimization (SXO), SEO drift monitoring, e-commerce SEO, international SEO, Google SEO APIs (Search Console, PageSpeed, CrUX, GA4), PDF report generation, and strategic planning.
 
-**New in Next SEO:** Client/project organization, WordPress upload automation, interactive image workflow with checkpoint confirmations, and SQLite-based tracking.
+**New in Next SEO v1.1:** Client/project organization, WordPress upload automation, **Google Search Console integration with intelligent cache** for data-driven image keyword generation, interactive image workflow with checkpoint confirmations, opportunity scoring (0-100), and SQLite-based tracking.
 
 ![SEO Command Demo](screenshots/seo-command-demo.gif)
 
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://claude.ai/claude-code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-1.1.0-brightgreen)](CHANGELOG.md)
+[![GSC Integration](https://img.shields.io/badge/GSC-Integrated-success)](skills/seo-images-manager/GSC-INTEGRATION.md)
 [![Based on Claude SEO](https://img.shields.io/badge/Based%20on-Claude%20SEO%20v1.9.0-green)](https://github.com/AgriciDaniel/claude-seo)
 [![Next SEO](https://img.shields.io/badge/Next%20SEO-Multi--Client-orange)](https://github.com/AgriciDaniel/claude-seo)
 
+## What's New in v1.1 (April 2026)
+
+### 🔥 Google Search Console Integration for Image SEO
+
+The `/seo-images-manager plan` command now uses **real Search Console data** instead of heuristics:
+
+- **📊 Opportunity Scoring (0-100)**: Auto-identifies quick wins based on impressions + CTR + position
+- **⚡ Intelligent Cache**: 7-day cache reduces API calls by >90% (configurable TTL)
+- **🎯 Quick Win Detection**: Prioritizes keywords in position 11-20 with low CTR (<2%)
+- **📈 Real Metrics**: Each keyword shows impressions, clicks, CTR, position from GSC
+- **🔄 Fallback Support**: Works without GSC (falls back to page context analysis)
+
+**Example Output:**
+```json
+{
+  "keyword": "hotel example beachfront location",
+  "source": "gsc",
+  "gsc_metrics": {
+    "impressions": 450,
+    "clicks": 8,
+    "ctr": 1.78,
+    "position": 12.3
+  },
+  "opportunity_score": 85  // High score = quick win!
+}
+```
+
+**Configuration** (`.env`):
+```bash
+GSC_CACHE_TTL_DAYS=7        # Cache duration
+GSC_DATE_RANGE_DAYS=90      # Data range to fetch
+GSC_MIN_IMPRESSIONS=10      # Min impressions threshold
+```
+
+See full documentation: [`skills/seo-images-manager/GSC-INTEGRATION.md`](skills/seo-images-manager/GSC-INTEGRATION.md)
+
+---
+
 ## Table of Contents
 
+- [What's New](#whats-new-in-v11-april-2026)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Commands](#commands)
@@ -161,16 +202,23 @@ cp ~/Photos/*.jpg clients/example-client/main-site/images/original/
 | `/seo-wordpress test` | Test existing WordPress connection |
 | `/seo-wordpress info` | Display WordPress configuration |
 
-### Image SEO Workflow (New in Next SEO)
+### Image SEO Workflow (New in Next SEO v1.1 - GSC Integration)
 
 | Command | Description |
 |---------|-------------|
 | `/seo-images-manager analyze` | Scan images/original/ (incremental, ONLY new images) |
 | `/seo-images-manager list [--filter]` | Show images with status badges (📸📝⚙️✅) |
-| `/seo-images-manager plan <url>` | Propose keywords + **CHECKPOINT #1** (select via checkbox) |
+| `/seo-images-manager plan <url>` | **NEW:** GSC-powered keyword generation with opportunity scoring (0-100) + cache + **CHECKPOINT #1** |
 | `/seo-images-manager rename` | Optimize images (resize 1600px, compress 85%) |
 | `/seo-images-manager upload [--all]` | Upload to WordPress + **CHECKPOINT #2** (confirm via checkbox) |
 | `/seo-images-manager status` | Show statistics (total, synced, pending) |
+
+**v1.1 Features:**
+- 🔍 **Search Console Integration**: Uses real GSC query data (impressions, CTR, position)
+- 📊 **Opportunity Scoring**: 0-100 score prioritizes quick wins (high impressions + low CTR)
+- ⚡ **Intelligent Cache**: 7-day cache reduces API calls by >90%
+- 🎯 **Quick Wins Detection**: Auto-identifies keywords in position 11-20 with low CTR
+- 📉 **Cannibalization Prevention**: Avoids keyword overlap between images and page primary keyword
 
 ### Core SEO Analysis
 
@@ -272,23 +320,38 @@ clients/
               └── config.json    # WP connection metadata
 ```
 
-### 🆕 Automated Image SEO Workflow (Next SEO Exclusive)
+### 🆕 Automated Image SEO Workflow (Next SEO Exclusive - v1.1 GSC Integration)
 
-**End-to-end image optimization with interactive checkpoints:**
+**End-to-end image optimization with Google Search Console integration:**
 
-- **Incremental Analysis**: Scans ONLY new images (not in database yet)
+- **🔍 Search Console Integration (NEW v1.1)**:
+  - Fetches real GSC query data (impressions, clicks, CTR, position)
+  - Intelligent 7-day cache reduces API calls by >90%
+  - Opportunity scoring (0-100) identifies quick wins
+  - Auto-prioritizes queries with high impressions + low CTR
+  - Fallback to heuristics if GSC unavailable
+
+- **📊 Keyword Generation (UPGRADED v1.1)**:
+  - **GSC-based**: Combines query data + image context + filename
+  - **Opportunity scoring**: Position 11-20 + CTR <2% = 85+ score (quick win!)
+  - **Real metrics**: Impressions, clicks, CTR, position for each keyword
+  - **Smart variants**: Long-tail combinations based on GSC queries
+
 - **Keyword Cannibalization Prevention**:
   - Image-to-image duplicate check
   - Page primary keyword similarity (>80% = risk)
+  - Cross-image keyword tracking in database
+
 - **Interactive Checkpoints**:
   - **Checkpoint #1** (plan): Select which images to optimize via checkbox
   - **Checkpoint #2** (upload): MANDATORY confirmation before WordPress upload
+
 - **WordPress Upload**: Direct upload with alt text, title, caption metadata
-- **Status Tracking**: SQLite database tracks pending/planned/optimized/synced states
+- **Status Tracking**: SQLite database tracks pending/planned/optimized/synced states + GSC metrics
 
 **Status Badges:**
 - 📸 **Pending**: Not yet planned
-- 📝 **Planned**: Keywords assigned, ready for optimization
+- 📝 **Planned**: Keywords assigned (with GSC opportunity score), ready for optimization
 - ⚙️ **Optimized**: File optimized, ready for upload
 - ✅ **Synced**: Uploaded to WordPress
 
@@ -487,19 +550,48 @@ WP_VERIFY_SSL=true
 
 ## Uninstall
 
-```bash
-git clone --depth 1 https://github.com/AgriciDaniel/claude-seo.git
-bash claude-seo/uninstall.sh
-```
-
-<details>
-<summary>One-liner (curl)</summary>
+### Quick Uninstall
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/AgriciDaniel/claude-seo/main/uninstall.sh | bash
+# From next-seo repository root
+bash uninstall.sh
 ```
 
-</details>
+**What happens:**
+- ✅ Removes all Claude SEO base skills (20+ skills)
+- ✅ Removes all Next SEO custom skills (seo-client, seo-project, seo-wordpress, seo-images-manager)
+- ✅ Removes all agents (17 agents)
+- ⚠️ **Preserves client data** in `clients/` folder
+
+### Remove Client Data (Optional)
+
+```bash
+# Backup first (recommended)
+tar -czf next-seo-clients-backup-$(date +%Y%m%d).tar.gz clients/
+
+# Then remove
+rm -rf clients/
+```
+
+**Client data includes:**
+- Client/project folders and databases
+- WordPress credentials (`.env` files)
+- SEO audit reports
+- Optimized images
+- Baseline data
+
+### Partial Uninstall
+
+Remove only Next SEO custom skills (keep Claude SEO base):
+
+```bash
+rm -rf ~/.claude/skills/seo-client
+rm -rf ~/.claude/skills/seo-project
+rm -rf ~/.claude/skills/seo-wordpress
+rm -rf ~/.claude/skills/seo-images-manager
+```
+
+See [NEXT-SEO-SPEC.md § 13](NEXT-SEO-SPEC.md#13-uninstall) for complete uninstall guide.
 
 ### MCP Integrations
 
