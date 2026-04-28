@@ -120,6 +120,9 @@ class ImageSEOPlanner:
                 "message": "No images found to plan"
             }
 
+        # Get existing SEO filenames for collision detection
+        existing_filenames = self.get_existing_seo_filenames(conn)
+
         # Create proposals for each image
         proposals = []
         for img in images:
@@ -128,9 +131,13 @@ class ImageSEOPlanner:
                 filename=img['original_filename'],
                 page_context=page_context,
                 existing_keywords=self.get_existing_keywords(conn),
+                existing_filenames=existing_filenames,
                 gsc_data=gsc_data
             )
             proposals.append(proposal)
+
+            # Add this filename to existing list to prevent duplicates within this batch
+            existing_filenames.append(proposal['seo_metadata']['filename'])
 
             # Save keyword proposals to image_keywords table
             if gsc_data and proposal.get('keyword_proposals'):
@@ -263,7 +270,7 @@ class ImageSEOPlanner:
         # Fallback: return title
         return title_lower[:50]
 
-    def propose_keywords(self, image_id, filename, page_context, existing_keywords, gsc_data=None):
+    def propose_keywords(self, image_id, filename, page_context, existing_keywords, existing_filenames=None, gsc_data=None):
         """
         Propose SEO keywords for an image using GSC data or fallback heuristics.
 
@@ -275,6 +282,7 @@ class ImageSEOPlanner:
             filename: Original filename
             page_context: Page metadata dict
             existing_keywords: List of already-used keywords
+            existing_filenames: List of already-used SEO filenames (for collision detection)
             gsc_data: Optional GSC data dict with queries
 
         Returns:
@@ -314,8 +322,8 @@ class ImageSEOPlanner:
                 keyword_proposals[0]['keyword'] if keyword_proposals else filename
             )
 
-        # Generate SEO metadata
-        seo_filename = self.generate_seo_filename(selected_keyword)
+        # Generate SEO metadata with collision detection
+        seo_filename = self.generate_seo_filename(selected_keyword, existing_filenames=existing_filenames)
         alt_text = self.generate_alt_text(selected_keyword, page_context)
         title = self.generate_title(selected_keyword, page_context)
         caption = self.generate_caption(selected_keyword, page_context)
@@ -334,38 +342,121 @@ class ImageSEOPlanner:
             }
         }
 
+    def extract_semantic_keywords_from_filename(self, filename):
+        """
+        Extract semantic keywords from filename if present.
+
+        Ignores technical filenames like:
+        - IMG_1234.jpg
+        - DSC_0001.jpg
+        - photo-01.jpg
+        - img01.jpg
+
+        Returns semantic words only if filename contains meaningful keywords.
+        """
+        # Remove extension
+        name_without_ext = re.sub(r'\.(jpg|jpeg|png|gif|webp|bmp)$', '', filename.lower())
+
+        # Check if filename is technical (contains only numbers, generic words, camera patterns)
+        technical_patterns = [
+            r'^img[_-]?\d+$',           # img01, IMG_1234
+            r'^dsc[_-]?\d+$',           # DSC_0001
+            r'^photo[_-]?\d+$',         # photo-01
+            r'^image[_-]?\d+$',         # image-01
+            r'^pic[_-]?\d+$',           # pic01
+            r'^\d{8}[_-]\w+$',          # 20260428-DSC01406
+            r'^screenshot',             # screenshot-2026
+            r'^capture',                # capture-01
+        ]
+
+        for pattern in technical_patterns:
+            if re.match(pattern, name_without_ext):
+                return []  # Technical filename, no semantic value
+
+        # Extract words from filename (split by hyphens, underscores, spaces)
+        words = re.split(r'[-_\s]+', name_without_ext)
+
+        # Filter out numbers and single letters
+        semantic_words = [w for w in words if len(w) > 2 and not w.isdigit()]
+
+        # If we have semantic words, return them
+        if semantic_words:
+            return semantic_words
+
+        return []
+
     def generate_keyword_variants(self, filename, page_context):
-        """Generate keyword variants based on filename and page context."""
+        """
+        Generate keyword variants based on page context and semantic filename analysis.
+
+        Rules:
+        - Primary keyword from page context (title, H1)
+        - Semantic keywords from filename (if not technical)
+        - Long-tail variants combining context + semantic keywords
+        - NEVER include technical filenames (IMG_1234, img01, etc.)
+        """
         variants = []
 
         primary_kw = page_context.get('primary_keyword', '')
         h1 = page_context.get('h1', '')
+        title = page_context.get('title', '')
 
-        # Variant 1: Primary keyword + filename context
-        if primary_kw:
-            filename_clean = re.sub(r'[^a-z0-9]+', ' ', filename.lower())
-            variants.append(f"{primary_kw} {filename_clean}".strip())
+        # Extract semantic keywords from filename (if any)
+        filename_keywords = self.extract_semantic_keywords_from_filename(filename)
 
-        # Variant 2: H1 + filename
-        if h1:
-            h1_clean = h1.lower()[:30]
-            variants.append(f"{h1_clean} {filename_clean}".strip())
-
-        # Variant 3: Just primary keyword
+        # Variant 1: Primary keyword alone
         if primary_kw:
             variants.append(primary_kw)
 
-        # Variant 4: Filename-based
-        variants.append(filename_clean)
+        # Variant 2: H1 keywords
+        if h1 and h1.lower() != primary_kw:
+            # Extract meaningful phrases from H1 (avoid duplicates of primary_kw)
+            h1_clean = h1.lower()
+            if h1_clean not in variants:
+                variants.append(h1_clean)
+
+        # Variant 3: Title keywords (if different from primary and H1)
+        if title:
+            title_clean = title.lower().split('|')[0].strip()  # Remove site name after |
+            if title_clean not in variants and title_clean != primary_kw:
+                variants.append(title_clean)
+
+        # Variant 4: Long-tail with semantic filename keywords
+        # ONLY if filename contains meaningful keywords (not IMG_1234, etc.)
+        if filename_keywords:
+            filename_kw_phrase = ' '.join(filename_keywords)
+
+            # Combine primary keyword + semantic filename keywords
+            if primary_kw and filename_kw_phrase not in primary_kw:
+                long_tail = f"{primary_kw} {filename_kw_phrase}".strip()
+                variants.append(long_tail)
+
+            # Standalone semantic filename keyword
+            if filename_kw_phrase not in variants:
+                variants.append(filename_kw_phrase)
 
         # Clean and deduplicate
         variants = [v.strip() for v in variants if v.strip()]
         variants = list(dict.fromkeys(variants))  # Remove duplicates
 
-        return variants[:5]
+        # Limit to 5 variants
+        return variants[:5] if variants else [primary_kw or 'image']
 
-    def generate_seo_filename(self, keyword):
-        """Generate SEO-friendly filename from keyword."""
+    def generate_seo_filename(self, keyword, existing_filenames=None):
+        """
+        Generate SEO-friendly filename from keyword with collision detection.
+
+        Args:
+            keyword: Target keyword for the image
+            existing_filenames: Optional list of already-used SEO filenames
+
+        Returns:
+            str: Unique SEO filename with .jpg extension
+
+        Collision handling:
+            If filename already exists, appends numeric suffix: -2, -3, etc.
+            Example: hotel-spa.jpg → hotel-spa-2.jpg → hotel-spa-3.jpg
+        """
         # Clean keyword
         filename = keyword.lower()
         filename = re.sub(r'[^\w\s-]', '', filename)
@@ -376,7 +467,18 @@ class ImageSEOPlanner:
         if len(filename) > 60:
             filename = filename[:60].rsplit('-', 1)[0]
 
-        return f"{filename}.jpg"
+        base_filename = f"{filename}.jpg"
+
+        # Check for collisions if existing filenames provided
+        if existing_filenames:
+            if base_filename in existing_filenames:
+                # Find next available suffix
+                suffix = 2
+                while f"{filename}-{suffix}.jpg" in existing_filenames:
+                    suffix += 1
+                return f"{filename}-{suffix}.jpg"
+
+        return base_filename
 
     def generate_alt_text(self, keyword, page_context):
         """Generate descriptive alt text including keyword."""
@@ -448,6 +550,16 @@ class ImageSEOPlanner:
             SELECT DISTINCT target_keyword
             FROM images
             WHERE target_keyword IS NOT NULL
+        """).fetchall()
+
+        return [row[0] for row in rows]
+
+    def get_existing_seo_filenames(self, conn):
+        """Get all existing SEO filenames from database for collision detection."""
+        rows = conn.execute("""
+            SELECT DISTINCT seo_filename
+            FROM images
+            WHERE seo_filename IS NOT NULL
         """).fetchall()
 
         return [row[0] for row in rows]
