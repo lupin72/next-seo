@@ -3,10 +3,24 @@
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "|   Claude SEO - Installer             |" -ForegroundColor Cyan
-Write-Host "|   Claude Code SEO Skill              |" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
+# Detect if running from local repo (Next SEO) or installing from remote (upstream)
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$IsLocalInstall = (Test-Path "$ScriptDir\CHANGELOG.md") -and (Test-Path "$ScriptDir\skills\seo-images-manager")
+
+if ($IsLocalInstall) {
+    $InstallMode = "local"
+    $LocalRepo = $ScriptDir
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "|   Claude Next SEO - Installer        |" -ForegroundColor Cyan
+    Write-Host "|   v1.1.0 - GSC Integration           |" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+} else {
+    $InstallMode = "remote"
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "|   Claude SEO - Installer             |" -ForegroundColor Cyan
+    Write-Host "|   Claude Code SEO Skill              |" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+}
 Write-Host ""
 
 function Resolve-Python {
@@ -84,50 +98,80 @@ try {
 # Set paths
 $SkillDir = "$env:USERPROFILE\.claude\skills\seo"
 $AgentDir = "$env:USERPROFILE\.claude\agents"
-$RepoUrl = "https://github.com/AgriciDaniel/claude-seo"
-# Pin to a specific release tag to prevent silent updates from main.
-# Override: $env:CLAUDE_SEO_TAG = 'main'; .\install.ps1
-$RepoTag = if ($env:CLAUDE_SEO_TAG) { $env:CLAUDE_SEO_TAG } else { 'v1.9.0' }
 
 # Create directories
 New-Item -ItemType Directory -Force -Path $SkillDir | Out-Null
 New-Item -ItemType Directory -Force -Path $AgentDir | Out-Null
 
-# Clone to temp directory
-$TempDir = Join-Path $env:TEMP "claude-seo-install"
-if (Test-Path $TempDir) {
-    Remove-Item -Recurse -Force $TempDir
-}
+# Setup source directory based on install mode
+if ($InstallMode -eq "local") {
+    Write-Host "=> Installing from local repository (Next SEO v1.1)..." -ForegroundColor Yellow
+    $SourceDir = $LocalRepo
+} else {
+    # Remote installation from upstream
+    $RepoUrl = "https://github.com/AgriciDaniel/claude-seo"
+    $RepoTag = if ($env:CLAUDE_SEO_TAG) { $env:CLAUDE_SEO_TAG } else { 'v1.9.0' }
 
-$keepTemp = ($env:CLAUDE_SEO_KEEP_TEMP -eq '1')
+    $TempDir = Join-Path $env:TEMP "claude-seo-install"
+    if (Test-Path $TempDir) {
+        Remove-Item -Recurse -Force $TempDir
+    }
 
-try {
     Write-Host ">> Downloading Claude SEO ($RepoTag)..." -ForegroundColor Yellow
     $clone = Invoke-External -Exe 'git' -Args @('clone','--depth','1','--branch',$RepoTag,$RepoUrl,$TempDir) -Quiet
     if ($clone.ExitCode -ne 0) {
         throw "git clone failed. Output:`n$($clone.Output -join "`n")"
     }
 
+    $SourceDir = $TempDir
+}
+
+$keepTemp = ($env:CLAUDE_SEO_KEEP_TEMP -eq '1')
+
+try {
     # Copy skill files
     Write-Host "=> Installing skill files..." -ForegroundColor Yellow
-    $skillSource = Join-Path $TempDir 'skills\seo'
+    $skillSource = Join-Path $SourceDir 'skills\seo'
     if (-not (Test-Path $skillSource)) {
         throw "Could not find skill source folder in repo clone."
     }
     Copy-Item -Recurse -Force (Join-Path $skillSource '*') $SkillDir
 
-    # Copy sub-skills
-    $SkillsPath = "$TempDir\skills"
+    # Copy sub-skills (including Next SEO exclusive: seo-client, seo-project, seo-wordpress, seo-images-manager)
+    $SkillsPath = "$SourceDir\skills"
     if (Test-Path $SkillsPath) {
+        Write-Host "=> Installing sub-skills..." -ForegroundColor Yellow
+        $skillCount = 0
         Get-ChildItem -Directory $SkillsPath | ForEach-Object {
             $target = "$env:USERPROFILE\.claude\skills\$($_.Name)"
             New-Item -ItemType Directory -Force -Path $target | Out-Null
             Copy-Item -Recurse -Force "$($_.FullName)\*" $target
+            $skillCount++
+        }
+        Write-Host "  [+] Installed $skillCount skills" -ForegroundColor Green
+
+        # List Next SEO exclusive skills if in local mode
+        if ($InstallMode -eq "local") {
+            Write-Host ""
+            Write-Host "Next SEO Exclusive Skills:" -ForegroundColor Cyan
+            if (Test-Path "$env:USERPROFILE\.claude\skills\seo-client") {
+                Write-Host "  [+] seo-client - Multi-client management" -ForegroundColor Green
+            }
+            if (Test-Path "$env:USERPROFILE\.claude\skills\seo-project") {
+                Write-Host "  [+] seo-project - Project organization" -ForegroundColor Green
+            }
+            if (Test-Path "$env:USERPROFILE\.claude\skills\seo-wordpress") {
+                Write-Host "  [+] seo-wordpress - WordPress integration" -ForegroundColor Green
+            }
+            if (Test-Path "$env:USERPROFILE\.claude\skills\seo-images-manager") {
+                Write-Host "  [+] seo-images-manager - Image SEO with GSC integration (v1.1)" -ForegroundColor Green
+            }
+            Write-Host ""
         }
     }
 
     # Copy schema templates
-    $SchemaPath = "$TempDir\schema"
+    $SchemaPath = "$SourceDir\schema"
     if (Test-Path $SchemaPath) {
         $SkillSchema = "$SkillDir\schema"
         New-Item -ItemType Directory -Force -Path $SkillSchema | Out-Null
@@ -135,7 +179,7 @@ try {
     }
 
     # Copy reference docs
-    $PdfPath = "$TempDir\pdf"
+    $PdfPath = "$SourceDir\pdf"
     if (Test-Path $PdfPath) {
         $SkillPdf = "$SkillDir\pdf"
         New-Item -ItemType Directory -Force -Path $SkillPdf | Out-Null
@@ -144,13 +188,13 @@ try {
 
     # Copy agents
     Write-Host "=> Installing subagents..." -ForegroundColor Yellow
-    $AgentsPath = Join-Path $TempDir 'agents'
+    $AgentsPath = Join-Path $SourceDir 'agents'
     if (Test-Path $AgentsPath) {
         Copy-Item -Force (Join-Path $AgentsPath '*.md') $AgentDir -ErrorAction SilentlyContinue
     }
 
     # Copy shared scripts
-    $ScriptsPath = "$TempDir\scripts"
+    $ScriptsPath = "$SourceDir\scripts"
     if (Test-Path $ScriptsPath) {
         $SkillScripts = "$SkillDir\scripts"
         New-Item -ItemType Directory -Force -Path $SkillScripts | Out-Null
@@ -158,7 +202,7 @@ try {
     }
 
     # Copy hooks
-    $HooksPath = "$TempDir\hooks"
+    $HooksPath = "$SourceDir\hooks"
     if (Test-Path $HooksPath) {
         $SkillHooks = "$SkillDir\hooks"
         New-Item -ItemType Directory -Force -Path $SkillHooks | Out-Null
@@ -166,7 +210,7 @@ try {
     }
 
     # Copy extensions (optional add-ons: dataforseo, banana)
-    $ExtensionsPath = Join-Path $TempDir 'extensions'
+    $ExtensionsPath = Join-Path $SourceDir 'extensions'
     if (Test-Path $ExtensionsPath) {
         Write-Host "=> Installing extensions..." -ForegroundColor Yellow
         Get-ChildItem -Directory $ExtensionsPath | ForEach-Object {
@@ -204,7 +248,7 @@ try {
     }
 
     # Copy requirements.txt to skill dir for retry
-    $reqFile = Join-Path $TempDir 'requirements.txt'
+    $reqFile = Join-Path $SourceDir 'requirements.txt'
     $installedReqFile = Join-Path $SkillDir 'requirements.txt'
     if (Test-Path $reqFile) {
         Copy-Item -Force $reqFile $installedReqFile
@@ -239,21 +283,49 @@ try {
 } catch {
     Write-Host ""
     Write-Host "[x] Installation failed: $($_.Exception.Message)" -ForegroundColor Red
-    if ($keepTemp -and (Test-Path $TempDir)) {
+    if ($InstallMode -eq "remote" -and $keepTemp -and (Test-Path $TempDir)) {
         Write-Host "Temp dir kept at: $TempDir" -ForegroundColor Yellow
     }
     throw
 } finally {
-    if (-not $keepTemp -and (Test-Path $TempDir)) {
+    if ($InstallMode -eq "remote" -and -not $keepTemp -and (Test-Path $TempDir)) {
         Remove-Item -Recurse -Force $TempDir
     }
 }
 
 Write-Host ""
-Write-Host "[+] Claude SEO installed successfully!" -ForegroundColor Green
-Write-Host ""
-Write-Host "Usage:" -ForegroundColor Cyan
-Write-Host "  1. Start Claude Code:  claude"
-Write-Host "  2. Run commands:       /seo audit https://example.com"
+if ($InstallMode -eq "local") {
+    Write-Host "[+] Claude Next SEO v1.1 installed successfully!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "New in v1.1:" -ForegroundColor Cyan
+    Write-Host "  • Google Search Console integration for image keywords"
+    Write-Host "  • Opportunity scoring (0-100) for quick wins"
+    Write-Host "  • Intelligent 7-day cache (>90% API savings)"
+    Write-Host "  • Multi-client/project management"
+    Write-Host "  • WordPress REST API integration"
+    Write-Host ""
+    Write-Host "Usage:" -ForegroundColor Cyan
+    Write-Host "  1. Start Claude Code:    claude"
+    Write-Host "  2. Setup client:         /seo-client add `"My Client`""
+    Write-Host "  3. Setup project:        /seo-project add `"my-client`" `"Project`" https://example.com"
+    Write-Host "  4. Run SEO audit:        /seo audit https://example.com"
+    Write-Host "  5. Optimize images:      /seo-images-manager analyze"
+    Write-Host ""
+    Write-Host "Documentation:" -ForegroundColor Cyan
+    Write-Host "  • README.md: $LocalRepo\README.md"
+    Write-Host "  • CHANGELOG.md: $LocalRepo\CHANGELOG.md"
+    Write-Host "  • GSC Integration: $env:USERPROFILE\.claude\skills\seo-images-manager\GSC-INTEGRATION.md"
+} else {
+    Write-Host "[+] Claude SEO installed successfully!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Usage:" -ForegroundColor Cyan
+    Write-Host "  1. Start Claude Code:  claude"
+    Write-Host "  2. Run commands:       /seo audit https://example.com"
+    Write-Host ""
+    Write-Host "To upgrade to Next SEO (multi-client + GSC):" -ForegroundColor Yellow
+    Write-Host "  git clone https://github.com/YOUR-FORK/claude-next-seo"
+    Write-Host "  cd claude-next-seo"
+    Write-Host "  .\install.ps1"
+}
 Write-Host ""
 Write-Host "Python deps location: $installedReqFile" -ForegroundColor Gray

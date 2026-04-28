@@ -22,11 +22,15 @@ function Main {
         Write-Color Green "  Removed: $seoDir"
     }
 
-    # Remove sub-skills
+    # Remove sub-skills (all 26 skills)
     $subSkills = @(
-        "seo-audit", "seo-competitor-pages", "seo-content", "seo-geo",
-        "seo-hreflang", "seo-images", "seo-page", "seo-plan",
-        "seo-programmatic", "seo-schema", "seo-sitemap", "seo-technical"
+        "seo-audit", "seo-backlinks", "seo-client", "seo-cluster",
+        "seo-competitor-pages", "seo-content", "seo-dataforseo", "seo-drift",
+        "seo-ecommerce", "seo-geo", "seo-google", "seo-hreflang",
+        "seo-image-gen", "seo-images", "seo-images-manager", "seo-local",
+        "seo-maps", "seo-page", "seo-plan", "seo-programmatic",
+        "seo-project", "seo-schema", "seo-sitemap", "seo-sxo",
+        "seo-technical", "seo-wordpress"
     )
     foreach ($skill in $subSkills) {
         $skillPath = Join-Path $SkillDir $skill
@@ -36,10 +40,13 @@ function Main {
         }
     }
 
-    # Remove agents
+    # Remove agents (all 17 agents)
     $agents = @(
-        "seo-technical", "seo-content", "seo-schema",
-        "seo-sitemap", "seo-performance", "seo-visual", "seo-geo"
+        "seo-technical", "seo-content", "seo-schema", "seo-sitemap",
+        "seo-performance", "seo-visual", "seo-geo", "seo-local",
+        "seo-maps", "seo-google", "seo-backlinks", "seo-dataforseo",
+        "seo-image-gen", "seo-cluster", "seo-sxo", "seo-drift",
+        "seo-ecommerce"
     )
     foreach ($agent in $agents) {
         $agentPath = Join-Path $AgentDir "$agent.md"

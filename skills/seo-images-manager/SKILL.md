@@ -2,9 +2,17 @@
 
 ## Overview
 
-Complete image SEO optimization workflow with keyword cannibalization prevention, SQLite tracking, and WordPress synchronization.
+Complete image SEO optimization workflow with **Google Search Console integration** (v1.1), keyword cannibalization prevention, SQLite tracking, and WordPress synchronization.
 
 **Problem Solved:** Managing dozens of images for a blog post is tedious. You need SEO-friendly filenames, alt text, descriptions, and to avoid keyword cannibalization across images. This skill automates the entire workflow from analysis to WordPress upload.
+
+**v1.1 Features:**
+- 🔍 **Search Console Integration**: Uses real GSC query data instead of heuristics
+- 📊 **Opportunity Scoring**: 0-100 score prioritizes quick wins (high impressions + low CTR + page 2 position)
+- ⚡ **Intelligent Cache**: 7-day cache reduces API calls by >90%
+- 🎯 **Quick Wins Detection**: Auto-identifies keywords in position 11-20 with low CTR
+
+See [GSC-INTEGRATION.md](GSC-INTEGRATION.md) for technical details.
 
 ## Use Cases
 
@@ -24,7 +32,11 @@ images/original/          images/optimized/        WordPress
     | INCREMENTAL ✓            |                        |
     |                          |                        |
     | 2. Plan                  |                        |
-    | (keywords, page context) |                        |
+    | ┌─ GSC Cache Check       |                        |
+    | │  (7-day TTL)           |                        |
+    | ├─ Opportunity Score     |                        |
+    | │  (0-100)               |                        |
+    | └─ Cannibalization       |                        |
     | 🔘 CHECKPOINT #1         |                        |
     |                          |                        |
     | 3. Rename & Optimize     |                        |
