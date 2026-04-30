@@ -2,9 +2,19 @@
 
 ## Overview
 
-Complete image SEO optimization workflow with **Google Search Console integration** (v1.1), **subfolder context** (v1.2), **project specs integration** (v1.2), keyword cannibalization prevention, SQLite tracking, and WordPress synchronization.
+Complete image SEO optimization workflow with **Google Search Console integration** (v1.1), **subfolder context** (v1.2), **project specs integration** (v1.2), **interactive questions** (v1.3), **GSC Image search** (v1.3), **multilingual support** (v1.3), **visual AI analysis** (v1.3), **competitor discovery** (v1.3), and **global rules system** (v1.4).
 
 **Problem Solved:** Managing dozens of images for a blog post is tedious. You need SEO-friendly filenames, alt text, descriptions, and to avoid keyword cannibalization across images. This skill automates the entire workflow from analysis to WordPress upload.
+
+**v1.3 Features (NEW):**
+- 🤖 **Interactive Questions**: Skill asks 3 questions at start of plan:
+  - "Analizzare i competitor?" (analyze competitor GSC image queries)
+  - "Fare analisi visiva delle immagini?" (AI visual descriptions)
+  - "Lingua target per metadata?" (target language for alt text/title/caption)
+- 🖼️ **GSC Image Search**: Queries Google Search Console with `search_type='image'` in addition to `web`
+- 🌍 **Multilingual Metadata**: Generates alt text, captions in target language (es, it, en, fr, de, pt, nl)
+- 👁️ **Visual Context**: AI describes image content (e.g. "children playing in hotel pool") for richer keywords
+- 🔍 **Competitor Analysis**: Analyzes competitor domains via GSC image queries for keyword discovery
 
 **v1.2 Features:**
 - 📁 **Subfolder Context**: Images in `original/SPA Hotel/` use "SPA Hotel" as semantic context to filter GSC keywords
@@ -28,20 +38,118 @@ See [GSC-INTEGRATION.md](GSC-INTEGRATION.md) for technical details.
 - Track which images have been uploaded to WordPress (synced vs pending)
 - Bulk optimize and upload images from `images/original/` folder
 
-## Workflow
+## Global Rules System (v1.4)
+
+**NEW in v1.4:** SEO image optimization now follows a **two-tier rules system**:
+
+### 1. Global Rules (Base Layer)
+
+Located in `skills/seo-images-manager/references/global-rules.md`, these apply to **ALL projects** and include:
+
+- **File Naming Conventions**: Lowercase, hyphens, max 5-7 words, `.webp` preferred
+- **Structure Pattern**: `[subject]-[qualifier]-[location/brand].webp`
+- **Anti-Cannibalization Rules**: No duplicate keywords, synonym strategies by language
+- **Alt Text Guidelines**: Max 125 chars, descriptive, one keyword, no "Image of" prefix
+- **Title Attribute**: 3-8 words, complementary to alt text
+- **Caption Guidelines**: User-facing, natural, CTA-friendly
+- **WordPress Implementation**: Upload checklist, SEO plugin integration, performance optimization
+
+**Industry-Specific Patterns:**
+- Hospitality: `[amenity]-[feature]-[hotel-name]-[location].webp`
+- E-commerce: `[product]-[variant]-[brand]-[color/size].webp`
+- Real Estate: `[property-type]-[rooms]-[location]-[feature].webp`
+- Blog/Content: `[topic]-[subtopic]-[year/context].webp`
+
+### 2. Project Overrides (PROJECT.md)
+
+Each project can override global rules in its `PROJECT.md` file under:
+
+```markdown
+## Image SEO Overrides
+
+### Naming Convention Overrides
+- Max 3-4 words (shorter than global 5-7)
+- Always include brand name at end
+
+### Alt Text Overrides
+- Max 100 characters (shorter than global 125)
+- Always include year for blog posts
+
+### Language-Specific Rules
+- **Primary Language:** es
+- **Secondary Language:** en
+- **Tertiary Language:** fr
+```
+
+### How Rules Are Applied
+
+During `/seo-images-manager plan`:
+
+1. **Load Global Rules** from `references/global-rules.md`
+2. **Load Project Specs** from `clients/{client}/{project}/PROJECT.md`
+3. **Merge Rules** with PROJECT.md overrides taking priority
+4. **Generate Metadata** using merged rules:
+   - Alt text max length: PROJECT.md override OR global default (125)
+   - Filename max words: PROJECT.md override OR global default (5-7)
+   - Language: PROJECT.md override OR `--language` flag OR auto-detect
+
+**Example Merge:**
+```python
+# Global rule: max_alt_text_chars = 125
+# PROJECT.md override: max_alt_text_chars = 100
+# Final applied rule: 100 characters
+```
+
+### Rule Priority Chain
+
+```
+PROJECT.md Overrides > CLI Flags > Project Specs > Global Rules
+```
+
+**Example:**
+- Global rule: Max 125 chars
+- PROJECT.md: Max 100 chars
+- CLI flag: `--language it`
+- Result: Alt text in Italian, max 100 chars
+
+### Benefits
+
+✅ **Consistency**: Global rules ensure baseline quality across all projects
+✅ **Flexibility**: Per-project overrides for special requirements
+✅ **Maintainability**: Update global rules once, affects all projects
+✅ **Industry Templates**: Pre-defined patterns for common industries
+✅ **Multi-Language Support**: Language-specific synonym strategies built-in
+
+### Reference Files
+
+- **Global Rules**: `skills/seo-images-manager/references/global-rules.md` (v1.0)
+- **Project Template**: `scripts/client_manager.py` (creates PROJECT.md with override sections)
+- **Implementation**: `scripts/image_seo_planner.py` (_load_global_rules, _merge_rules methods)
+
+---
+
+## Workflow (v1.3 Interactive)
 
 ```
 images/original/          images/optimized/        WordPress
     |                          |                        |
+    | 0. Interactive Setup     |                        |
+    | ❓ Analizzare competitor?|                        |
+    | ❓ Analisi visiva?       |                        |
+    | ❓ Lingua target?        |                        |
+    |                          |                        |
     | 1. Analyze               |                        |
     | (EXIF, dimensions)       |                        |
+    | + Visual AI (optional)   |                        |
     | INCREMENTAL ✓            |                        |
     |                          |                        |
     | 2. Plan                  |                        |
     | ┌─ GSC Cache Check       |                        |
-    | │  (7-day TTL)           |                        |
+    | │  (web + image types)   |                        |
+    | ├─ Competitor GSC (opt)  |                        |
+    | ├─ Visual Context (opt)  |                        |
     | ├─ Opportunity Score     |                        |
-    | │  (0-100)               |                        |
+    | │  (0-100, +5 image)     |                        |
     | └─ Cannibalization       |                        |
     | 🔘 CHECKPOINT #1         |                        |
     |                          |                        |
@@ -56,10 +164,12 @@ images/original/          images/optimized/        WordPress
 ```
 
 **Key Features:**
+- ✅ **Interactive Questions**: 3 questions before plan (competitor, visual, language)
 - ✅ **Incremental Analysis**: Scans ONLY new images not yet in database
 - ✅ **Interactive Checkpoints**: User confirms selections via checkbox at key stages
 - ✅ **Keyword Cannibalization**: Automatic detection and prevention
 - ✅ **WordPress Integration**: Direct upload with metadata sync
+- ✅ **Multilingual**: Generates metadata in target language
 
 ---
 
@@ -134,9 +244,11 @@ Folder: seo-optimized/
 
 ## Commands
 
-### `/seo-images-manager analyze`
+### `/seo-images-manager analyze [--visual]`
 
 Scan `images/original/` directory **and all subdirectories**, extract EXIF metadata, save to database.
+
+**v1.3: Visual Analysis Option** — Use `--visual` flag to mark images for AI visual description.
 
 **Subfolder Context (v1.2):**
 
@@ -160,8 +272,14 @@ images/original/
 - Extracts subfolder name as `image_context` (e.g. "SPA Hotel")
 - Extracts EXIF data (camera, lens, date, GPS, etc.)
 - Calculates dimensions, filesize, MIME type
-- Saves to SQLite database with `synced = false` and `image_context`
+- **NEW v1.3**: If `--visual` flag set, marks images for visual analysis
+  - Actual AI descriptions generated during `plan` command
+  - Uses Claude's vision via Read tool
+  - Stores in `visual_context` column (e.g. "children playing in pool with water slides")
+- Saves to SQLite database with `synced = false`, `image_context`, `visual_context`
 - Updates existing records if file already analyzed
+
+**Note:** Analysis is **incremental** - only scans images not yet in database.
 
 **Output:**
 ```json
@@ -236,23 +354,40 @@ python scripts/image_manager.py list --project clients/prova/test --filter pendi
 
 ---
 
-### `/seo-images-manager plan <target-url> [--ids <id1,id2,id3>]`
+### `/seo-images-manager plan <target-url> [options]`
 
 Analyze target page and propose SEO keywords for each image, checking for cannibalization.
+
+**v1.3: Interactive Mode** — Skill asks 3 questions before planning:
+1. **Analizzare i competitor?** → Uses competitor domains from PROJECT.md to query GSC image data
+2. **Fare analisi visiva delle immagini?** → Generates AI descriptions of image content for richer keywords
+3. **Lingua target per alt text/title/caption?** → Generates metadata in specified language
 
 **Arguments:**
 - `target-url` (required): URL of page where images will be used
 - `--ids` (optional): Process only specific image IDs (comma-separated)
 
+**Hidden CLI Options** (used by skill after questions):
+- `--language <lang>`: Target language (es, it, en, fr, de, pt, nl)
+- `--image-search`: Also query GSC with search_type='image' (default: true)
+- `--no-image-search`: Disable GSC image search queries
+- `--competitors`: Analyze competitor domains via GSC image queries
+- `--force-refresh`: Force fresh GSC API call (bypass cache)
+
 **Actions:**
-1. Fetches target page (title, H1, meta description, existing images)
-2. Extracts primary keyword from page context
-3. For each unsynced image (or specified via --ids):
-   - Generates 5 keyword variants based on filename + page context
-   - Checks cannibalization against existing image keywords
-   - Checks similarity to page primary keyword (>80% = risk)
-   - Proposes SEO filename, alt text, title, caption
-4. Returns proposals for user review
+1. **Interactive Setup**: Asks 3 questions (competitor, visual, language)
+2. Fetches target page (title, H1, meta description, existing images)
+3. Fetches GSC data:
+   - `search_type='web'` (standard web queries)
+   - `search_type='image'` (Google Images queries, if enabled)
+   - Competitor domains (if enabled, from PROJECT.md)
+4. For each image:
+   - Reads subfolder context (e.g. "SPA Hotel")
+   - Reads visual context if available (AI description)
+   - Combines GSC web + image + competitor queries
+   - Calculates opportunity scores (+5 for image queries, +15 for context match)
+   - Checks cannibalization
+   - Generates SEO filename, alt text (in target language), title, caption
 5. **🔘 CHECKPOINT #1**: User selects which images to optimize via checkbox
 6. Saves SEO metadata ONLY for selected images
 
@@ -970,7 +1105,36 @@ For detailed checkpoint implementation with code examples, see:
 
 ---
 
-**Version:** 1.2.0
+**Version:** 1.4.0
 **Last Updated:** 2026-04-30
 **Skill Type:** Workflow Automation
 **Dependencies:** `pillow`, `requests`, `beautifulsoup4`, `python-dotenv`
+
+## Changelog
+
+### v1.4.0 (2026-04-30)
+- 📚 **Global Rules System**: Two-tier rules (global baseline + project overrides)
+- 📖 **Reference File**: `references/global-rules.md` with naming, alt text, cannibalization rules
+- 🔧 **PROJECT.md Overrides**: Per-project customization of max lengths, naming patterns
+- 🏭 **Industry Templates**: Pre-defined patterns for hospitality, e-commerce, real estate, blog
+- 🌐 **Multi-Language Synonyms**: Built-in synonym strategies for es, it, en, fr, de, pt, nl
+- ⚖️ **Rule Priority Chain**: PROJECT.md > CLI flags > Project specs > Global rules
+- 🔀 **Merge Logic**: `_load_global_rules()`, `_merge_rules()` methods in planner
+
+### v1.3.0 (2026-04-30)
+- ✨ **Interactive Questions**: 3 pre-plan questions (competitor, visual, language)
+- 🖼️ **GSC Image Search**: Dual GSC queries (web + image search types)
+- 🌍 **Multilingual Support**: Target language for alt text, title, caption
+- 👁️ **Visual Context**: AI-generated image descriptions for richer keywords
+- 🔍 **Competitor Analysis**: Analyzes competitor GSC image queries
+- 🎯 **Enhanced Scoring**: Image queries get +5 boost, source tracking (web/image/competitor)
+
+### v1.2.0 (2026-04-28)
+- 📁 Subfolder context filtering (+15 boost for relevant queries)
+- 📋 PROJECT.md integration (tone, competitors, focus keywords)
+- 🔤 Tone-aware alt text generation
+
+### v1.1.0 (2026-04-27)
+- 🔍 Google Search Console integration
+- 📊 Opportunity scoring (0-100)
+- ⚡ Intelligent caching (7-day TTL)

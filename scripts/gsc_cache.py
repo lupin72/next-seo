@@ -24,6 +24,7 @@ Usage:
 import json
 import os
 import sqlite3
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -60,39 +61,129 @@ class GSCCache:
         self._init_db()
 
     def _init_db(self):
-        """Create gsc_page_cache table if not exists."""
+        """Create gsc_page_cache table if not exists, with search_type support."""
         conn = sqlite3.connect(self.db_path)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS gsc_page_cache (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                page_url TEXT UNIQUE NOT NULL,
-                queries_data TEXT,
-                page_impressions INTEGER,
-                page_clicks INTEGER,
-                avg_position REAL,
-                total_queries INTEGER,
-                cached_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                expires_at TEXT,
-                cache_ttl_days INTEGER DEFAULT 7,
-                gsc_start_date TEXT,
-                gsc_end_date TEXT,
-                status TEXT DEFAULT 'valid',
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                updated_at TEXT
-            )
-        """)
+
+        # Check if table exists and needs migration
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='gsc_page_cache'")
+        table_exists = cursor.fetchone() is not None
+
+        if table_exists:
+            columns = [row[1] for row in conn.execute("PRAGMA table_info(gsc_page_cache)").fetchall()]
+            index_list = conn.execute("PRAGMA index_list(gsc_page_cache)").fetchall()
+
+            has_composite_unique = False
+            for index in index_list:
+                index_name = index[1]
+                is_unique = bool(index[2])
+                if not is_unique:
+                    continue
+                index_columns = [
+                    row[2] for row in conn.execute(f"PRAGMA index_info('{index_name}')").fetchall()
+                ]
+                if index_columns == ['page_url', 'search_type']:
+                    has_composite_unique = True
+                    break
+
+            needs_rebuild = 'search_type' not in columns or not has_composite_unique
+
+            if needs_rebuild:
+                has_search_type = 'search_type' in columns
+                conn.executescript("""
+                    CREATE TABLE gsc_page_cache_new (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        page_url TEXT NOT NULL,
+                        search_type TEXT NOT NULL DEFAULT 'web',
+                        queries_data TEXT,
+                        page_impressions INTEGER,
+                        page_clicks INTEGER,
+                        avg_position REAL,
+                        total_queries INTEGER,
+                        cached_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        expires_at TEXT,
+                        cache_ttl_days INTEGER DEFAULT 7,
+                        gsc_start_date TEXT,
+                        gsc_end_date TEXT,
+                        status TEXT DEFAULT 'valid',
+                        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TEXT,
+                        UNIQUE(page_url, search_type)
+                    );
+                """)
+
+                if has_search_type:
+                    conn.execute("""
+                        INSERT INTO gsc_page_cache_new (
+                            id, page_url, search_type, queries_data, page_impressions,
+                            page_clicks, avg_position, total_queries, cached_at, expires_at,
+                            cache_ttl_days, gsc_start_date, gsc_end_date, status,
+                            created_at, updated_at
+                        )
+                        SELECT
+                            id, page_url, COALESCE(search_type, 'web'), queries_data, page_impressions,
+                            page_clicks, avg_position, total_queries, cached_at, expires_at,
+                            cache_ttl_days, gsc_start_date, gsc_end_date, status,
+                            created_at, updated_at
+                        FROM gsc_page_cache
+                    """)
+                else:
+                    conn.execute("""
+                        INSERT INTO gsc_page_cache_new (
+                            id, page_url, search_type, queries_data, page_impressions,
+                            page_clicks, avg_position, total_queries, cached_at, expires_at,
+                            cache_ttl_days, gsc_start_date, gsc_end_date, status,
+                            created_at, updated_at
+                        )
+                        SELECT
+                            id, page_url, 'web', queries_data, page_impressions,
+                            page_clicks, avg_position, total_queries, cached_at, expires_at,
+                            cache_ttl_days, gsc_start_date, gsc_end_date, status,
+                            created_at, updated_at
+                        FROM gsc_page_cache
+                    """)
+
+                conn.executescript("""
+                    DROP TABLE gsc_page_cache;
+                    ALTER TABLE gsc_page_cache_new RENAME TO gsc_page_cache;
+                """)
+                conn.commit()
+        else:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS gsc_page_cache (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    page_url TEXT NOT NULL,
+                    search_type TEXT NOT NULL DEFAULT 'web',
+                    queries_data TEXT,
+                    page_impressions INTEGER,
+                    page_clicks INTEGER,
+                    avg_position REAL,
+                    total_queries INTEGER,
+                    cached_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    expires_at TEXT,
+                    cache_ttl_days INTEGER DEFAULT 7,
+                    gsc_start_date TEXT,
+                    gsc_end_date TEXT,
+                    status TEXT DEFAULT 'valid',
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TEXT,
+                    UNIQUE(page_url, search_type)
+                )
+            """)
+
         conn.execute("CREATE INDEX IF NOT EXISTS idx_gsc_cache_url ON gsc_page_cache(page_url)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_gsc_cache_url_type ON gsc_page_cache(page_url, search_type)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_gsc_cache_status ON gsc_page_cache(status)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_gsc_cache_expires ON gsc_page_cache(expires_at)")
         conn.commit()
         conn.close()
 
-    def get_cached_data(self, page_url: str) -> Optional[Dict]:
+    def get_cached_data(self, page_url: str, search_type: str = 'web') -> Optional[Dict]:
         """
-        Retrieve cached GSC data for a URL if valid.
+        Retrieve cached GSC data for a URL and search type if valid.
 
         Args:
             page_url: Target page URL
+            search_type: GSC search type ('web' or 'image')
 
         Returns:
             Cached data dict or None if expired/missing
@@ -103,10 +194,10 @@ class GSCCache:
 
         cursor.execute("""
             SELECT * FROM gsc_page_cache
-            WHERE page_url = ? AND status = 'valid'
+            WHERE page_url = ? AND search_type = ? AND status = 'valid'
             ORDER BY cached_at DESC
             LIMIT 1
-        """, (page_url,))
+        """, (page_url, search_type))
 
         row = cursor.fetchone()
         conn.close()
@@ -118,7 +209,7 @@ class GSCCache:
         expires_at = datetime.fromisoformat(row['expires_at'])
         if datetime.now() > expires_at:
             # Mark as expired
-            self._update_cache_status(page_url, 'expired')
+            self._update_cache_status(page_url, 'expired', search_type)
             return None
 
         # Parse JSON queries data
@@ -126,6 +217,7 @@ class GSCCache:
 
         return {
             'page_url': row['page_url'],
+            'search_type': search_type,
             'queries': queries_data,
             'page_impressions': row['page_impressions'],
             'page_clicks': row['page_clicks'],
@@ -137,12 +229,13 @@ class GSCCache:
             'gsc_end_date': row['gsc_end_date']
         }
 
-    def fetch_and_cache(self, page_url: str) -> Optional[Dict]:
+    def fetch_and_cache(self, page_url: str, search_type: str = 'web') -> Optional[Dict]:
         """
         Fetch fresh GSC data and cache it.
 
         Args:
             page_url: Target page URL
+            search_type: GSC search type ('web' or 'image')
 
         Returns:
             GSC data dict or None if API unavailable
@@ -152,12 +245,9 @@ class GSCCache:
             try:
                 import googleapiclient
             except ImportError:
-                # Google API client not installed - cannot use GSC
-                self._save_cache(page_url, None, status='error')
+                self._save_cache(page_url, None, status='error', search_type=search_type)
                 return None
 
-            # Import gsc_query module
-            import sys
             script_dir = Path(__file__).parent
             sys.path.insert(0, str(script_dir))
 
@@ -167,19 +257,19 @@ class GSCCache:
             end_date = datetime.now().date()
             start_date = end_date - timedelta(days=self.date_range_days)
 
-            # Fetch GSC data
+            # Fetch GSC data with search_type
             gsc = GSCQuery()
             result = gsc.query_page(
                 page_url=page_url,
                 start_date=start_date.isoformat(),
                 end_date=end_date.isoformat(),
                 dimensions=['query'],
-                row_limit=self.max_queries
+                row_limit=self.max_queries,
+                search_type=search_type
             )
 
             if not result.get('success'):
-                # Cache error status
-                self._save_cache(page_url, None, status='error')
+                self._save_cache(page_url, None, status='error', search_type=search_type)
                 return None
 
             # Parse query data
@@ -207,7 +297,6 @@ class GSCCache:
 
             avg_position = total_position_weighted / total_impressions if total_impressions > 0 else 0
 
-            # Prepare cache data
             cache_data = {
                 'queries': queries,
                 'page_impressions': total_impressions,
@@ -218,44 +307,45 @@ class GSCCache:
                 'gsc_end_date': end_date.isoformat()
             }
 
-            # Save to cache
-            self._save_cache(page_url, cache_data, status='valid')
+            self._save_cache(page_url, cache_data, status='valid', search_type=search_type)
 
             return {
                 'page_url': page_url,
+                'search_type': search_type,
                 **cache_data,
                 'cached_at': datetime.now().isoformat(),
                 'expires_at': (datetime.now() + timedelta(days=self.ttl_days)).isoformat()
             }
 
         except Exception as e:
-            print(f"GSC fetch error: {str(e)}", file=sys.stderr)
-            self._save_cache(page_url, None, status='error')
+            print(f"GSC fetch error ({search_type}): {str(e)}", file=sys.stderr)
+            self._save_cache(page_url, None, status='error', search_type=search_type)
             return None
 
-    def get_or_fetch(self, page_url: str, force_refresh: bool = False) -> Optional[Dict]:
+    def get_or_fetch(self, page_url: str, force_refresh: bool = False, search_type: str = 'web') -> Optional[Dict]:
         """
         Get cached data or fetch fresh if expired.
 
         Args:
             page_url: Target page URL
             force_refresh: Force fresh API call even if cached
+            search_type: GSC search type ('web' or 'image')
 
         Returns:
             GSC data dict or None
         """
         if force_refresh or self.force_refresh:
-            return self.fetch_and_cache(page_url)
+            return self.fetch_and_cache(page_url, search_type=search_type)
 
         # Try cache first
-        cached = self.get_cached_data(page_url)
+        cached = self.get_cached_data(page_url, search_type=search_type)
         if cached:
             return cached
 
         # Cache miss or expired - fetch fresh
-        return self.fetch_and_cache(page_url)
+        return self.fetch_and_cache(page_url, search_type=search_type)
 
-    def _save_cache(self, page_url: str, data: Optional[Dict], status: str = 'valid'):
+    def _save_cache(self, page_url: str, data: Optional[Dict], status: str = 'valid', search_type: str = 'web'):
         """
         Save or update cache entry.
 
@@ -263,6 +353,7 @@ class GSCCache:
             page_url: Target page URL
             data: GSC data dict (or None for error status)
             status: Cache status ('valid', 'expired', 'error')
+            search_type: GSC search type ('web' or 'image')
         """
         conn = sqlite3.connect(self.db_path)
         now = datetime.now().isoformat()
@@ -271,11 +362,11 @@ class GSCCache:
         if data:
             conn.execute("""
                 INSERT INTO gsc_page_cache (
-                    page_url, queries_data, page_impressions, page_clicks,
+                    page_url, search_type, queries_data, page_impressions, page_clicks,
                     avg_position, total_queries, cached_at, expires_at,
                     cache_ttl_days, gsc_start_date, gsc_end_date, status, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(page_url) DO UPDATE SET
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(page_url, search_type) DO UPDATE SET
                     queries_data = excluded.queries_data,
                     page_impressions = excluded.page_impressions,
                     page_clicks = excluded.page_clicks,
@@ -290,6 +381,7 @@ class GSCCache:
                     updated_at = excluded.updated_at
             """, (
                 page_url,
+                search_type,
                 json.dumps(data['queries']),
                 data['page_impressions'],
                 data['page_clicks'],
@@ -304,39 +396,42 @@ class GSCCache:
                 now
             ))
         else:
-            # Save error status
             conn.execute("""
-                INSERT INTO gsc_page_cache (page_url, status, cached_at, updated_at)
-                VALUES (?, ?, ?, ?)
-                ON CONFLICT(page_url) DO UPDATE SET
+                INSERT INTO gsc_page_cache (page_url, search_type, status, cached_at, updated_at)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(page_url, search_type) DO UPDATE SET
                     status = excluded.status,
                     cached_at = excluded.cached_at,
                     updated_at = excluded.updated_at
-            """, (page_url, status, now, now))
+            """, (page_url, search_type, status, now, now))
 
         conn.commit()
         conn.close()
 
-    def _update_cache_status(self, page_url: str, status: str):
+    def _update_cache_status(self, page_url: str, status: str, search_type: str = 'web'):
         """Update cache status (e.g., mark as expired)."""
         conn = sqlite3.connect(self.db_path)
         conn.execute("""
             UPDATE gsc_page_cache
             SET status = ?, updated_at = ?
-            WHERE page_url = ?
-        """, (status, datetime.now().isoformat(), page_url))
+            WHERE page_url = ? AND search_type = ?
+        """, (status, datetime.now().isoformat(), page_url, search_type))
         conn.commit()
         conn.close()
 
-    def invalidate_cache(self, page_url: Optional[str] = None):
+    def invalidate_cache(self, page_url: Optional[str] = None, search_type: Optional[str] = None):
         """
-        Invalidate cache for specific URL or all URLs.
+        Invalidate cache for specific URL/search_type or all.
 
         Args:
-            page_url: Optional URL to invalidate (None = all)
+            page_url: Optional URL to invalidate (None = all URLs)
+            search_type: Optional search type to invalidate (None = all types)
         """
         conn = sqlite3.connect(self.db_path)
-        if page_url:
+        if page_url and search_type:
+            conn.execute("UPDATE gsc_page_cache SET status = 'expired' WHERE page_url = ? AND search_type = ?",
+                         (page_url, search_type))
+        elif page_url:
             conn.execute("UPDATE gsc_page_cache SET status = 'expired' WHERE page_url = ?", (page_url,))
         else:
             conn.execute("UPDATE gsc_page_cache SET status = 'expired'")

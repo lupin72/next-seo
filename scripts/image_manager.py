@@ -39,6 +39,25 @@ def init_database(db_path):
 
     conn = sqlite3.connect(db_path)
 
+    # Migrate legacy tables before creating indexes from the current schema.
+    # Older project DBs can have gsc_page_cache without search_type, which would
+    # make schema bootstrap fail when creating idx_gsc_cache_url_type.
+    existing_tables = {
+        row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        ).fetchall()
+    }
+
+    if "gsc_page_cache" in existing_tables:
+        gsc_columns = {
+            row[1] for row in conn.execute("PRAGMA table_info(gsc_page_cache)").fetchall()
+        }
+        if "search_type" not in gsc_columns:
+            conn.execute(
+                "ALTER TABLE gsc_page_cache ADD COLUMN search_type TEXT NOT NULL DEFAULT 'web'"
+            )
+            conn.commit()
+
     # Read and execute schema
     schema_path = Path(__file__).parent / "image_db_schema.sql"
     with open(schema_path, 'r') as f:
@@ -53,37 +72,47 @@ def init_database(db_path):
 
     return db_path
 
-def analyze_images(project_path):
+def analyze_images(project_path, visual_analysis=False):
     """
     Analyze images in images/original/ directory.
 
     Scans for images, extracts metadata, saves to database.
+    When visual_analysis=True, marks images for AI visual description.
     """
     from image_analyzer import ImageAnalyzer
 
-    analyzer = ImageAnalyzer(project_path)
+    analyzer = ImageAnalyzer(project_path, visual_analysis=visual_analysis)
     results = analyzer.scan_directory()
 
     return {
         "success": True,
         "images_found": len(results),
+        "visual_analysis": visual_analysis,
         "images": results
     }
 
-def plan_seo(project_path, target_url, selected_ids=None):
+def plan_seo(project_path, target_url, selected_ids=None, language=None,
+             use_image_search=True, use_competitors=False, force_refresh=False):
     """
     Plan SEO keywords and metadata for images.
 
     Analyzes page context, proposes keywords, checks cannibalization.
+    v1.3: Supports GSC image queries, target language, and competitor analysis.
     """
     from image_seo_planner import ImageSEOPlanner
 
-    planner = ImageSEOPlanner(project_path)
-    plan = planner.create_plan(target_url, selected_ids)
+    planner = ImageSEOPlanner(
+        project_path,
+        language=language,
+        use_image_search=use_image_search,
+        use_competitors=use_competitors
+    )
+    plan = planner.create_plan(target_url, selected_ids, force_refresh=force_refresh)
 
     return {
         "success": True,
         "target_url": target_url,
+        "language": language,
         "plan": plan
     }
 
@@ -191,6 +220,8 @@ def main():
     # Analyze command
     analyze_parser = subparsers.add_parser("analyze", help="Analyze images in original/ folder")
     analyze_parser.add_argument("--project", required=True, help="Project path")
+    analyze_parser.add_argument("--visual", action="store_true",
+                                help="Enable visual analysis (mark images for AI description)")
 
     # List command
     list_parser = subparsers.add_parser("list", help="List images with status")
@@ -203,6 +234,15 @@ def main():
     plan_parser.add_argument("--project", required=True, help="Project path")
     plan_parser.add_argument("--url", required=True, help="Target page URL")
     plan_parser.add_argument("--ids", help="Comma-separated image IDs to process (e.g., 1,2,3)")
+    plan_parser.add_argument("--language", "-l", help="Target language for metadata (e.g., es, it, en)")
+    plan_parser.add_argument("--image-search", action="store_true", default=True,
+                             help="Also query GSC with search_type='image' (default: true)")
+    plan_parser.add_argument("--no-image-search", action="store_true",
+                             help="Disable GSC image search queries")
+    plan_parser.add_argument("--competitors", action="store_true",
+                             help="Analyze competitor domains via GSC image queries")
+    plan_parser.add_argument("--force-refresh", action="store_true",
+                             help="Force fresh GSC API call (bypass cache)")
 
     # Rename command
     rename_parser = subparsers.add_parser("rename", help="Rename and optimize images")
@@ -243,11 +283,19 @@ def main():
 
     # Execute command
     if args.command == "analyze":
-        result = analyze_images(args.project)
+        result = analyze_images(args.project, visual_analysis=getattr(args, 'visual', False))
     elif args.command == "list":
         result = list_images_cmd(args.project, args.filter)
     elif args.command == "plan":
-        result = plan_seo(args.project, args.url, selected_ids)
+        result = plan_seo(
+            args.project,
+            args.url,
+            selected_ids,
+            language=getattr(args, 'language', None),
+            use_image_search=not getattr(args, 'no_image_search', False),
+            use_competitors=getattr(args, 'competitors', False),
+            force_refresh=getattr(args, 'force_refresh', False)
+        )
     elif args.command == "rename":
         result = rename_images(args.project, selected_ids)
     elif args.command == "upload":

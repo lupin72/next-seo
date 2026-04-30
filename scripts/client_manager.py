@@ -266,15 +266,48 @@ def add_project(client_slug: str, name: str, url: str,
 
 ### Tone of Voice
 
-{tone if tone else '<!-- Describe the brand tone: formal, friendly, technical, conversational, etc. -->'}
+{tone if tone else '<!-- Describe the brand tone: formal, friendly, technical, conversational, luxury, etc. -->'}
 
 ### Target Audience
 
-{target_audience if target_audience else '<!-- Describe the target audience: demographics, interests, needs -->'}
+{target_audience if target_audience else '<!-- Describe the target audience: demographics, interests, needs, buying behavior -->'}
 
-### Competitors
+### Brand Context
+
+**Properties / Products / Services:**
+<!-- List key offerings, unique features, differentiators -->
+
+**Unique Selling Points (USPs):**
+<!-- What makes this brand different? Certifications, awards, unique features -->
+
+**Key Differentiators:**
+<!-- Compared to competitors, what advantages does this brand have? -->
+
+### Competitor Analysis
 
 {competitors_md}
+
+**Competitor Weaknesses to Exploit:**
+<!-- List competitor gaps, weaknesses, or missed opportunities -->
+<!-- Example: Competitor A has poor mobile experience, slow site speed -->
+<!-- Example: Competitor B ranks for X but has thin content -->
+
+**Competitor Strengths to Match:**
+<!-- What are competitors doing well that we should address? -->
+
+### Keyword Universe
+
+**High-Priority Keywords:**
+<!-- Target these first - high volume, good intent, achievable ranking -->
+{keywords_md if keywords_list else '- <!-- Add high-priority keywords -->'}
+
+**Medium-Priority Keywords:**
+<!-- Secondary targets - lower volume or higher competition -->
+- <!-- Add medium-priority keywords -->
+
+**Long-Tail Keywords:**
+<!-- Low competition, high intent, specific user queries -->
+- <!-- Add long-tail keywords -->
 
 ### Focus Keywords
 
@@ -283,6 +316,23 @@ def add_project(client_slug: str, name: str, url: str,
 ### Brand Notes
 
 {brand_notes if brand_notes else '<!-- Additional brand guidelines, style notes, terminology to use/avoid -->'}
+
+## Image SEO Overrides
+
+**Note:** These override global rules in `skills/seo-images-manager/references/global-rules.md`
+
+### Naming Convention Overrides
+<!-- Example: Max 3-4 words instead of default 5-7 -->
+<!-- Example: Always include brand name at end -->
+
+### Alt Text Overrides
+<!-- Example: Max 100 characters instead of default 125 -->
+<!-- Example: Always include year for blog posts -->
+
+### Language-Specific Rules
+- **Primary Language:** <!-- es, it, en, fr, de, pt, nl -->
+- **Secondary Language:** <!-- Optional -->
+- **Tertiary Language:** <!-- Optional -->
 
 ## SEO Goals
 

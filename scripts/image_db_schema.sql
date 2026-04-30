@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS images (
 
   -- Context
   image_context TEXT, -- Subfolder name in original/ (e.g. "SPA Hotel", "Animazione infantile")
+  visual_context TEXT, -- AI-generated description of image content (e.g. "children playing in pool")
+  language TEXT, -- Language used for metadata generation (e.g. "es", "it", "en")
   target_url TEXT,
   target_keyword TEXT,
   page_h1 TEXT,
@@ -80,10 +82,11 @@ CREATE TABLE IF NOT EXISTS image_optimizations (
   FOREIGN KEY (image_id) REFERENCES images(id) ON DELETE CASCADE
 );
 
--- Google Search Console cache (v1.1)
+-- Google Search Console cache (v1.1, updated v1.3 for search_type)
 CREATE TABLE IF NOT EXISTS gsc_page_cache (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  page_url TEXT UNIQUE NOT NULL,
+  page_url TEXT NOT NULL,
+  search_type TEXT NOT NULL DEFAULT 'web', -- 'web' or 'image'
 
   -- GSC query data
   queries_data TEXT, -- JSON: [{query, impressions, clicks, ctr, position}]
@@ -102,7 +105,9 @@ CREATE TABLE IF NOT EXISTS gsc_page_cache (
 
   -- Timestamps
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT
+  updated_at TEXT,
+
+  UNIQUE(page_url, search_type)
 );
 
 -- Indexes for performance
@@ -112,5 +117,6 @@ CREATE INDEX IF NOT EXISTS idx_images_target_url ON images(target_url);
 CREATE INDEX IF NOT EXISTS idx_keywords_image ON image_keywords(image_id);
 CREATE INDEX IF NOT EXISTS idx_keywords_keyword ON image_keywords(keyword);
 CREATE INDEX IF NOT EXISTS idx_gsc_cache_url ON gsc_page_cache(page_url);
+CREATE INDEX IF NOT EXISTS idx_gsc_cache_url_type ON gsc_page_cache(page_url, search_type);
 CREATE INDEX IF NOT EXISTS idx_gsc_cache_status ON gsc_page_cache(status);
 CREATE INDEX IF NOT EXISTS idx_gsc_cache_expires ON gsc_page_cache(expires_at);
