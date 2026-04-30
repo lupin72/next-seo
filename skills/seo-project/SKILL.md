@@ -31,16 +31,59 @@ Manages projects within clients for multi-client SEO operations. Creates organiz
 
 ### `/seo-project add <client-name> <project-name> <url>`
 
-Creates a new project under a client.
+Creates a new project under a client with **interactive SEO specification gathering**.
 
 **Arguments:**
 - `client-name` (required): Existing client name or slug
 - `project-name` (required): Project name (will be slugified)
 - `url` (required): Primary project URL
 
-**Example:**
+**Interactive Workflow:**
+
+After receiving the 3 required arguments, the system **MUST** use `AskUserQuestion` to gather SEO specifications before creating the project:
+
+**Step 1 - Ask industry and tone:**
 ```
-/seo-project add "Example Client" "Main Site" https://example.com
+AskUserQuestion:
+  Q1: "In quale settore opera il progetto?"
+      Options: Hospitality, E-commerce, SaaS, Local Business
+  Q2: "Qual è il tono di voce del brand?"
+      Options: Professionale e formale, Amichevole e conversazionale,
+               Tecnico e specialistico, Lusso ed esclusivo
+```
+
+**Step 2 - Ask competitors and keywords:**
+```
+AskUserQuestion:
+  Q1: "Quali sono i principali competitor? (inserisci URL separati da virgola)"
+      Free text input via "Other"
+  Q2: "Quali sono le parole chiave focus principali? (separate da virgola)"
+      Free text input via "Other"
+```
+
+**Step 3 - Ask target audience:**
+```
+AskUserQuestion:
+  Q1: "Chi è il target audience principale?"
+      Free text input via "Other"
+  Q2: "Note aggiuntive sul brand? (terminologia, stile, restrizioni)"
+      Free text input via "Other"
+```
+
+After gathering all responses, call the script with all parameters:
+
+**Implementation:**
+```bash
+python scripts/client_manager.py add-project \
+  --client "client-slug" \
+  --name "Project Name" \
+  --url "https://example.com" \
+  --industry "Hospitality" \
+  --tone "Professionale e formale, orientato al lusso" \
+  --target-audience "Coppie 30-55 anni, alto potere d'acquisto" \
+  --competitors "https://competitor1.com,https://competitor2.com" \
+  --keywords "hotel roma centro,hotel lusso roma" \
+  --brand-notes "Evitare termini colloquiali. Usare sempre Lei."
 ```
 
 **Creates:**
@@ -48,7 +91,7 @@ Creates a new project under a client.
 clients/
   └── example-client/
       └── main-site/
-          ├── PROJECT.md
+          ├── PROJECT.md           # With all SEO specifications filled in
           ├── reports/
           ├── images/
           │   ├── original/
@@ -57,18 +100,20 @@ clients/
           └── wordpress/
 ```
 
+**PROJECT.md includes:**
+- Project information (client, URL, industry)
+- SEO Specifications section with:
+  - Tone of Voice
+  - Target Audience
+  - Competitors (listed)
+  - Focus Keywords (listed)
+  - Brand Notes
+
 **Output:**
 - Project slug
 - Full folder path
+- Summary of SEO specifications saved
 - Confirmation with next steps
-
-**Implementation:**
-```bash
-python scripts/client_manager.py add-project \
-  --client "client-slug" \
-  --name "Project Name" \
-  --url "https://example.com"
-```
 
 ---
 
@@ -207,7 +252,7 @@ clients/{client-slug}/{project-slug}/
 
 ### PROJECT.md Template
 
-Created automatically when adding a new project:
+Created automatically when adding a new project. SEO specifications are filled during interactive creation:
 
 ```markdown
 # {Project Name}
@@ -216,9 +261,33 @@ Created automatically when adding a new project:
 
 - **Client:** {Client Name}
 - **URL:** {URL}
-- **Industry:**
+- **Industry:** {Industry}
 - **Launch Date:**
 - **CMS:**
+
+## SEO Specifications
+
+### Tone of Voice
+
+{Tone description from interactive setup}
+
+### Target Audience
+
+{Target audience from interactive setup}
+
+### Competitors
+
+- {Competitor 1 URL}
+- {Competitor 2 URL}
+
+### Focus Keywords
+
+- {Keyword 1}
+- {Keyword 2}
+
+### Brand Notes
+
+{Brand notes from interactive setup}
 
 ## SEO Goals
 
@@ -228,8 +297,8 @@ Created automatically when adding a new project:
 
 ## WordPress Integration
 
-- **REST API Endpoint:**
-- **Authentication:**
+- **REST API Endpoint:** {URL}/wp-json
+- **Authentication:** (configured separately)
 - **Media Library Folder:**
 
 ## Audit History
@@ -242,6 +311,12 @@ Created automatically when adding a new project:
 
 <!-- Add project-specific notes -->
 ```
+
+**The SEO Specifications section is read by `seo-images-manager`** during image planning to:
+- Match alt text style to the brand's tone of voice
+- Filter GSC keywords by relevance to focus keywords
+- Differentiate from competitor keyword strategies
+- Use appropriate language for the target audience
 
 ---
 
@@ -378,6 +453,6 @@ After setting up a project:
 
 ---
 
-**Version:** 1.0.0
-**Last Updated:** 2026-04-23
+**Version:** 1.1.0
+**Last Updated:** 2026-04-30
 **Skill Type:** Management / Infrastructure

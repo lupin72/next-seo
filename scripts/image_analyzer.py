@@ -39,21 +39,40 @@ class ImageAnalyzer:
         self.db_path = self.project_path / "images" / "images.db"
 
     def scan_directory(self):
-        """Scan images/original/ directory for image files."""
+        """
+        Scan images/original/ directory and subdirectories for image files.
+
+        Subdirectory names are used as semantic context for the image
+        (e.g. "SPA Hotel", "Animazione infantile").
+        Images in the root of original/ have no context.
+        """
         if not self.images_dir.exists():
             return []
 
         image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'}
-        image_files = [
-            f for f in self.images_dir.iterdir()
-            if f.is_file() and f.suffix.lower() in image_extensions
-        ]
+
+        # Collect images from root and all subdirectories
+        image_files = []
+        for img_file in self.images_dir.rglob('*'):
+            if img_file.is_file() and img_file.suffix.lower() in image_extensions:
+                image_files.append(img_file)
 
         results = []
         conn = sqlite3.connect(self.db_path)
 
+        # Ensure image_context column exists (migration for existing DBs)
+        try:
+            conn.execute("SELECT image_context FROM images LIMIT 1")
+        except sqlite3.OperationalError:
+            conn.execute("ALTER TABLE images ADD COLUMN image_context TEXT")
+            conn.commit()
+
         for img_file in image_files:
             metadata = self.analyze_image(img_file)
+
+            # Extract subfolder context: relative path from original/ to the file's parent
+            relative_parent = img_file.parent.relative_to(self.images_dir)
+            image_context = str(relative_parent) if str(relative_parent) != '.' else None
 
             # Check if already in database
             existing = conn.execute(
@@ -69,6 +88,7 @@ class ImageAnalyzer:
                         filesize = ?,
                         mime_type = ?,
                         exif_data = ?,
+                        image_context = ?,
                         updated_at = ?
                     WHERE id = ?
                 """, (
@@ -76,6 +96,7 @@ class ImageAnalyzer:
                     metadata['filesize'],
                     metadata['mime_type'],
                     json.dumps(metadata['exif']),
+                    image_context,
                     datetime.now().isoformat(),
                     existing[0]
                 ))
@@ -86,15 +107,17 @@ class ImageAnalyzer:
                     INSERT INTO images (
                         original_filename,
                         original_path,
+                        image_context,
                         dimensions,
                         filesize,
                         mime_type,
                         exif_data,
                         created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     img_file.name,
                     str(img_file),
+                    image_context,
                     json.dumps(metadata['dimensions']),
                     metadata['filesize'],
                     metadata['mime_type'],
@@ -109,6 +132,7 @@ class ImageAnalyzer:
                 "id": image_id,
                 "filename": img_file.name,
                 "path": str(img_file),
+                "image_context": image_context,
                 **metadata
             })
 

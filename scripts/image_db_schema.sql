@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS images (
   description TEXT,
 
   -- Context
+  image_context TEXT, -- Subfolder name in original/ (e.g. "SPA Hotel", "Animazione infantile")
   target_url TEXT,
   target_keyword TEXT,
   page_h1 TEXT,

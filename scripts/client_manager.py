@@ -186,8 +186,12 @@ def add_client(name: str) -> Dict[str, Any]:
     }
 
 
-def add_project(client_slug: str, name: str, url: str) -> Dict[str, Any]:
-    """Add a new project to a client."""
+def add_project(client_slug: str, name: str, url: str,
+                 industry: str = '', tone: str = '', target_audience: str = '',
+                 competitors: Optional[List[str]] = None,
+                 focus_keywords: Optional[List[str]] = None,
+                 brand_notes: str = '') -> Dict[str, Any]:
+    """Add a new project to a client with optional SEO specifications."""
     project_slug = slugify(name)
     db_path = get_db_path()
     init_database(db_path)
@@ -239,15 +243,46 @@ def add_project(client_slug: str, name: str, url: str) -> Dict[str, Any]:
 
     # Create PROJECT.md
     project_md_path = project_path / 'PROJECT.md'
+
+    # Format competitors list
+    competitors_list = competitors or []
+    competitors_md = '\n'.join(f'- {c}' for c in competitors_list) if competitors_list else '- <!-- Add competitor URLs -->'
+
+    # Format focus keywords list
+    keywords_list = focus_keywords or []
+    keywords_md = '\n'.join(f'- {k}' for k in keywords_list) if keywords_list else '- <!-- Add focus keywords -->'
+
     project_md_content = f"""# {name}
 
 ## Project Information
 
 - **Client:** {client_name}
 - **URL:** {url}
-- **Industry:**
+- **Industry:** {industry}
 - **Launch Date:**
 - **CMS:**
+
+## SEO Specifications
+
+### Tone of Voice
+
+{tone if tone else '<!-- Describe the brand tone: formal, friendly, technical, conversational, etc. -->'}
+
+### Target Audience
+
+{target_audience if target_audience else '<!-- Describe the target audience: demographics, interests, needs -->'}
+
+### Competitors
+
+{competitors_md}
+
+### Focus Keywords
+
+{keywords_md}
+
+### Brand Notes
+
+{brand_notes if brand_notes else '<!-- Additional brand guidelines, style notes, terminology to use/avoid -->'}
 
 ## SEO Goals
 
@@ -598,6 +633,12 @@ def main():
     add_project_parser.add_argument('--client', required=True, help='Client slug')
     add_project_parser.add_argument('--name', required=True, help='Project name')
     add_project_parser.add_argument('--url', required=True, help='Project URL')
+    add_project_parser.add_argument('--industry', default='', help='Industry/sector')
+    add_project_parser.add_argument('--tone', default='', help='Tone of voice description')
+    add_project_parser.add_argument('--target-audience', default='', help='Target audience description')
+    add_project_parser.add_argument('--competitors', default='', help='Comma-separated competitor URLs')
+    add_project_parser.add_argument('--keywords', default='', help='Comma-separated focus keywords')
+    add_project_parser.add_argument('--brand-notes', default='', help='Additional brand notes')
 
     # set-active
     set_active_parser = subparsers.add_parser('set-active', help='Set active project')
@@ -634,7 +675,17 @@ def main():
         if args.command == 'add-client':
             result = add_client(args.name)
         elif args.command == 'add-project':
-            result = add_project(args.client, args.name, args.url)
+            competitors = [c.strip() for c in args.competitors.split(',') if c.strip()] if args.competitors else None
+            keywords = [k.strip() for k in args.keywords.split(',') if k.strip()] if args.keywords else None
+            result = add_project(
+                args.client, args.name, args.url,
+                industry=args.industry,
+                tone=args.tone,
+                target_audience=getattr(args, 'target_audience', ''),
+                competitors=competitors,
+                focus_keywords=keywords,
+                brand_notes=getattr(args, 'brand_notes', '')
+            )
         elif args.command == 'set-active':
             result = set_active_project(args.client, args.project)
         elif args.command == 'get-active':

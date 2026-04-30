@@ -2,9 +2,15 @@
 
 ## Overview
 
-Complete image SEO optimization workflow with **Google Search Console integration** (v1.1), keyword cannibalization prevention, SQLite tracking, and WordPress synchronization.
+Complete image SEO optimization workflow with **Google Search Console integration** (v1.1), **subfolder context** (v1.2), **project specs integration** (v1.2), keyword cannibalization prevention, SQLite tracking, and WordPress synchronization.
 
 **Problem Solved:** Managing dozens of images for a blog post is tedious. You need SEO-friendly filenames, alt text, descriptions, and to avoid keyword cannibalization across images. This skill automates the entire workflow from analysis to WordPress upload.
+
+**v1.2 Features:**
+- 📁 **Subfolder Context**: Images in `original/SPA Hotel/` use "SPA Hotel" as semantic context to filter GSC keywords
+- 📋 **Project Specs**: Reads tone of voice, competitors, focus keywords from PROJECT.md
+- 🎯 **Context + GSC Combined**: Subfolder name guides GSC keyword selection (context-relevant queries get +15 boost)
+- 🔤 **Tone-aware Alt Text**: Alt text style adapts to brand tone (formal, luxury, conversational)
 
 **v1.1 Features:**
 - 🔍 **Search Console Integration**: Uses real GSC query data instead of heuristics
@@ -130,13 +136,31 @@ Folder: seo-optimized/
 
 ### `/seo-images-manager analyze`
 
-Scan `images/original/` directory, extract EXIF metadata, save to database.
+Scan `images/original/` directory **and all subdirectories**, extract EXIF metadata, save to database.
+
+**Subfolder Context (v1.2):**
+
+Images can be organized in subdirectories of `original/`. The subdirectory name becomes the **semantic context** for the image, used during planning to filter and prioritize relevant GSC keywords.
+
+```
+images/original/
+  ├── IMG_0001.jpg                    # No context (root)
+  ├── SPA Hotel/                      # Context: "SPA Hotel"
+  │   ├── IMG_0002.jpg
+  │   └── IMG_0003.jpg
+  ├── Animazione infantile/           # Context: "Animazione infantile"
+  │   └── IMG_0004.jpg
+  └── Ristorante/                     # Context: "Ristorante"
+      ├── IMG_0005.jpg
+      └── IMG_0006.jpg
+```
 
 **Actions:**
-- Scans for `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.bmp` files
+- Scans recursively for `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.bmp` files
+- Extracts subfolder name as `image_context` (e.g. "SPA Hotel")
 - Extracts EXIF data (camera, lens, date, GPS, etc.)
 - Calculates dimensions, filesize, MIME type
-- Saves to SQLite database with `synced = false`
+- Saves to SQLite database with `synced = false` and `image_context`
 - Updates existing records if file already analyzed
 
 **Output:**
@@ -449,6 +473,7 @@ SQLite database at `clients/{client}/{project}/images/images.db`:
 | title | TEXT | Generated title |
 | caption | TEXT | Generated caption |
 | description | TEXT | Extended description (optional) |
+| image_context | TEXT | Subfolder name providing semantic context (e.g. "SPA Hotel") |
 | target_url | TEXT | Page URL where image will be used |
 | target_keyword | TEXT | Selected SEO keyword |
 | page_h1 | TEXT | H1 of target page |
@@ -535,15 +560,21 @@ if similarity > 0.8:
 
 ```
 clients/{client-slug}/{project-slug}/
+  ├── PROJECT.md                 # SEO specs (tone, competitors, keywords)
   ├── images/
   │   ├── original/              # Source images (user uploads here)
-  │   │   ├── IMG_1234.jpg
-  │   │   ├── IMG_5678.jpg
-  │   │   └── photo.png
+  │   │   ├── IMG_0001.jpg       # Root: no context
+  │   │   ├── SPA Hotel/         # Subfolder = context "SPA Hotel"
+  │   │   │   ├── IMG_0002.jpg
+  │   │   │   └── IMG_0003.jpg
+  │   │   ├── Ristorante/        # Subfolder = context "Ristorante"
+  │   │   │   └── IMG_0004.jpg
+  │   │   └── Animazione/        # Subfolder = context "Animazione"
+  │   │       └── IMG_0005.jpg
   │   ├── optimized/             # SEO-optimized images (generated)
-  │   │   ├── hotels-in-rome-luxury-suite.jpg
-  │   │   ├── rome-hotel-breakfast.jpg
-  │   │   └── rome-colosseum-view.jpg
+  │   │   ├── hotel-spa-wellness-centro.jpg
+  │   │   ├── ristorante-colazione-buffet.jpg
+  │   │   └── animazione-bambini-piscina.jpg
   │   └── images.db              # SQLite database
   ├── wordpress/
   │   ├── config.json            # WordPress connection metadata
@@ -939,7 +970,7 @@ For detailed checkpoint implementation with code examples, see:
 
 ---
 
-**Version:** 1.1.0
-**Last Updated:** 2026-04-27
+**Version:** 1.2.0
+**Last Updated:** 2026-04-30
 **Skill Type:** Workflow Automation
 **Dependencies:** `pillow`, `requests`, `beautifulsoup4`, `python-dotenv`
