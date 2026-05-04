@@ -354,7 +354,7 @@ def add_project(client_slug: str, name: str, url: str,
 
 ## Image SEO Overrides
 
-**Note:** These override global rules in `skills/seo-images-manager/references/global-rules.md`
+**Note:** These override global rules in `skills/seo-images-manager/references/seo-rules.md`
 
 ### Naming Convention Overrides
 <!-- Example: Max 3-4 words instead of default 5-7 -->

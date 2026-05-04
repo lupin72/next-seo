@@ -145,7 +145,7 @@ class ImageSEOPlanner:
 
     def _load_global_rules(self):
         """
-        Load global SEO rules from skills/seo-images-manager/references/global-rules.md.
+        Load global SEO rules from skills/seo-images-manager/references/seo-rules.md.
 
         Returns:
             dict: Parsed global rules (naming conventions, alt text rules, etc.)
@@ -153,7 +153,7 @@ class ImageSEOPlanner:
         # Find repo root (where clients/ folder is)
         repo_root = Path(__file__).parent.parent
 
-        global_rules_path = repo_root / "skills" / "seo-images-manager" / "references" / "global-rules.md"
+        global_rules_path = repo_root / "skills" / "seo-images-manager" / "references" / "seo-rules.md"
 
         if not global_rules_path.exists():
             return {}
@@ -1044,15 +1044,229 @@ class ImageSEOPlanner:
 
         return proposals[:10]
 
+    def _get_industry_pattern(self):
+        """
+        Get industry-specific keyword pattern from global rules.
+
+        Returns:
+            dict: Pattern configuration with structure and examples
+        """
+        industry = self.project_specs.get('industry', '').lower()
+
+        patterns = {
+            'hospitality': {
+                'structure': '[amenity]-[feature]-[hotel-name]-[location]',
+                'components': ['amenity', 'feature', 'brand', 'location'],
+                'example': 'animacion-infantil-hotel-acuazul-peniscola'
+            },
+            'e-commerce': {
+                'structure': '[product]-[variant]-[brand]-[attribute]',
+                'components': ['product', 'variant', 'brand', 'attribute'],
+                'example': 'leather-jacket-biker-style-zara-black'
+            },
+            'real estate': {
+                'structure': '[property-type]-[rooms]-[location]-[feature]',
+                'components': ['property_type', 'rooms', 'location', 'feature'],
+                'example': 'apartment-3-bedroom-madrid-balcony'
+            },
+            'blog': {
+                'structure': '[topic]-[subtopic]-[context]',
+                'components': ['topic', 'subtopic', 'context'],
+                'example': 'seo-image-optimization-guide-2026'
+            }
+        }
+
+        return patterns.get(industry, patterns.get('blog'))  # Default to blog pattern
+
+    def _get_language_synonyms(self, word, language='es'):
+        """
+        Get synonyms for a word based on language from global rules.
+
+        Args:
+            word: Word to find synonyms for
+            language: Target language code (es, it, en, fr, de, pt, nl)
+
+        Returns:
+            list: List of synonyms
+        """
+        # Synonym strategies from seo-rules.md
+        synonyms_map = {
+            'es': {
+                'piscina': ['zona de baño', 'complejo acuático', 'parque acuático'],
+                'habitación': ['suite', 'alojamiento', 'apartamento', 'room'],
+                'playa': ['costa', 'litoral', 'orilla', 'arena'],
+                'niños': ['infantil', 'familiar', 'peques', 'kids'],
+                'vistas': ['panorámica', 'mirador', 'skyline'],
+                'hotel': ['aparthotel', 'establecimiento', 'alojamiento'],
+                'animación': ['entretenimiento', 'actividades', 'programa']
+            },
+            'en': {
+                'pool': ['swimming area', 'aquatic complex', 'water park'],
+                'room': ['suite', 'accommodation', 'apartment'],
+                'beach': ['coast', 'shore', 'seaside'],
+                'kids': ['children', 'family', 'junior'],
+                'view': ['panorama', 'outlook', 'vista']
+            },
+            'it': {
+                'piscina': ['zona balneare', 'complesso acquatico', 'parco acquatico'],
+                'camera': ['suite', 'alloggio', 'appartamento'],
+                'spiaggia': ['costa', 'litorale', 'riva'],
+                'bambini': ['infantile', 'familiare', 'junior'],
+                'vista': ['panorama', 'veduta', 'affaccio']
+            },
+            'fr': {
+                'piscine': ['zone de baignade', 'complexe aquatique', 'parc aquatique'],
+                'chambre': ['suite', 'logement', 'appartement'],
+                'plage': ['côte', 'littoral', 'rivage'],
+                'enfants': ['infantile', 'familial', 'junior'],
+                'vue': ['panorama', 'point de vue', 'perspective']
+            }
+        }
+
+        lang_synonyms = synonyms_map.get(language[:2], synonyms_map.get('es', {}))
+        word_lower = word.lower()
+
+        return lang_synonyms.get(word_lower, [])
+
+    def _generate_keyword_with_pattern(self, image_context, page_context, existing_keywords):
+        """
+        Generate keyword using industry-specific pattern from global rules.
+
+        Args:
+            image_context: Subfolder context (e.g. "animacion infantil")
+            page_context: Page metadata
+            existing_keywords: Already used keywords
+
+        Returns:
+            list: Keywords following industry pattern
+        """
+        pattern = self._get_industry_pattern()
+        industry = self.project_specs.get('industry', '').lower()
+        language = self.merged_rules.get('primary_language', 'es')
+
+        keywords = []
+
+        if industry == 'hospitality' and image_context:
+            # Pattern: [amenity]-[feature]-[hotel-name]-[location]
+            amenity = image_context.lower().replace(' ', '-')
+
+            # Extract location from page context
+            h1 = page_context.get('h1', '').lower()
+            title = page_context.get('title', '').lower()
+
+            # Try to extract location (e.g. "peñíscola", "madrid")
+            location_keywords = ['peñíscola', 'madrid', 'barcelona', 'valencia']
+            location = None
+            for loc in location_keywords:
+                if loc in h1 or loc in title:
+                    location = loc
+                    break
+
+            # Try to extract brand/hotel name
+            brand_keywords = ['mediterraneo', 'acuazul', 'acualandia', 'castillo']
+            brand = None
+            for b in brand_keywords:
+                if b in h1 or b in title:
+                    brand = b
+                    break
+
+            # Generate variants with different combinations
+            if location:
+                # Full pattern: amenity-feature-brand-location
+                if brand:
+                    kw = f"{amenity}-hotel-{brand}-{location}"
+                    if kw not in existing_keywords:
+                        keywords.append(kw)
+
+                # Shorter: amenity-brand-location
+                if brand:
+                    kw = f"{amenity}-{brand}-{location}"
+                    if kw not in existing_keywords:
+                        keywords.append(kw)
+
+                # amenity-location
+                kw = f"{amenity}-{location}"
+                if kw not in existing_keywords:
+                    keywords.append(kw)
+
+            # Generate with synonyms
+            context_words = amenity.split('-')
+            for word in context_words:
+                synonyms = self._get_language_synonyms(word, language)
+                for syn in synonyms[:2]:  # Max 2 synonyms per word
+                    syn_clean = syn.replace(' ', '-')
+                    if location:
+                        kw = f"{syn_clean}-{location}"
+                        if kw not in existing_keywords and kw not in keywords:
+                            keywords.append(kw)
+
+        return keywords
+
+    def _suggest_cannibalization_alternatives(self, keyword, image_context, existing_keywords, page_context):
+        """
+        Suggest alternative keywords when cannibalization detected.
+
+        Uses synonym strategies from global rules to generate non-competing variants.
+
+        Args:
+            keyword: Original keyword with cannibalization
+            image_context: Image context for better alternatives
+            existing_keywords: Keywords to avoid
+            page_context: Page metadata
+
+        Returns:
+            list: Alternative keyword suggestions
+        """
+        language = self.merged_rules.get('primary_language', 'es')
+        alternatives = []
+
+        # Split keyword into words
+        words = keyword.lower().split()
+
+        # Try replacing each word with synonyms
+        for i, word in enumerate(words):
+            synonyms = self._get_language_synonyms(word, language)
+            for syn in synonyms:
+                # Create alternative by replacing word with synonym
+                alt_words = words.copy()
+                alt_words[i] = syn
+                alt_keyword = ' '.join(alt_words)
+
+                if alt_keyword not in existing_keywords and alt_keyword not in alternatives:
+                    alternatives.append(alt_keyword)
+
+                    if len(alternatives) >= 3:  # Max 3 alternatives
+                        return alternatives
+
+        # If no alternatives found via synonyms, try adding image_context
+        if not alternatives and image_context:
+            context_phrase = image_context.lower()
+            if context_phrase not in keyword:
+                alt_keyword = f"{keyword} {context_phrase}".strip()
+                if alt_keyword not in existing_keywords:
+                    alternatives.append(alt_keyword)
+
+        return alternatives
+
     def generate_keywords_heuristic(self, filename, page_context, existing_keywords, image_context=None):
         """
         Fallback: Generate keywords using page context heuristics.
 
-        Used when GSC data unavailable.
+        Uses global rules for industry-specific patterns and synonym strategies.
         When image_context is set, it's combined with page keywords
         to create more specific long-tail variants.
         """
         base_keywords = self.generate_keyword_variants(filename, page_context)
+
+        # NEW (v1.4): Use industry-specific patterns from global rules
+        if image_context:
+            pattern_keywords = self._generate_keyword_with_pattern(
+                image_context, page_context, existing_keywords
+            )
+            # Add pattern-based keywords at the beginning (higher priority)
+            for kw in reversed(pattern_keywords):
+                if kw not in base_keywords:
+                    base_keywords.insert(0, kw)
 
         # If image_context is set, add context-based variants
         if image_context:
@@ -1072,13 +1286,27 @@ class ImageSEOPlanner:
         proposals = []
         for kw in base_keywords[:5]:
             cannibalization = self.check_cannibalization(kw, existing_keywords, page_context)
-            proposals.append({
+
+            # NEW (v1.4): If cannibalization detected, suggest alternatives
+            alternatives = []
+            if cannibalization['risk']:
+                alternatives = self._suggest_cannibalization_alternatives(
+                    kw, image_context, existing_keywords, page_context
+                )
+
+            proposal = {
                 "keyword": kw,
                 "cannibalization_risk": cannibalization['risk'],
                 "cannibalization_note": cannibalization.get('message', ''),
                 "recommended": not cannibalization['risk'],
                 "image_context": image_context
-            })
+            }
+
+            # Add alternatives if available
+            if alternatives:
+                proposal['alternatives'] = alternatives
+
+            proposals.append(proposal)
 
         return proposals
 

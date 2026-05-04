@@ -44,7 +44,7 @@ See [GSC-INTEGRATION.md](GSC-INTEGRATION.md) for technical details.
 
 ### 1. Global Rules (Base Layer)
 
-Located in `skills/seo-images-manager/references/global-rules.md`, these apply to **ALL projects** and include:
+Located in `skills/seo-images-manager/references/seo-rules.md`, these apply to **ALL projects** and include:
 
 - **File Naming Conventions**: Lowercase, hyphens, max 5-7 words, `.webp` preferred
 - **Structure Pattern**: `[subject]-[qualifier]-[location/brand].webp`
@@ -85,7 +85,7 @@ Each project can override global rules in its `PROJECT.md` file under:
 
 During `/seo-images-manager plan`:
 
-1. **Load Global Rules** from `references/global-rules.md`
+1. **Load Global Rules** from `references/seo-rules.md`
 2. **Load Project Specs** from `clients/{client}/{project}/PROJECT.md`
 3. **Merge Rules** with PROJECT.md overrides taking priority
 4. **Generate Metadata** using merged rules:
@@ -122,7 +122,7 @@ PROJECT.md Overrides > CLI Flags > Project Specs > Global Rules
 
 ### Reference Files
 
-- **Global Rules**: `skills/seo-images-manager/references/global-rules.md` (v1.0)
+- **Global Rules**: `skills/seo-images-manager/references/seo-rules.md` (v1.0)
 - **Project Template**: `scripts/client_manager.py` (creates PROJECT.md with override sections)
 - **Implementation**: `scripts/image_seo_planner.py` (_load_global_rules, _merge_rules methods)
 
@@ -1114,7 +1114,7 @@ For detailed checkpoint implementation with code examples, see:
 
 ### v1.4.0 (2026-04-30)
 - 📚 **Global Rules System**: Two-tier rules (global baseline + project overrides)
-- 📖 **Reference File**: `references/global-rules.md` with naming, alt text, cannibalization rules
+- 📖 **Reference File**: `references/seo-rules.md` with naming, alt text, cannibalization rules
 - 🔧 **PROJECT.md Overrides**: Per-project customization of max lengths, naming patterns
 - 🏭 **Industry Templates**: Pre-defined patterns for hospitality, e-commerce, real estate, blog
 - 🌐 **Multi-Language Synonyms**: Built-in synonym strategies for es, it, en, fr, de, pt, nl
