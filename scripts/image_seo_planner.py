@@ -280,67 +280,69 @@ class ImageSEOPlanner:
         merged['project_overrides_applied'] = True
         return merged
 
-    def create_plan(self, target_url, selected_ids=None, force_refresh=False):
+    def create_plan(self, selected_ids=None, force_refresh=False):
         """
         Create SEO plan for all unsynced images (or selected images).
 
-        v1.3: Supports dual GSC queries (web + image), visual context,
-        competitor analysis, and target language.
+        v1.4: Uses site URL from PROJECT.md, folder name as page context.
+        No longer requires target_url - context determined by image_context (subfolder name).
 
         Args:
-            target_url: URL of page where images will be used
             selected_ids: Optional list of image IDs to process
             force_refresh: Force fresh GSC API call
 
         Returns:
             dict: Plan with keyword proposals for each image
         """
-        # Analyze page context
-        page_context = self.analyze_page(target_url)
+        # Build context from PROJECT.md + merged rules
+        site_context = {}
 
-        # Enrich page context with project specifications and merged rules
+        # Get site URL from PROJECT.md
+        site_url = self.project_specs.get('url', '')
+
         if self.project_specs:
-            page_context['project_specs'] = self.project_specs
+            site_context['project_specs'] = self.project_specs
+            site_context['site_url'] = site_url
             if 'focus_keywords' in self.project_specs:
-                page_context['focus_keywords'] = self.project_specs['focus_keywords']
+                site_context['focus_keywords'] = self.project_specs['focus_keywords']
 
         # Add merged rules to context (global rules + PROJECT.md overrides)
-        page_context['merged_rules'] = self.merged_rules
+        site_context['merged_rules'] = self.merged_rules
 
         # Store language in context
         if self.language:
-            page_context['language'] = self.language
+            site_context['language'] = self.language
 
-        # Fetch GSC web data
+        # Fetch GSC web data (on domain, not specific page)
         gsc_data = None
-        if self.use_gsc:
+        if self.use_gsc and site_url:
             try:
                 gsc_data = self.gsc_cache.get_or_fetch(
-                    target_url, force_refresh=force_refresh, search_type='web'
+                    site_url, force_refresh=force_refresh, search_type='web'
                 )
                 if gsc_data:
-                    page_context['gsc_enabled'] = True
-                    page_context['gsc_queries'] = gsc_data.get('total_queries', 0)
-                    page_context['gsc_cached_at'] = gsc_data.get('cached_at', '')
+                    site_context['gsc_enabled'] = True
+                    site_context['gsc_queries'] = gsc_data.get('total_queries', 0)
+                    site_context['gsc_cached_at'] = gsc_data.get('cached_at', '')
             except Exception as e:
                 print(f"GSC web fetch failed: {e}", file=sys.stderr)
                 gsc_data = None
 
-        # Fetch GSC image data (v1.3)
+        # Fetch GSC image data
         gsc_image_data = None
-        if self.use_gsc and self.use_image_search:
+        if self.use_gsc and self.use_image_search and site_url:
             try:
                 gsc_image_data = self.gsc_cache.get_or_fetch(
-                    target_url, force_refresh=force_refresh, search_type='image'
+                    site_url, force_refresh=force_refresh, search_type='image'
                 )
                 if gsc_image_data:
-                    page_context['gsc_image_enabled'] = True
-                    page_context['gsc_image_queries'] = gsc_image_data.get('total_queries', 0)
+                    site_context['gsc_image_enabled'] = True
+                    site_context['gsc_image_queries'] = gsc_image_data.get('total_queries', 0)
             except Exception as e:
                 print(f"GSC image fetch failed: {e}", file=sys.stderr)
                 gsc_image_data = None
 
-        # Fetch competitor GSC image data (v1.3)
+        # Fetch competitor GSC image data
         competitor_image_data = []
         if self.use_gsc and self.use_competitors and self.project_specs.get('competitors'):
             for comp_url in self.project_specs['competitors'][:3]:  # Max 3 competitors
@@ -354,7 +356,7 @@ class ImageSEOPlanner:
                     pass  # Competitors may not be in our GSC property
 
             if competitor_image_data:
-                page_context['competitor_image_queries'] = len(competitor_image_data)
+                site_context['competitor_image_queries'] = len(competitor_image_data)
 
         # Get unsynced images from database
         conn = sqlite3.connect(self.db_path)
@@ -373,14 +375,14 @@ class ImageSEOPlanner:
             images = conn.execute("""
                 SELECT id, original_filename, dimensions, exif_data, image_context, visual_context
                 FROM images
-                WHERE synced = 0 AND target_url IS NULL
+                WHERE synced = 0 AND seo_filename IS NULL
                 ORDER BY created_at ASC
             """).fetchall()
 
         if not images:
             conn.close()
             return {
-                "page_context": page_context,
+                "site_context": site_context,
                 "images": [],
                 "message": "No images found to plan"
             }
@@ -391,16 +393,17 @@ class ImageSEOPlanner:
         # Get existing SEO filenames for collision detection
         existing_filenames = self.get_existing_seo_filenames(conn)
 
-        # Create proposals for each image
+        # Create proposals for each image (3 variants per image)
         proposals = []
         for img in images:
             image_context = img['image_context'] if 'image_context' in img.keys() else None
             visual_context = img['visual_context'] if 'visual_context' in img.keys() else None
 
+            # Generate 3 keyword variants with scoring
             proposal = self.propose_keywords(
                 image_id=img['id'],
                 filename=img['original_filename'],
-                page_context=page_context,
+                site_context=site_context,
                 existing_keywords=self.get_existing_keywords(conn),
                 existing_filenames=existing_filenames,
                 gsc_data=merged_gsc_data,
@@ -409,48 +412,11 @@ class ImageSEOPlanner:
             )
             proposals.append(proposal)
 
-            existing_filenames.append(proposal['seo_metadata']['filename'])
-
-            if merged_gsc_data and proposal.get('keyword_proposals'):
-                self.save_keyword_proposals(conn, img['id'], proposal['keyword_proposals'])
-
-            # Save SEO metadata to database
-            seo_meta = proposal['seo_metadata']
-            conn.execute("""
-                UPDATE images
-                SET seo_filename = ?,
-                    alt_text = ?,
-                    title = ?,
-                    caption = ?,
-                    target_keyword = ?,
-                    target_url = ?,
-                    page_h1 = ?,
-                    page_title = ?,
-                    page_context = ?,
-                    language = ?,
-                    updated_at = ?
-                WHERE id = ?
-            """, (
-                seo_meta['filename'],
-                seo_meta['alt_text'],
-                seo_meta['title'],
-                seo_meta['caption'],
-                proposal['selected_keyword'],
-                target_url,
-                page_context.get('h1', ''),
-                page_context.get('title', ''),
-                json.dumps(page_context),
-                self.language,
-                datetime.now().isoformat(),
-                img['id']
-            ))
-            conn.commit()
-
         conn.close()
 
         return {
-            "target_url": target_url,
-            "page_context": page_context,
+            "site_url": site_url,
+            "site_context": site_context,
             "images": proposals,
             "total": len(proposals),
             "language": self.language,
@@ -606,84 +572,79 @@ class ImageSEOPlanner:
         # Fallback: return title
         return title_lower[:50]
 
-    def propose_keywords(self, image_id, filename, page_context, existing_keywords,
+    def propose_keywords(self, image_id, filename, site_context, existing_keywords,
                          existing_filenames=None, gsc_data=None, image_context=None,
                          visual_context=None):
         """
-        Propose SEO keywords for an image using GSC data or fallback heuristics.
+        Propose 3 keyword variants for an image with scoring.
 
-        v1.3: Adds visual_context (AI image description) for richer keyword generation.
-        Combined context = subfolder name + visual description + GSC queries.
+        v1.4: Generates exactly 3 variants with Opportunity, Gap, and SEO scores.
+        Context determined by subfolder name + PROJECT.md brand context.
 
         Args:
             image_id: Database image ID
             filename: Original filename
-            page_context: Page metadata dict
+            site_context: Site metadata from PROJECT.md
             existing_keywords: List of already-used keywords
             existing_filenames: List of already-used SEO filenames
             gsc_data: Optional merged GSC data dict (web + image + competitor)
-            image_context: Optional subfolder name providing semantic context
+            image_context: Subfolder name (e.g. "Piscina Hotel", "Ristorante")
             visual_context: Optional AI-generated image description
 
         Returns:
-            dict: Keyword proposals with opportunity scores and SEO metadata
+            dict: 3 keyword variants with scoring (Opportunity, Gap, SEO)
         """
-        # Combine image_context + visual_context for richer filtering
+        # Combine image_context + visual_context
         combined_context = self._combine_contexts(image_context, visual_context)
 
-        # Strategy 1: GSC-powered keyword generation
-        if gsc_data and gsc_data.get('queries'):
-            keyword_proposals = self.generate_keywords_from_gsc(
-                gsc_queries=gsc_data['queries'],
-                filename=filename,
-                existing_keywords=existing_keywords,
-                page_context=page_context,
-                image_context=combined_context
-            )
-        else:
-            # Strategy 2: Fallback to heuristic generation
-            keyword_proposals = self.generate_keywords_heuristic(
-                filename=filename,
-                page_context=page_context,
-                existing_keywords=existing_keywords,
-                image_context=combined_context
-            )
+        # Generate 3 keyword candidates
+        candidate_keywords = self._generate_keyword_candidates(
+            image_context=combined_context,
+            site_context=site_context,
+            gsc_data=gsc_data,
+            filename=filename,
+            existing_keywords=existing_keywords
+        )
 
-        # Select best keyword
-        if gsc_data:
-            sorted_proposals = sorted(
-                [kw for kw in keyword_proposals if not kw['cannibalization_risk']],
-                key=lambda x: x.get('opportunity_score', 0),
-                reverse=True
-            )
-            selected_keyword = sorted_proposals[0]['keyword'] if sorted_proposals else keyword_proposals[0]['keyword']
-        else:
-            selected_keyword = next(
-                (kw['keyword'] for kw in keyword_proposals if not kw['cannibalization_risk']),
-                keyword_proposals[0]['keyword'] if keyword_proposals else filename
-            )
+        # Score each candidate (Opportunity, Gap, SEO)
+        scored_variants = []
+        for i, keyword in enumerate(candidate_keywords[:3], start=1):
+            # Check cannibalization
+            cannibalization = self.check_cannibalization(keyword, existing_keywords, site_context)
 
-        # Generate SEO metadata with language support
-        seo_filename = self.generate_seo_filename(selected_keyword, existing_filenames=existing_filenames)
-        alt_text = self.generate_alt_text(selected_keyword, page_context)
-        title = self.generate_title(selected_keyword, page_context)
-        caption = self.generate_caption(selected_keyword, page_context)
+            # Calculate scores
+            opportunity_score = self._calculate_opportunity_score(keyword, gsc_data, combined_context)
+            gap_score = self._calculate_gap_score(keyword, site_context)
+            seo_score = self._calculate_seo_score(keyword, combined_context, site_context)
+            avg_score = round((opportunity_score + gap_score + seo_score) / 3, 1)
+
+            # Generate metadata for preview
+            seo_filename = self.generate_seo_filename(keyword, existing_filenames=existing_filenames)
+
+            variant = {
+                "rank": i,
+                "keyword": keyword,
+                "filename": seo_filename,
+                "opportunity_score": opportunity_score,
+                "gap_score": gap_score,
+                "seo_score": seo_score,
+                "avg_score": avg_score,
+                "cannibalization_risk": cannibalization['risk'],
+                "cannibalization_note": cannibalization.get('message', '')
+            }
+            scored_variants.append(variant)
+
+        # Sort by average score (descending)
+        scored_variants.sort(key=lambda x: x['avg_score'], reverse=True)
 
         return {
             "image_id": image_id,
             "original_filename": filename,
             "image_context": image_context,
             "visual_context": visual_context,
-            "keyword_proposals": keyword_proposals,
-            "selected_keyword": selected_keyword,
+            "variants": scored_variants,  # 3 variants with scoring
             "gsc_powered": bool(gsc_data),
-            "language": self.language,
-            "seo_metadata": {
-                "filename": seo_filename,
-                "alt_text": alt_text,
-                "title": title,
-                "caption": caption
-            }
+            "language": self.language
         }
 
     def _combine_contexts(self, image_context, visual_context):
@@ -703,6 +664,241 @@ class ImageSEOPlanner:
         if visual_context:
             parts.append(visual_context)
         return ' '.join(parts) if parts else None
+
+    def _generate_keyword_candidates(self, image_context, site_context, gsc_data, filename, existing_keywords):
+        """
+        Generate keyword candidates from multiple sources.
+
+        Returns exactly 3 candidates prioritized by:
+        1. Image context (subfolder name) + focus keywords
+        2. GSC queries matching context (if available)
+        3. Heuristic variations
+
+        Args:
+            image_context: Combined subfolder + visual context
+            site_context: PROJECT.md metadata
+            gsc_data: Optional GSC data
+            filename: Original filename
+            existing_keywords: Already-used keywords
+
+        Returns:
+            list: 3+ keyword candidates
+        """
+        candidates = []
+        project_specs = site_context.get('project_specs', {})
+        focus_keywords = project_specs.get('focus_keywords', [])
+
+        # Strategy 1: Image context + focus keywords
+        if image_context:
+            context_base = image_context.lower().replace('/', '-').replace(' ', '-')
+
+            # Variant 1: Context alone
+            candidates.append(context_base)
+
+            # Variant 2: Context + first focus keyword
+            if focus_keywords:
+                kw1 = f"{context_base}-{focus_keywords[0].lower().replace(' ', '-')}"
+                candidates.append(kw1)
+
+            # Variant 3: Context + brand/location from PROJECT.md
+            industry = project_specs.get('industry', '')
+            if 'hotel' in industry.lower() or 'hospitality' in industry.lower():
+                # Extract location or brand name from project specs
+                url = project_specs.get('url', '')
+                if url:
+                    from urllib.parse import urlparse
+                    domain = urlparse(url).netloc
+                    brand_part = domain.split('.')[0] if domain else ''
+                    if brand_part:
+                        kw2 = f"{context_base}-{brand_part}"
+                        candidates.append(kw2)
+
+        # Strategy 2: GSC queries matching context
+        if gsc_data and gsc_data.get('queries') and image_context:
+            context_words = set(image_context.lower().split())
+            for query_data in gsc_data['queries'][:50]:
+                query = query_data['query']
+                query_words = set(query.lower().split())
+                # Check if query relates to image context
+                if context_words.intersection(query_words):
+                    if query not in candidates and query not in existing_keywords:
+                        candidates.append(query)
+                        if len(candidates) >= 5:
+                            break
+
+        # Strategy 3: Synonym variations from seo-rules.md
+        if image_context and len(candidates) < 3:
+            context_words = image_context.lower().split()
+            for word in context_words[:2]:  # First 2 words
+                synonyms = self._get_language_synonyms(word, self.language or 'es')
+                for syn in synonyms[:1]:  # 1 synonym per word
+                    syn_keyword = image_context.lower().replace(word, syn.replace(' ', '-'))
+                    if syn_keyword not in candidates:
+                        candidates.append(syn_keyword)
+                        if len(candidates) >= 5:
+                            break
+
+        # Fallback: Use focus keywords if not enough candidates
+        if len(candidates) < 3:
+            for fk in focus_keywords[:3]:
+                fk_clean = fk.lower().replace(' ', '-')
+                if fk_clean not in candidates:
+                    candidates.append(fk_clean)
+
+        # Ensure we have at least 3 candidates
+        if len(candidates) < 3:
+            candidates.append(filename.lower().replace(' ', '-'))
+            candidates.append(f"image-{image_context or 'photo'}".lower().replace(' ', '-'))
+            candidates.append("optimized-image")
+
+        return candidates[:5]  # Return top 5 for selection
+
+    def _calculate_opportunity_score(self, keyword, gsc_data, image_context):
+        """
+        Calculate Opportunity score (1-10) for a keyword.
+
+        Based on:
+        - GSC impressions (if available)
+        - Context relevance
+        - Keyword length (long-tail bonus)
+
+        Args:
+            keyword: Keyword to score
+            gsc_data: Optional GSC data
+            image_context: Image context for relevance check
+
+        Returns:
+            int: Score from 1 to 10
+        """
+        score = 5  # Base score
+
+        # GSC impressions boost
+        if gsc_data and gsc_data.get('queries'):
+            for query_data in gsc_data['queries']:
+                if query_data['query'].lower() == keyword.lower():
+                    impressions = query_data['impressions']
+                    if impressions > 1000:
+                        score += 3
+                    elif impressions > 500:
+                        score += 2
+                    elif impressions > 100:
+                        score += 1
+                    break
+
+        # Context relevance boost
+        if image_context:
+            context_words = set(image_context.lower().split())
+            keyword_words = set(keyword.lower().replace('-', ' ').split())
+            overlap = context_words.intersection(keyword_words)
+            if len(overlap) >= 2:
+                score += 2
+            elif len(overlap) == 1:
+                score += 1
+
+        # Long-tail bonus
+        word_count = len(keyword.split('-'))
+        if word_count >= 4:
+            score += 1
+
+        return min(max(score, 1), 10)  # Clamp to 1-10
+
+    def _calculate_gap_score(self, keyword, site_context):
+        """
+        Calculate Gap score (1-10) for a keyword vs competitors.
+
+        Based on:
+        - Competitor analysis from PROJECT.md
+        - Unique features/differentiators
+        - Focus keyword alignment
+
+        Args:
+            keyword: Keyword to score
+            site_context: Site context from PROJECT.md
+
+        Returns:
+            int: Score from 1 to 10
+        """
+        score = 5  # Base score
+        project_specs = site_context.get('project_specs', {})
+
+        # Check if keyword contains unique differentiators
+        # Extract from brand_notes or competitor_weaknesses in PROJECT.md
+        brand_notes = project_specs.get('brand_notes', '').lower()
+
+        # Heuristic: keywords containing unique terms score higher
+        unique_terms = ['unique', 'exclusive', 'only', 'first', 'best', 'premium', 'luxury']
+        for term in unique_terms:
+            if term in keyword.lower():
+                score += 2
+                break
+
+        # Check against focus keywords (aligned = higher gap potential)
+        focus_keywords = project_specs.get('focus_keywords', [])
+        for fk in focus_keywords:
+            if fk.lower() in keyword.lower():
+                score += 2
+                break
+
+        # Industry-specific scoring
+        industry = project_specs.get('industry', '').lower()
+        if 'hotel' in industry or 'hospitality' in industry:
+            # Hotel keywords with amenities score higher
+            amenity_terms = ['pool', 'spa', 'beach', 'restaurant', 'suite', 'view', 'park']
+            for term in amenity_terms:
+                if term in keyword.lower():
+                    score += 1
+                    break
+
+        return min(max(score, 1), 10)  # Clamp to 1-10
+
+    def _calculate_seo_score(self, keyword, image_context, site_context):
+        """
+        Calculate SEO score (1-10) for a keyword.
+
+        Based on:
+        - Keyword structure quality
+        - Uniqueness (anti-cannibalization)
+        - Relevance to image context
+        - SEO best practices (length, format)
+
+        Args:
+            keyword: Keyword to score
+            image_context: Image context for relevance
+            site_context: Site context from PROJECT.md
+
+        Returns:
+            int: Score from 1 to 10
+        """
+        score = 5  # Base score
+
+        # Keyword length (5-7 words optimal)
+        word_count = len(keyword.split('-'))
+        if 5 <= word_count <= 7:
+            score += 2
+        elif 3 <= word_count <= 4:
+            score += 1
+
+        # No generic terms
+        generic_terms = ['image', 'photo', 'picture', 'img', 'foto']
+        has_generic = any(term in keyword.lower() for term in generic_terms)
+        if not has_generic:
+            score += 1
+
+        # Context relevance
+        if image_context:
+            context_normalized = image_context.lower().replace(' ', '-')
+            if context_normalized in keyword.lower():
+                score += 2
+
+        # Natural language (no numbers, underscores)
+        if not any(char.isdigit() for char in keyword) and '_' not in keyword:
+            score += 1
+
+        # Lowercase, hyphens only (SEO best practice)
+        if keyword.islower() and ' ' not in keyword:
+            score += 1
+
+        return min(max(score, 1), 10)  # Clamp to 1-10
 
     def extract_semantic_keywords_from_filename(self, filename):
         """
@@ -849,21 +1045,19 @@ class ImageSEOPlanner:
 
         return base_filename
 
-    def generate_alt_text(self, keyword, page_context):
+    def generate_alt_text(self, keyword, image_context, site_context):
         """
         Generate descriptive alt text including keyword.
 
         Uses project specs tone of voice and target language.
-        The keyword itself should already be in the target language
-        (coming from GSC queries in the correct locale).
+        Context from image subfolder name + brand from PROJECT.md.
 
         Tone adaptation:
         - Luxury (lusso/esclusivo): use "|" separator
         - Technical: precise, factual phrasing
-        - Default: "{keyword} - {H1}" format
+        - Default: "{keyword} - {context}" format
         """
-        h1 = page_context.get('h1', '')
-        specs = page_context.get('project_specs', {})
+        specs = site_context.get('project_specs', {})
         tone = specs.get('tone', '').lower()
 
         # Separator based on language and tone
@@ -871,8 +1065,9 @@ class ImageSEOPlanner:
         if 'lusso' in tone or 'esclusiv' in tone or 'luxury' in tone:
             separator = ' | '
 
-        if h1:
-            alt = f"{keyword.capitalize()}{separator}{h1}"
+        # Use image context as secondary part
+        if image_context:
+            alt = f"{keyword.capitalize()}{separator}{image_context}"
         else:
             alt = keyword.capitalize()
 
@@ -883,19 +1078,18 @@ class ImageSEOPlanner:
 
         return alt
 
-    def generate_title(self, keyword, page_context):
+    def generate_title(self, keyword):
         """Generate image title from keyword."""
-        return keyword.title()
+        return keyword.replace('-', ' ').title()
 
-    def generate_caption(self, keyword, page_context):
+    def generate_caption(self, keyword, image_context):
         """
-        Generate image caption using page context.
+        Generate image caption using image context.
 
         Adapts connector word based on target language.
         """
-        h1 = page_context.get('h1', '')
-        if not h1:
-            return ""
+        if not image_context:
+            return keyword.capitalize()
 
         # Language-aware connector
         lang = self.language or ''
@@ -903,11 +1097,11 @@ class ImageSEOPlanner:
             'es': 'en', 'it': 'in', 'fr': 'dans', 'de': 'in',
             'pt': 'em', 'nl': 'in', 'en': 'in'
         }
-        connector = connectors.get(lang[:2] if lang else '', '-')
+        connector = connectors.get(lang[:2] if lang else '', 'in')
 
-        return f"{keyword.capitalize()} {connector} {h1}"
+        return f"{keyword.capitalize()} {connector} {image_context}"
 
-    def check_cannibalization(self, keyword, existing_keywords, page_context):
+    def check_cannibalization(self, keyword, existing_keywords, site_context):
         """
         Check if keyword causes cannibalization.
 
@@ -922,16 +1116,17 @@ class ImageSEOPlanner:
                 "message": f"Keyword '{keyword}' already used by another image"
             }
 
-        # Check 2: Too similar to primary keyword? (>80% similarity)
-        primary_kw = page_context.get('primary_keyword', '')
-        if primary_kw and keyword != primary_kw:
-            similarity = self.calculate_similarity(keyword, primary_kw)
-            if similarity > 0.8:
-                return {
-                    "risk": True,
-                    "type": "keyword_similarity",
-                    "message": f"Too similar to primary keyword: '{primary_kw}' (similarity: {similarity:.0%})"
-                }
+        # Check 2: Too similar to focus keywords? (>80% similarity)
+        focus_keywords = site_context.get('project_specs', {}).get('focus_keywords', [])
+        for fk in focus_keywords:
+            if keyword != fk.lower():
+                similarity = self.calculate_similarity(keyword, fk.lower())
+                if similarity > 0.8:
+                    return {
+                        "risk": True,
+                        "type": "keyword_similarity",
+                        "message": f"Too similar to focus keyword: '{fk}' (similarity: {similarity:.0%})"
+                    }
 
         # No cannibalization detected
         return {"risk": False}
