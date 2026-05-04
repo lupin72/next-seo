@@ -92,15 +92,23 @@ def analyze_images(project_path, visual_analysis=False):
     }
 
 def plan_seo(project_path, selected_ids=None, language=None,
-             use_image_search=True, use_competitors=False, force_refresh=False):
+             use_image_search=True, use_competitors=False, force_refresh=False,
+             visual_analysis=False):
     """
     Plan SEO keywords and metadata for images.
 
-    v1.4: Uses site URL from PROJECT.md, folder name as context.
+    v1.5: Auto-analyzes new images before planning.
+    Uses site URL from PROJECT.md, folder name as context.
     Generates 3 scored keyword variants per image for human selection.
     """
     from image_seo_planner import ImageSEOPlanner
+    from image_analyzer import ImageAnalyzer
 
+    # Step 1: Auto-analyze new images (incremental)
+    analyzer = ImageAnalyzer(project_path, visual_analysis=visual_analysis)
+    analysis_results = analyzer.scan_directory()
+
+    # Step 2: Generate SEO plan
     planner = ImageSEOPlanner(
         project_path,
         language=language,
@@ -112,6 +120,8 @@ def plan_seo(project_path, selected_ids=None, language=None,
     return {
         "success": True,
         "language": language,
+        "images_analyzed": len(analysis_results),
+        "new_images": len([r for r in analysis_results if r.get('new', False)]),
         "plan": plan
     }
 
@@ -229,10 +239,12 @@ def main():
                             default='all', help="Filter images by status")
 
     # Plan command
-    plan_parser = subparsers.add_parser("plan", help="Plan SEO keywords for images (3 variants with scoring)")
+    plan_parser = subparsers.add_parser("plan", help="Plan SEO keywords for images (auto-analyzes new images + 3 variants with scoring)")
     plan_parser.add_argument("--project", required=True, help="Project path")
     plan_parser.add_argument("--ids", help="Comma-separated image IDs to process (e.g., 1,2,3)")
     plan_parser.add_argument("--language", "-l", help="Target language for metadata (e.g., es, it, en)")
+    plan_parser.add_argument("--visual", action="store_true",
+                             help="Enable visual AI analysis (generate image descriptions)")
     plan_parser.add_argument("--image-search", action="store_true", default=True,
                              help="Also query GSC with search_type='image' (default: true)")
     plan_parser.add_argument("--no-image-search", action="store_true",
@@ -291,7 +303,8 @@ def main():
             language=getattr(args, 'language', None),
             use_image_search=not getattr(args, 'no_image_search', False),
             use_competitors=getattr(args, 'competitors', False),
-            force_refresh=getattr(args, 'force_refresh', False)
+            force_refresh=getattr(args, 'force_refresh', False),
+            visual_analysis=getattr(args, 'visual', False)
         )
     elif args.command == "rename":
         result = rename_images(args.project, selected_ids)

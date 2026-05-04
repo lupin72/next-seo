@@ -139,44 +139,39 @@ PROJECT.md Overrides > CLI Flags > Project Specs > Global Rules
 
 ---
 
-## Workflow (v1.3 Interactive)
+## Workflow (v1.6 Simplified)
 
 ```
 images/original/          images/optimized/        WordPress
     |                          |                        |
-    | 0. Interactive Setup     |                        |
-    | ❓ Analizzare competitor?|                        |
-    | ❓ Analisi visiva?       |                        |
-    | ❓ Lingua target?        |                        |
-    |                          |                        |
-    | 1. Analyze               |                        |
-    | (EXIF, dimensions)       |                        |
-    | + Visual AI (optional)   |                        |
-    | INCREMENTAL ✓            |                        |
-    |                          |                        |
-    | 2. Plan                  |                        |
-    | ┌─ GSC Cache Check       |                        |
+    | 1. Plan                  |                        |
+    | ┌─ Auto-Analyze NEW ✓    |                        |
+    | │  (EXIF, dimensions)    |                        |
+    | │  + Visual AI (opt)     |                        |
+    | ├─ GSC Cache Check       |                        |
     | │  (web + image types)   |                        |
     | ├─ Competitor GSC (opt)  |                        |
     | ├─ Visual Context (opt)  |                        |
-    | ├─ Opportunity Score     |                        |
-    | │  (0-100, +5 image)     |                        |
+    | ├─ 3 Keyword Variants    |                        |
+    | │  (Opportunity/Gap/SEO) |                        |
     | └─ Cannibalization       |                        |
     | 🔘 CHECKPOINT #1         |                        |
+    |    Select best variant   |                        |
     |                          |                        |
-    | 3. Rename & Optimize     |                        |
+    | 2. Rename & Optimize     |                        |
     | (SEO filename, compress) |--------> ✓             |
     |                          |                        |
-    | 4. Upload                |                        |
+    | 3. Upload                |                        |
     | 🔘 CHECKPOINT #2 ⚠️      |                 -----> ✓
     | (OBBLIGATORIO)           |                        |
+    | Select images to upload  |                        |
     |                          |                        |
     | (synced = true)          |                        |
 ```
 
 **Key Features:**
-- ✅ **Interactive Questions**: 3 questions before plan (competitor, visual, language)
-- ✅ **Incremental Analysis**: Scans ONLY new images not yet in database
+- ✅ **Auto-Analyze on Plan**: No need to run analyze separately (incremental scan)
+- ✅ **3-Variant Selection**: Choose best keyword from 3 scored options per image
 - ✅ **Interactive Checkpoints**: User confirms selections via checkbox at key stages
 - ✅ **Keyword Cannibalization**: Automatic detection and prevention
 - ✅ **WordPress Integration**: Direct upload with metadata sync
@@ -188,46 +183,80 @@ images/original/          images/optimized/        WordPress
 
 This skill uses **interactive checkpoints** to give you full control over which images to process at each stage.
 
-### Checkpoint #1: After Plan (Keyword Selection)
+### Checkpoint #1: After Plan (Variant Selection) 🆕 v1.6
 
-**When:** After `/seo-images-manager plan <url>` generates keyword proposals
+**When:** After `/seo-images-manager plan` generates 3 keyword variants per image
 
-**Purpose:** Select which images to optimize with the proposed keywords
+**Purpose:** Select best keyword variant for each image (or propose custom keyword)
 
-**UI:** Multi-select checkbox with:
-- Image ID and original filename
-- Proposed SEO filename
-- Target keyword
-- Alt text preview
-- ⚠️ Cannibalization warnings
+**UI:** For each image, choose from:
+- **Variante 1** (Score: X.X): keyword + scoring breakdown
+- **Variante 2** (Score: X.X): keyword + scoring breakdown
+- **Variante 3** (Score: X.X): keyword + scoring breakdown
+- **Proponi altra**: Enter custom keyword
 
-**Action:** System saves SEO metadata ONLY for selected images
+**Scoring Breakdown (shown for each variant):**
+- Filename: `seo-friendly-name.jpg`
+- Opportunity: X/10 (search volume potential + context relevance)
+- Gap: X/10 (competitor weakness + unique features)
+- SEO: X/10 (keyword structure quality + best practices)
+- ⚠️ Cannibalization warnings (if any)
+
+**Action:** System saves SEO metadata (filename, alt text, title, caption) ONLY for selected variants
 
 **Example:**
 ```
-🔘 Quali immagini vuoi ottimizzare?
+🔘 Immagine 1: IMG_1234.jpg (context: Piscina Hotel)
 
-☑ ID 1: IMG_1234.jpg → hotels-in-rome-luxury-suite.jpg
-  Keyword: hotels in rome luxury suite
+Seleziona la variante migliore:
 
-☐ ID 3: photo_01.png → rome-hotel-rooftop.jpg
-  Keyword: rome hotel rooftop ⚠️ Low quality
+☑ Variante 1 (Score: 8.0): piscina-hotel-acuazul-peniscola
+  Filename: piscina-hotel-acuazul-peniscola.jpg
+  Opportunity: 8/10 | Gap: 7/10 | SEO: 9/10
 
-[Conferma: 4/5 images selected]
+☐ Variante 2 (Score: 7.3): piscina-exterior-hotel-familiar
+  Filename: piscina-exterior-hotel-familiar.jpg
+  Opportunity: 7/10 | Gap: 8/10 | SEO: 7/10
+
+☐ Variante 3 (Score: 6.7): zona-bano-hotel-peniscola
+  Filename: zona-bano-hotel-peniscola.jpg
+  Opportunity: 6/10 | Gap: 6/10 | SEO: 8/10
+
+☐ Proponi altra keyword
+
+[Conferma selezione]
+```
+
+**If "Proponi altra" selected:**
+```
+Inserisci keyword personalizzata per IMG_1234.jpg:
+> animacion-infantil-piscina-hotel
+```
+
+**After selection, full metadata generated:**
+```
+✅ Variante salvata per IMG_1234.jpg
+
+Keyword: piscina-hotel-acuazul-peniscola
+Filename: piscina-hotel-acuazul-peniscola.jpg
+Alt text: Piscina hotel acuazul peñíscola | Hotel familiar con piscina
+Title: Piscina Hotel Acuazul Peñíscola
+Caption: Piscina hotel acuazul peñíscola en Hotel Familiar Peñíscola
 ```
 
 ---
 
-### Checkpoint #2: Before Upload (OBBLIGATORIO)
+### Checkpoint #2: Before Upload (OBBLIGATORIO) 🔄 v1.6
 
 **When:** ALWAYS before `/seo-images-manager upload`
 
 **Purpose:** Confirm WordPress upload to prevent accidental uploads
 
-**UI:** Multi-select checkbox with:
+**UI:** Multi-select checkbox with detailed preview:
 - WordPress URL and media folder
-- Image filename and size
-- Alt text that will be set
+- Image filename and optimized size
+- Alt text preview (truncated to 60 chars)
+- Target keyword
 - Upload confirmation
 
 **Action:** Upload proceeds ONLY for confirmed images
@@ -236,15 +265,53 @@ This skill uses **interactive checkpoints** to give you full control over which 
 ```
 ⚠️ CONFERMA UPLOAD SU WORDPRESS
 
-WordPress: https://example.com
+WordPress: https://hotelacuazul.com
+REST API: /wp-json/wp/v2/media
 Folder: seo-optimized/
 
-🔘 Confermi l'upload?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-☑ ID 1: hotels-in-rome-luxury-suite.jpg | 450 KB
-  Alt: Hotels in rome luxury suite - Top 10...
+🔘 Seleziona le immagini da caricare (4 pronte):
 
-[Conferma: 3/4 images]
+☑ ID 1: piscina-hotel-acuazul-peniscola.jpg (450 KB)
+  Alt: Piscina hotel acuazul peñíscola | Hotel familiar... | Keyword: piscina-hotel-acuazul-peniscola
+
+☑ ID 2: ristorante-buffet-colazione-hotel.jpg (520 KB)
+  Alt: Ristorante buffet colazione hotel | Desayuno h... | Keyword: ristorante-buffet-colazione
+
+☐ ID 4: animacion-infantil-piscina.jpg (320 KB)
+  Alt: Animación infantil piscina | Actividades niño... | Keyword: animacion-infantil-piscina
+  (Voglio rivedere questa prima)
+
+☑ ID 5: vistas-mar-habitacion-hotel.jpg (420 KB)
+  Alt: Vistas mar habitación hotel | Habitaciones con... | Keyword: vistas-mar-habitacion
+
+[Conferma selezione: 3/4]
+```
+
+**After confirmation:**
+```
+⬆️ Uploading 3 images to WordPress...
+
+✓ piscina-hotel-acuazul-peniscola.jpg
+  WordPress Media ID: 123
+  URL: https://hotelacuazul.com/wp-content/uploads/2026/05/piscina-hotel-acuazul-peniscola.jpg
+  Alt text set ✓ | Title set ✓ | Caption set ✓
+
+✓ ristorante-buffet-colazione-hotel.jpg
+  WordPress Media ID: 124
+  URL: https://hotelacuazul.com/wp-content/uploads/2026/05/ristorante-buffet-colazione-hotel.jpg
+  Alt text set ✓ | Title set ✓ | Caption set ✓
+
+✓ vistas-mar-habitacion-hotel.jpg
+  WordPress Media ID: 125
+  URL: https://hotelacuazul.com/wp-content/uploads/2026/05/vistas-mar-habitacion-hotel.jpg
+  Alt text set ✓ | Title set ✓ | Caption set ✓
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ 3 images uploaded successfully
+⏭️ 1 image skipped (ID 4) - upload later with: /seo-images-manager upload --id 4
 ```
 
 ---
@@ -255,11 +322,17 @@ Folder: seo-optimized/
 
 ## Commands
 
-### `/seo-images-manager analyze [--visual]`
+### `/seo-images-manager plan [options]` ⭐ START HERE
+
+Generate 3 scored keyword variants per image for human selection. **Auto-analyzes new images** before planning.
+
+**v1.6: Auto-Analyze** — No need to run `analyze` separately. The `plan` command automatically scans for new images and extracts metadata.
+
+### `/seo-images-manager analyze [--visual]` (Optional)
 
 Scan `images/original/` directory **and all subdirectories**, extract EXIF metadata, save to database.
 
-**v1.3: Visual Analysis Option** — Use `--visual` flag to mark images for AI visual description.
+**When to use:** Only if you want to force a re-scan without running SEO planning. Otherwise, just use `plan` which auto-analyzes.
 
 **Subfolder Context (v1.2):**
 
@@ -365,11 +438,12 @@ python scripts/image_manager.py list --project clients/prova/test --filter pendi
 
 ---
 
-### `/seo-images-manager plan [options]`
+### `/seo-images-manager plan [options]` ⭐ START HERE
 
-Generate 3 scored keyword variants per image for human selection.
+Generate 3 scored keyword variants per image for human selection. **Auto-analyzes new images** before planning.
 
-**v1.5: Scoring System** — Proposes exactly 3 keyword variants per image with:
+**v1.6: Auto-Analyze + Scoring System** — Proposes exactly 3 keyword variants per image with:
+- **Auto-Analysis**: Scans `images/original/` for new images (incremental)
 - **Opportunity Score (1-10)**: Search volume potential + context relevance
 - **Gap Score (1-10)**: Competitor weakness exploitation + unique features
 - **SEO Score (1-10)**: Keyword structure quality + best practices
@@ -378,6 +452,7 @@ Generate 3 scored keyword variants per image for human selection.
 **Arguments:**
 - `--ids` (optional): Process only specific image IDs (comma-separated)
 - `--language <lang>` (optional): Target language (es, it, en, fr, de, pt, nl)
+- `--visual` (optional): Enable visual AI analysis (generate image descriptions)
 - `--competitors` (optional): Analyze competitor domains via GSC image queries
 - `--force-refresh` (optional): Force fresh GSC API call (bypass cache)
 
@@ -408,6 +483,8 @@ Generate 3 scored keyword variants per image for human selection.
 **Output:**
 ```json
 {
+  "images_analyzed": 5,
+  "new_images": 2,
   "site_url": "https://hotelacuazul.com",
   "site_context": {
     "project_specs": {
@@ -467,19 +544,20 @@ Generate 3 scored keyword variants per image for human selection.
 
 **Implementation:**
 ```bash
-# Plan all pending images
+# Plan all pending images (auto-analyzes new images)
 python scripts/image_manager.py plan --project clients/prova/test
 
-# Plan specific images with language
+# Plan with visual AI analysis + language
 python scripts/image_manager.py plan \
   --project clients/prova/test \
-  --ids 1,2,5 \
+  --visual \
   --language es
 
-# Plan with competitor analysis
+# Plan with competitor analysis + GSC refresh
 python scripts/image_manager.py plan \
   --project clients/prova/test \
-  --competitors
+  --competitors \
+  --force-refresh
 ```
 
 **Human Selection Workflow:**
@@ -792,109 +870,110 @@ WP_VERIFY_SSL=true
 cp ~/Photos/*.jpg clients/prova/test/images/original/
 ```
 
-**Step 2: Analyze images (INCREMENTAL)**
+**Step 2: Plan SEO metadata (auto-analyzes new images)**
 ```
-/seo-images-manager analyze
+/seo-images-manager plan
 ```
 
-**Output:**
+**Output (includes auto-analysis):**
 ```
-🔍 Scanning images/original/...
+🔍 Auto-analyzing images...
 
 ✅ Found 5 NEW images (5 total in database)
-
-New images:
   1. IMG_1234.jpg (3000x2000, 2.5 MB)
   2. IMG_5678.jpg (4000x3000, 3.8 MB)
   3. photo_01.png (2400x1600, 1.2 MB)
   4. IMG_9999.jpg (1920x1080, 900 KB)
   5. colosseum.jpg (2560x1440, 1.5 MB)
 
-Database updated: 5 new records
+📊 Generating SEO plan...
 ```
 
-**Step 3: Review pending images (optional)**
-```
-/seo-images-manager list --filter pending
-```
-
-**Output:**
-```
-📊 Immagini da pianificare
-
-📸 ID 1 | IMG_1234.jpg | 2.5 MB
-📸 ID 2 | IMG_5678.jpg | 3.8 MB
-📸 ID 3 | photo_01.png | 1.2 MB
-📸 ID 4 | IMG_9999.jpg | 900 KB
-📸 ID 5 | colosseum.jpg | 1.5 MB
-
-Total: 5 images
-```
-
-**Step 4: Plan SEO metadata**
-```
-/seo-images-manager plan https://example.com/blog/top-10-hotels-rome
-```
+**Step 3: Review proposals and select variants (CHECKPOINT #1)**
 
 **Output with CHECKPOINT #1:**
 ```
-📊 Page Context
-   URL: https://example.com/blog/top-10-hotels-rome
-   Title: Best Hotels in Rome 2026 | Travel Guide
-   H1: Top 10 Hotels in Rome
-   Primary Keyword: hotels in rome
-
-📸 Keyword Proposals
-
-Image 1: IMG_1234.jpg
-  ✓ hotels in rome luxury suite (RECOMMENDED)
-  ✗ rome hotels (too similar to primary - 100%)
-
-  SEO Metadata:
-    Filename: hotels-in-rome-luxury-suite.jpg
-    Alt: Hotels in rome luxury suite - Top 10 Hotels in Rome
-
-Image 2: IMG_5678.jpg
-  ✓ rome hotel breakfast buffet (RECOMMENDED)
-
-  SEO Metadata:
-    Filename: rome-hotel-breakfast-buffet.jpg
-    Alt: Rome hotel breakfast buffet - Top 10 Hotels in Rome
-
-[... Images 3, 4, 5 ...]
+📊 Site Context
+   URL: https://hotelacuazul.com
+   Industry: Hospitality
+   Focus Keywords: hotel familiar peniscola, hotel playa
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔘 CHECKPOINT: Quali immagini vuoi ottimizzare?
+🔘 CHECKPOINT #1: Seleziona la variante migliore per ogni immagine
 
-☑ ID 1: IMG_1234.jpg → hotels-in-rome-luxury-suite.jpg
-  Keyword: hotels in rome luxury suite
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-☑ ID 2: IMG_5678.jpg → rome-hotel-breakfast-buffet.jpg
-  Keyword: rome hotel breakfast buffet
+📸 Immagine 1: IMG_1234.jpg
+   Context: Piscina Hotel
 
-☐ ID 3: photo_01.png → rome-hotel-rooftop.jpg
-  ⚠️ Low quality image
+Seleziona variante:
 
-☑ ID 4: IMG_9999.jpg → rome-hotel-spa-wellness.jpg
-  Keyword: rome hotel spa wellness
+☑ Variante 1 (Score: 8.0): piscina-hotel-acuazul-peniscola
+  Filename: piscina-hotel-acuazul-peniscola.jpg
+  Opportunity: 8/10 | Gap: 7/10 | SEO: 9/10
 
-☑ ID 5: colosseum.jpg → rome-colosseum-hotel-view.jpg
-  Keyword: rome colosseum hotel view
+☐ Variante 2 (Score: 7.3): piscina-exterior-hotel-familiar
+  Filename: piscina-exterior-hotel-familiar.jpg
+  Opportunity: 7/10 | Gap: 8/10 | SEO: 7/10
 
-[Conferma selezione: 4/5]
+☐ Variante 3 (Score: 6.7): zona-bano-hotel-peniscola
+  Filename: zona-bano-hotel-peniscola.jpg
+  Opportunity: 6/10 | Gap: 6/10 | SEO: 8/10
+
+☐ Proponi altra
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📸 Immagine 2: IMG_5678.jpg
+   Context: Ristorante
+
+Seleziona variante:
+
+☑ Variante 1 (Score: 7.5): ristorante-buffet-colazione-hotel
+  Filename: ristorante-buffet-colazione-hotel.jpg
+  Opportunity: 8/10 | Gap: 7/10 | SEO: 8/10
+
+☐ Variante 2 (Score: 6.8): desayuno-buffet-hotel-peniscola
+  Filename: desayuno-buffet-hotel-peniscola.jpg
+  Opportunity: 6/10 | Gap: 7/10 | SEO: 7/10
+
+☐ Variante 3 (Score: 6.2): comedor-hotel-acuazul
+  Filename: comedor-hotel-acuazul.jpg
+  Opportunity: 5/10 | Gap: 7/10 | SEO: 7/10
+
+☐ Proponi altra
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[... Immagini 3, 4, 5 ...]
+
+[Conferma selezioni: 4/5 immagini]
 ```
 
-**User selects 4/5 images (skips ID 3 for low quality):**
+**User selects variants for 4/5 images (skips ID 3):**
 
 ```
-✅ SEO plan saved for 4 images
+✅ SEO metadata saved for 4 images:
+
+ID 1: piscina-hotel-acuazul-peniscola.jpg
+  Alt: Piscina hotel acuazul peñíscola | Hotel familiar con piscina
+
+ID 2: ristorante-buffet-colazione-hotel.jpg
+  Alt: Ristorante buffet colazione hotel | Desayuno hotel
+
+ID 4: animacion-infantil-piscina.jpg
+  Alt: Animación infantil piscina | Actividades niños hotel
+
+ID 5: vistas-mar-habitacion-hotel.jpg
+  Alt: Vistas mar habitación hotel | Habitaciones con vistas
+
 ⏭️ Skipped 1 image (ID 3)
 
 Next: /seo-images-manager rename
 ```
 
-**Step 5: Rename and optimize**
+**Step 4: Rename and optimize**
 ```
 /seo-images-manager rename
 ```
@@ -922,7 +1001,7 @@ Next: /seo-images-manager rename
 Files ready in: clients/prova/test/images/optimized/
 ```
 
-**Step 6: Review optimized images (optional)**
+**Step 5: Review optimized images (optional)**
 ```
 /seo-images-manager list --filter optimized
 ```
@@ -939,7 +1018,7 @@ Files ready in: clients/prova/test/images/optimized/
 Total: 4 images ready for upload
 ```
 
-**Step 7: Upload to WordPress (CHECKPOINT #2 OBBLIGATORIO)**
+**Step 6: Upload to WordPress (CHECKPOINT #2 OBBLIGATORIO)**
 ```
 /seo-images-manager upload --all
 ```
@@ -994,7 +1073,7 @@ Media Folder: seo-optimized/
 ⏭️ 1 image skipped (ID 4) - upload later with: /seo-images-manager upload --id 4
 ```
 
-**Step 8: Check status**
+**Step 7: Check status**
 ```
 /seo-images-manager status
 ```
@@ -1014,7 +1093,7 @@ Recent activity:
   📸 Not planned: ID 3 (photo_01.png)
 ```
 
-**Step 9 (optional): Upload skipped image**
+**Step 8 (optional): Upload skipped image**
 ```
 /seo-images-manager upload --id 4
 ```
@@ -1145,12 +1224,35 @@ For detailed checkpoint implementation with code examples, see:
 
 ---
 
-**Version:** 1.5.0
+**Version:** 1.6.0
 **Last Updated:** 2026-05-04
 **Skill Type:** Workflow Automation
 **Dependencies:** `pillow`, `requests`, `beautifulsoup4`, `python-dotenv`
 
 ## Changelog
+
+### v1.6.0 (2026-05-04) - All Steps Complete ✅
+- 🔄 **Auto-Analyze on Plan**: `plan` command now auto-analyzes new images (incremental scan)
+- 📁 **Simplified Workflow**: Removed need for separate `analyze` step (now optional)
+- ⭐ **analyze now optional**: Only needed for forced re-scan without planning
+- 📊 **Enhanced Output**: Plan shows `images_analyzed` and `new_images` counts
+- 🎯 **Visual Analysis Integration**: `--visual` flag now available on `plan` command
+- ✅ **Variant Selection Checkpoint (Step 2)**: Interactive selection of best keyword from 3 scored variants
+  - Choose Variante 1, 2, or 3 per image
+  - See full scoring breakdown (Opportunity/Gap/SEO)
+  - Option "Proponi altra" for custom keywords
+  - Metadata generated only for selected variants
+- 📤 **Upload Checkpoint (Step 3)**: Enhanced WordPress upload confirmation
+  - Multi-select checkbox with detailed preview
+  - Shows filename, size, alt text preview, keyword
+  - Upload only proceeds for confirmed images
+  - Skipped images remain available for later upload
+- 📝 **New Functions**:
+  - `format_variant_selection_data()`, `save_selected_variants()` (variant selection)
+  - `format_upload_selection_data()` (upload checkpoint)
+- 📖 **New References**:
+  - `variant-selection-workflow.md` (variant selection guide)
+  - `upload-checkpoint-workflow.md` (upload checkpoint guide)
 
 ### v1.5.0 (2026-05-04)
 - 📊 **3-Variant Scoring System**: Proposes 3 keyword options per image (hotel-image-seo.skill inspired)

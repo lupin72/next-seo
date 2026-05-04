@@ -89,6 +89,7 @@ class ImageAnalyzer:
                 (str(img_file),)
             ).fetchone()
 
+            is_new = False
             if existing:
                 # Update existing record
                 update_fields = {
@@ -113,6 +114,7 @@ class ImageAnalyzer:
                 if not visual_context and existing[1]:
                     visual_context = existing[1]
             else:
+                is_new = True
                 # Insert new record
                 cursor = conn.execute("""
                     INSERT INTO images (
@@ -147,6 +149,7 @@ class ImageAnalyzer:
                 "path": str(img_file),
                 "image_context": image_context,
                 "visual_context": visual_context,
+                "new": is_new,
                 **metadata
             })
 
