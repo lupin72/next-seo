@@ -108,6 +108,13 @@ class ImageSEOPlanner:
 
         specs = {}
 
+        # Parse URL
+        url_match = re.search(r'\*\*URL:\*\*\s*(.+)', content)
+        if url_match:
+            val = url_match.group(1).strip()
+            if val and not val.startswith('<!--') and val.startswith('http'):
+                specs['url'] = val
+
         # Parse Industry
         industry_match = re.search(r'\*\*Industry:\*\*\s*(.+)', content)
         if industry_match:
@@ -1598,14 +1605,20 @@ class ImageSEOPlanner:
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='Image SEO Planner')
+    parser = argparse.ArgumentParser(description='Image SEO Planner v1.5')
     parser.add_argument('project_path', help='Project path')
-    parser.add_argument('target_url', help='Target page URL')
+    parser.add_argument('target_url', nargs='?', help='(Deprecated in v1.5) Site URL - now read from PROJECT.md')
+    parser.add_argument('--ids', help='Comma-separated image IDs to plan (optional)')
     parser.add_argument('--language', '-l', help='Target language (e.g. es, it, en)')
     parser.add_argument('--no-image-search', action='store_true', help='Disable GSC image search')
     parser.add_argument('--competitors', action='store_true', help='Enable competitor analysis')
     parser.add_argument('--force-refresh', action='store_true', help='Force GSC refresh')
     args = parser.parse_args()
+
+    # Parse selected IDs if provided
+    selected_ids = None
+    if args.ids:
+        selected_ids = [int(x.strip()) for x in args.ids.split(',')]
 
     planner = ImageSEOPlanner(
         args.project_path,
@@ -1613,5 +1626,5 @@ if __name__ == "__main__":
         use_image_search=not args.no_image_search,
         use_competitors=args.competitors
     )
-    plan = planner.create_plan(args.target_url, force_refresh=args.force_refresh)
+    plan = planner.create_plan(selected_ids=selected_ids, force_refresh=args.force_refresh)
     print(json.dumps(plan, indent=2))
