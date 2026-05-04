@@ -2,9 +2,20 @@
 
 ## Overview
 
-Complete image SEO optimization workflow with **Google Search Console integration** (v1.1), **subfolder context** (v1.2), **project specs integration** (v1.2), **interactive questions** (v1.3), **GSC Image search** (v1.3), **multilingual support** (v1.3), **visual AI analysis** (v1.3), **competitor discovery** (v1.3), and **global rules system** (v1.4).
+Complete image SEO optimization workflow with **Google Search Console integration** (v1.1), **subfolder context** (v1.2), **project specs integration** (v1.2), **interactive questions** (v1.3), **GSC Image search** (v1.3), **multilingual support** (v1.3), **visual AI analysis** (v1.3), **competitor discovery** (v1.3), **global rules system** (v1.4), and **keyword scoring system** (v1.5).
 
 **Problem Solved:** Managing dozens of images for a blog post is tedious. You need SEO-friendly filenames, alt text, descriptions, and to avoid keyword cannibalization across images. This skill automates the entire workflow from analysis to WordPress upload.
+
+**v1.5 Features (NEW - hotel-image-seo.skill inspired):**
+- 📊 **3-Variant Keyword Scoring**: Proposes 3 keyword options per image with scoring
+  - **Opportunity (1-10)**: Search volume potential from GSC data + context relevance
+  - **Gap (1-10)**: Competitor weakness exploitation + unique features
+  - **SEO (1-10)**: Keyword structure quality + SEO best practices
+- 📁 **Folder-Based Context**: No more target_url! Context determined by subfolder name
+  - Images in `original/Piscina Hotel/` → "Piscina Hotel" becomes primary context
+  - Combined with PROJECT.md brand context for richer keyword generation
+- 🎯 **Domain-Level GSC**: Queries Google Search Console on domain, not specific page
+- ✅ **Human Selection**: Choose best keyword variant from 3 scored options
 
 **v1.3 Features (NEW):**
 - 🤖 **Interactive Questions**: Skill asks 3 questions at start of plan:
@@ -354,96 +365,125 @@ python scripts/image_manager.py list --project clients/prova/test --filter pendi
 
 ---
 
-### `/seo-images-manager plan <target-url> [options]`
+### `/seo-images-manager plan [options]`
 
-Analyze target page and propose SEO keywords for each image, checking for cannibalization.
+Generate 3 scored keyword variants per image for human selection.
 
-**v1.3: Interactive Mode** — Skill asks 3 questions before planning:
-1. **Analizzare i competitor?** → Uses competitor domains from PROJECT.md to query GSC image data
-2. **Fare analisi visiva delle immagini?** → Generates AI descriptions of image content for richer keywords
-3. **Lingua target per alt text/title/caption?** → Generates metadata in specified language
+**v1.5: Scoring System** — Proposes exactly 3 keyword variants per image with:
+- **Opportunity Score (1-10)**: Search volume potential + context relevance
+- **Gap Score (1-10)**: Competitor weakness exploitation + unique features
+- **SEO Score (1-10)**: Keyword structure quality + best practices
+- **Average Score**: Mean of the 3 scores for quick comparison
 
 **Arguments:**
-- `target-url` (required): URL of page where images will be used
 - `--ids` (optional): Process only specific image IDs (comma-separated)
+- `--language <lang>` (optional): Target language (es, it, en, fr, de, pt, nl)
+- `--competitors` (optional): Analyze competitor domains via GSC image queries
+- `--force-refresh` (optional): Force fresh GSC API call (bypass cache)
 
-**Hidden CLI Options** (used by skill after questions):
-- `--language <lang>`: Target language (es, it, en, fr, de, pt, nl)
-- `--image-search`: Also query GSC with search_type='image' (default: true)
-- `--no-image-search`: Disable GSC image search queries
-- `--competitors`: Analyze competitor domains via GSC image queries
-- `--force-refresh`: Force fresh GSC API call (bypass cache)
+**Context Sources:**
+1. **Subfolder Name**: Primary context (e.g., `original/Piscina Hotel/` → "Piscina Hotel")
+2. **PROJECT.md**: Brand context, focus keywords, competitor analysis
+3. **GSC Data**: Optional domain-level search queries (web + image)
+4. **seo-rules.md**: Global naming patterns + synonym strategies
 
 **Actions:**
-1. **Interactive Setup**: Asks 3 questions (competitor, visual, language)
-2. Fetches target page (title, H1, meta description, existing images)
-3. Fetches GSC data:
+1. Reads site_url from PROJECT.md
+2. Fetches GSC data on domain (optional):
    - `search_type='web'` (standard web queries)
-   - `search_type='image'` (Google Images queries, if enabled)
-   - Competitor domains (if enabled, from PROJECT.md)
-4. For each image:
-   - Reads subfolder context (e.g. "SPA Hotel")
+   - `search_type='image'` (Google Images queries)
+   - Competitor domains (if --competitors flag set)
+3. For each image:
+   - Reads subfolder context (e.g., "SPA Hotel")
    - Reads visual context if available (AI description)
-   - Combines GSC web + image + competitor queries
-   - Calculates opportunity scores (+5 for image queries, +15 for context match)
+   - Generates 3 keyword variants:
+     - Variant 1: Context + focus keyword
+     - Variant 2: Context + GSC query (if available)
+     - Variant 3: Context + synonym variation
+   - Scores each variant (Opportunity, Gap, SEO)
    - Checks cannibalization
-   - Generates SEO filename, alt text (in target language), title, caption
-5. **🔘 CHECKPOINT #1**: User selects which images to optimize via checkbox
-6. Saves SEO metadata ONLY for selected images
+4. **🔘 CHECKPOINT**: User selects best variant for each image
+5. Generates full metadata (alt text, title, caption) for selected variant
 
 **Output:**
 ```json
 {
-  "target_url": "https://example.com/blog/post",
-  "page_context": {
-    "title": "Best Hotels in Rome",
-    "h1": "Top 10 Hotels in Rome 2026",
-    "primary_keyword": "hotels in rome"
+  "site_url": "https://hotelacuazul.com",
+  "site_context": {
+    "project_specs": {
+      "industry": "Hospitality",
+      "focus_keywords": ["hotel familiar peniscola", "hotel playa"]
+    }
   },
   "images": [
     {
       "image_id": 1,
       "original_filename": "IMG_1234.jpg",
-      "keyword_proposals": [
+      "image_context": "Piscina Hotel",
+      "variants": [
         {
-          "keyword": "hotels in rome luxury suite",
-          "cannibalization_risk": false,
-          "recommended": true
+          "rank": 1,
+          "keyword": "piscina-hotel-acuazul-peniscola",
+          "filename": "piscina-hotel-acuazul-peniscola.jpg",
+          "opportunity_score": 8,
+          "gap_score": 7,
+          "seo_score": 9,
+          "avg_score": 8.0,
+          "cannibalization_risk": false
         },
         {
-          "keyword": "rome hotels",
-          "cannibalization_risk": true,
-          "cannibalization_note": "Too similar to primary keyword (90%)"
+          "rank": 2,
+          "keyword": "piscina-exterior-hotel-familiar",
+          "filename": "piscina-exterior-hotel-familiar.jpg",
+          "opportunity_score": 7,
+          "gap_score": 8,
+          "seo_score": 7,
+          "avg_score": 7.3,
+          "cannibalization_risk": false
+        },
+        {
+          "rank": 3,
+          "keyword": "zona-bano-hotel-peniscola",
+          "filename": "zona-bano-hotel-peniscola.jpg",
+          "opportunity_score": 6,
+          "gap_score": 6,
+          "seo_score": 8,
+          "avg_score": 6.7,
+          "cannibalization_risk": false
         }
       ],
-      "selected_keyword": "hotels in rome luxury suite",
-      "seo_metadata": {
-        "filename": "hotels-in-rome-luxury-suite.jpg",
-        "alt_text": "Hotels in rome luxury suite - Top 10 Hotels in Rome 2026",
-        "title": "Hotels In Rome Luxury Suite",
-        "caption": "Hotels in rome luxury suite en Top 10 Hotels in Rome 2026"
-      }
+      "gsc_powered": true,
+      "language": "es"
     }
-  ]
+  ],
+  "total": 1,
+  "gsc_sources": {
+    "web": true,
+    "image": true,
+    "competitors": 0
+  }
 }
 ```
 
 **Implementation:**
 ```bash
 # Plan all pending images
-python scripts/image_manager.py plan \
-  --project clients/prova/test \
-  --url https://example.com/blog/post
+python scripts/image_manager.py plan --project clients/prova/test
 
-# Plan only specific images
+# Plan specific images with language
 python scripts/image_manager.py plan \
   --project clients/prova/test \
-  --url https://example.com/blog/post \
-  --ids 1,2,5
+  --ids 1,2,5 \
+  --language es
+
+# Plan with competitor analysis
+python scripts/image_manager.py plan \
+  --project clients/prova/test \
+  --competitors
 ```
 
-**Checkpoint Behavior:**
-After showing proposals, skill will use `AskUserQuestion` with multi-select to let you choose which images to proceed with. See [UX-CHECKPOINTS.md](UX-CHECKPOINTS.md) for details.
+**Human Selection Workflow:**
+After seeing the 3 scored variants, you'll choose the best one for each image. The skill will then generate full SEO metadata (alt text, title, caption) for your selected variant and save it to the database.
 
 ---
 
@@ -1105,12 +1145,25 @@ For detailed checkpoint implementation with code examples, see:
 
 ---
 
-**Version:** 1.4.0
-**Last Updated:** 2026-04-30
+**Version:** 1.5.0
+**Last Updated:** 2026-05-04
 **Skill Type:** Workflow Automation
 **Dependencies:** `pillow`, `requests`, `beautifulsoup4`, `python-dotenv`
 
 ## Changelog
+
+### v1.5.0 (2026-05-04)
+- 📊 **3-Variant Scoring System**: Proposes 3 keyword options per image (hotel-image-seo.skill inspired)
+  - Opportunity score (1-10): GSC impressions + context relevance + long-tail bonus
+  - Gap score (1-10): Competitor analysis + unique features + focus keyword alignment
+  - SEO score (1-10): Keyword structure + relevance + best practices
+- 📁 **Folder-Based Context**: Removed target_url dependency
+  - Context from subfolder name (e.g., `original/Piscina Hotel/`)
+  - Combined with PROJECT.md brand context
+- 🎯 **Domain-Level GSC**: Queries on site domain, not specific page
+- ✅ **Human Selection**: Choose best variant from 3 scored options
+- 🔄 **Simplified Workflow**: `plan` → select variant → `rename` → `upload`
+- 📖 **Enhanced PROJECT.md Template**: Detailed examples for brand context, competitors, keyword universe
 
 ### v1.4.0 (2026-04-30)
 - 📚 **Global Rules System**: Two-tier rules (global baseline + project overrides)
