@@ -11,7 +11,7 @@ Manages image SEO optimization workflow:
 
 Usage:
     python image_manager.py analyze --project PATH
-    python image_manager.py plan --project PATH --url URL
+    python image_manager.py plan --project PATH [--ids 1,2,3] [--language es]
     python image_manager.py rename --project PATH
     python image_manager.py upload --project PATH [--all | --id ID]
     python image_manager.py status --project PATH
@@ -91,13 +91,13 @@ def analyze_images(project_path, visual_analysis=False):
         "images": results
     }
 
-def plan_seo(project_path, target_url, selected_ids=None, language=None,
+def plan_seo(project_path, selected_ids=None, language=None,
              use_image_search=True, use_competitors=False, force_refresh=False):
     """
     Plan SEO keywords and metadata for images.
 
-    Analyzes page context, proposes keywords, checks cannibalization.
-    v1.3: Supports GSC image queries, target language, and competitor analysis.
+    v1.4: Uses site URL from PROJECT.md, folder name as context.
+    Generates 3 scored keyword variants per image for human selection.
     """
     from image_seo_planner import ImageSEOPlanner
 
@@ -107,11 +107,10 @@ def plan_seo(project_path, target_url, selected_ids=None, language=None,
         use_image_search=use_image_search,
         use_competitors=use_competitors
     )
-    plan = planner.create_plan(target_url, selected_ids, force_refresh=force_refresh)
+    plan = planner.create_plan(selected_ids, force_refresh=force_refresh)
 
     return {
         "success": True,
-        "target_url": target_url,
         "language": language,
         "plan": plan
     }
@@ -230,9 +229,8 @@ def main():
                             default='all', help="Filter images by status")
 
     # Plan command
-    plan_parser = subparsers.add_parser("plan", help="Plan SEO keywords for images")
+    plan_parser = subparsers.add_parser("plan", help="Plan SEO keywords for images (3 variants with scoring)")
     plan_parser.add_argument("--project", required=True, help="Project path")
-    plan_parser.add_argument("--url", required=True, help="Target page URL")
     plan_parser.add_argument("--ids", help="Comma-separated image IDs to process (e.g., 1,2,3)")
     plan_parser.add_argument("--language", "-l", help="Target language for metadata (e.g., es, it, en)")
     plan_parser.add_argument("--image-search", action="store_true", default=True,
@@ -289,7 +287,6 @@ def main():
     elif args.command == "plan":
         result = plan_seo(
             args.project,
-            args.url,
             selected_ids,
             language=getattr(args, 'language', None),
             use_image_search=not getattr(args, 'no_image_search', False),
