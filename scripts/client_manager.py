@@ -270,43 +270,78 @@ def add_project(client_slug: str, name: str, url: str,
 
 ### Target Audience
 
-{target_audience if target_audience else '<!-- Describe the target audience: demographics, interests, needs, buying behavior -->'}
+{target_audience if target_audience else '''<!-- Describe the target audience: demographics, interests, needs, buying behavior -->
+<!-- Example (Hotel): -->
+<!-- - Families with children (primary) -->
+<!-- - Couples seeking spa and relaxation (secondary) -->
+<!-- - Senior tourism (IMSERSO programs) -->
+<!-- - Search behavior: family vacations, hotels with kids animation, beachfront -->
+<!-- Example (E-commerce): -->
+<!-- - Coffee enthusiasts aged 25-45 -->
+<!-- - Health-conscious consumers seeking organic products -->
+<!-- - Search behavior: organic coffee, fair trade, single origin -->'''}
 
 ### Brand Context
 
 **Properties / Products / Services:**
 <!-- List key offerings, unique features, differentiators -->
+<!-- Example (Hotel): 78 rooms + 158 junior suites, themed children's rooms (Disney, Doraemon) -->
+<!-- Example (E-commerce): Product categories, best-sellers, exclusive items -->
+<!-- Example (SaaS): Features, pricing tiers, integrations -->
 
 **Unique Selling Points (USPs):**
 <!-- What makes this brand different? Certifications, awards, unique features -->
+<!-- Example: ISO9001 certified, family tourism seal, unique features competitors don't have -->
 
 **Key Differentiators:**
 <!-- Compared to competitors, what advantages does this brand have? -->
+<!-- Example: Closer to city center, exclusive amenities, better pricing, superior customer service -->
 
 ### Competitor Analysis
 
+**Main Competitors:**
 {competitors_md}
 
+**Principal Competitor Details:**
+<!-- Focus on your #1 competitor with detailed analysis -->
+<!-- Example (Hotel): -->
+<!-- - Location: Address, distance from key landmarks -->
+<!-- - Size: Number of rooms, facilities -->
+<!-- - Weaknesses: Far from town center (3.5 km), small pool, no water park, paid parking -->
+<!-- - Strengths: Large property, established brand recognition -->
+
 **Competitor Weaknesses to Exploit:**
-<!-- List competitor gaps, weaknesses, or missed opportunities -->
-<!-- Example: Competitor A has poor mobile experience, slow site speed -->
-<!-- Example: Competitor B ranks for X but has thin content -->
+<!-- List specific gaps, weaknesses, or missed opportunities -->
+<!-- Example: Competitor A has poor mobile experience, slow site speed, thin content on key pages -->
+<!-- Example: Competitor B ranks for X but has no structured data, missing alt text on images -->
+<!-- Example: Competitor C is far from city center, requires bus/car to reach attractions -->
 
 **Competitor Strengths to Match:**
 <!-- What are competitors doing well that we should address? -->
+<!-- Example: Competitor A has excellent blog content strategy -->
+<!-- Example: Competitor B has strong social proof (reviews, testimonials) -->
 
 ### Keyword Universe
 
 **High-Priority Keywords:**
 <!-- Target these first - high volume, good intent, achievable ranking -->
+<!-- Example (Hotel): hotel familiar peniscola primera linea playa -->
+<!-- Example (E-commerce): buy organic coffee beans online -->
+<!-- Example (SaaS): project management software for teams -->
 {keywords_md if keywords_list else '- <!-- Add high-priority keywords -->'}
 
 **Medium-Priority Keywords:**
 <!-- Secondary targets - lower volume or higher competition -->
+<!-- Example (Hotel): terraza chill out hotel peniscola, spa wellness centro -->
+<!-- Example (E-commerce): best espresso beans, fair trade coffee -->
+<!-- Example (SaaS): agile project tracking tool -->
 - <!-- Add medium-priority keywords -->
 
 **Long-Tail Keywords:**
 <!-- Low competition, high intent, specific user queries -->
+<!-- Example (Hotel): mejor hotel para ir con niños peniscola -->
+<!-- Example (E-commerce): organic single origin ethiopian coffee beans -->
+<!-- Example (SaaS): project management tool with time tracking and invoicing -->
 - <!-- Add long-tail keywords -->
 
 ### Focus Keywords
