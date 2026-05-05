@@ -45,28 +45,28 @@ After receiving the 3 required arguments, the system **MUST** use `AskUserQuesti
 **Step 1 - Ask industry and tone:**
 ```
 AskUserQuestion:
-  Q1: "In quale settore opera il progetto?"
+  Q1: "What industry does the project operate in?"
       Options: Hospitality, E-commerce, SaaS, Local Business
-  Q2: "Qual è il tono di voce del brand?"
-      Options: Professionale e formale, Amichevole e conversazionale,
-               Tecnico e specialistico, Lusso ed esclusivo
+  Q2: "What is the brand's tone of voice?"
+      Options: Professional and formal, Friendly and conversational,
+               Technical and specialized, Luxury and exclusive
 ```
 
 **Step 2 - Ask competitors and keywords:**
 ```
 AskUserQuestion:
-  Q1: "Quali sono i principali competitor? (inserisci URL separati da virgola)"
+  Q1: "Who are the main competitors? (enter URLs separated by commas)"
       Free text input via "Other"
-  Q2: "Quali sono le parole chiave focus principali? (separate da virgola)"
+  Q2: "What are the main focus keywords? (separated by commas)"
       Free text input via "Other"
 ```
 
 **Step 3 - Ask target audience:**
 ```
 AskUserQuestion:
-  Q1: "Chi è il target audience principale?"
+  Q1: "Who is the primary target audience?"
       Free text input via "Other"
-  Q2: "Note aggiuntive sul brand? (terminologia, stile, restrizioni)"
+  Q2: "Additional brand notes? (terminology, style, restrictions)"
       Free text input via "Other"
 ```
 
@@ -79,11 +79,11 @@ python scripts/client_manager.py add-project \
   --name "Project Name" \
   --url "https://example.com" \
   --industry "Hospitality" \
-  --tone "Professionale e formale, orientato al lusso" \
-  --target-audience "Coppie 30-55 anni, alto potere d'acquisto" \
+  --tone "Professional and formal, luxury-oriented" \
+  --target-audience "Couples 30-55 years old, high purchasing power" \
   --competitors "https://competitor1.com,https://competitor2.com" \
-  --keywords "hotel roma centro,hotel lusso roma" \
-  --brand-notes "Evitare termini colloquiali. Usare sempre Lei."
+  --keywords "hotel rome center,luxury hotel rome" \
+  --brand-notes "Avoid colloquial terms. Always use formal language."
 ```
 
 **Creates:**
@@ -404,7 +404,7 @@ CREATE TABLE active_project (
 ## Best Practices
 
 1. **Naming Convention:**
-   - Use descriptive project names: "Main Site" not "Progetto A"
+   - Use descriptive project names: "Main Site" not "Project A"
    - Project names should describe the website/domain
 
 2. **Active Project:**

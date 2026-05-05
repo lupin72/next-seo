@@ -24,7 +24,7 @@ if upload_data['ready_count'] == 0:
 
 # 2. Present checkpoint to user via AskUserQuestion
 question = {
-    "question": f"Seleziona le immagini da caricare su WordPress ({upload_data['ready_count']} pronte)",
+    "question": f"Select the images to upload to WordPress ({upload_data['ready_count']} ready)",
     "header": "Upload",
     "multiSelect": True,  # Allow multiple selections
     "options": upload_data['options']
@@ -37,7 +37,7 @@ selected_ids = []
 for answer_key, answer_value in answers.items():
     # Parse answer to extract image ID
     # Answer format depends on AskUserQuestion implementation
-    # Example: "ID 1: piscina-hotel-acuazul.jpg (450 KB)"
+    # Example: "ID 1: hotel-pool-acuazul.jpg (450 KB)"
     # Extract "1" from the string
 
     if answer_value:  # If checkbox is checked
@@ -85,19 +85,19 @@ if failed:
     {
       "image_id": 1,
       "original_filename": "IMG_1234.jpg",
-      "seo_filename": "piscina-hotel-acuazul.jpg",
-      "optimized_path": "/path/to/optimized/piscina-hotel-acuazul.jpg",
+      "seo_filename": "hotel-pool-acuazul.jpg",
+      "optimized_path": "/path/to/optimized/hotel-pool-acuazul.jpg",
       "size_formatted": "450.3 KB",
-      "alt_text": "Piscina hotel acuazul peñíscola | Hotel familiar con piscina",
-      "title": "Piscina Hotel Acuazul Peñíscola",
-      "caption": "Piscina hotel acuazul peñíscola en Hotel Familiar",
-      "target_keyword": "piscina-hotel-acuazul-peniscola"
+      "alt_text": "Hotel pool acuazul peñíscola | Family hotel with pool",
+      "title": "Hotel Pool Acuazul Peñíscola",
+      "caption": "Hotel pool acuazul peñíscola at Family Hotel",
+      "target_keyword": "hotel-pool-acuazul-peniscola"
     }
   ],
   "options": [
     {
-      "label": "ID 1: piscina-hotel-acuazul.jpg (450.3 KB)",
-      "description": "Alt: Piscina hotel acuazul peñíscola | Hotel familiar... | Keyword: piscina-hotel-acuazul-peniscola"
+      "label": "ID 1: hotel-pool-acuazul.jpg (450.3 KB)",
+      "description": "Alt: Hotel pool acuazul peñíscola | Family hotel... | Keyword: hotel-pool-acuazul-peniscola"
     }
   ]
 }
@@ -117,17 +117,17 @@ if failed:
 
 ```python
 {
-  "question": "Seleziona le immagini da caricare su WordPress (4 pronte)",
+  "question": "Select the images to upload to WordPress (4 ready)",
   "header": "Upload",
   "multiSelect": True,  # IMPORTANT: Allow multiple selections
   "options": [
     {
-      "label": "ID 1: piscina-hotel-acuazul.jpg (450 KB)",
-      "description": "Alt: Piscina hotel acuazul peñíscola | Hotel familiar... | Keyword: piscina-hotel-acuazul-peniscola"
+      "label": "ID 1: hotel-pool-acuazul.jpg (450 KB)",
+      "description": "Alt: Hotel pool acuazul peñíscola | Family hotel... | Keyword: hotel-pool-acuazul-peniscola"
     },
     {
-      "label": "ID 2: ristorante-buffet-colazione.jpg (520 KB)",
-      "description": "Alt: Ristorante buffet colazione hotel | Desayuno h... | Keyword: ristorante-buffet-colazione"
+      "label": "ID 2: restaurant-breakfast-buffet.jpg (520 KB)",
+      "description": "Alt: Restaurant breakfast buffet hotel | Hotel br... | Keyword: restaurant-breakfast-buffet"
     }
   ]
 }

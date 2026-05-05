@@ -1,24 +1,24 @@
 # Implementation Guide: Interactive Checkpoints
 
-**Per Claude Code: Logica esatta da seguire quando l'utente esegue i comandi con checkpoint**
+**For Claude Code: Exact logic to follow when user executes commands with checkpoints**
 
 ---
 
-## Checkpoint #1: Dopo `/seo-images-manager plan <url>`
+## Checkpoint #1: After `/seo-images-manager plan <url>`
 
 ### Step-by-Step Logic
 
 ```
-1. User esegue: /seo-images-manager plan https://example.com/blog/post
+1. User runs: /seo-images-manager plan https://example.com/blog/post
 
-2. Esegui script Python:
+2. Execute Python script:
    ```bash
    python scripts/image_manager.py plan \
      --project clients/{client}/{project} \
      --url https://example.com/blog/post
    ```
 
-3. Ricevi JSON output con proposte:
+3. Receive JSON output with proposals:
    {
      "success": true,
      "target_url": "...",
@@ -41,7 +41,7 @@
      }
    }
 
-4. Mostra proposte all'utente in formato leggibile:
+4. Display proposals to user in readable format:
    ```
    📊 Page Context
       URL: {...}
@@ -56,10 +56,10 @@
        Filename: hotels-in-rome-luxury-suite.jpg
        Alt: Hotels in rome luxury suite - Top 10...
 
-   [... altre immagini ...]
+   [... other images ...]
    ```
 
-5. Crea opzioni per AskUserQuestion:
+5. Create options for AskUserQuestion:
    ```python
    from skills.seo-images-manager.helpers import format_image_for_checkbox
 
@@ -69,19 +69,19 @@
        options.append(option)
    ```
 
-6. Usa AskUserQuestion con multiSelect:
+6. Use AskUserQuestion with multiSelect:
    ```python
    AskUserQuestion(
        questions=[{
-           "question": "Quali immagini vuoi ottimizzare con queste keyword proposte?",
-           "header": "Selezione",
+           "question": "Which images do you want to optimize with these proposed keywords?",
+           "header": "Selection",
            "multiSelect": True,
            "options": options
        }]
    )
    ```
 
-7. Ricevi risposta dell'utente:
+7. Receive user response:
    user_answers = {
        "question_1": [
            "ID 1: IMG_1234.jpg → hotels-in-rome-luxury-suite.jpg",
@@ -90,7 +90,7 @@
        ]
    }
 
-8. Estrai IDs selezionati:
+8. Extract selected IDs:
    ```python
    from skills.seo-images-manager.helpers import extract_ids_from_labels
 
@@ -98,7 +98,7 @@
    # Result: [1, 2, 5]
    ```
 
-9. Salva metadata SOLO per immagini selezionate:
+9. Save metadata ONLY for selected images:
    ```python
    from skills.seo-images-manager.helpers import save_selected_plans
 
@@ -106,7 +106,7 @@
    save_selected_plans(selected_ids, plan['images'], db_path)
    ```
 
-10. Mostra conferma all'utente:
+10. Show confirmation to user:
     ```python
     from skills.seo-images-manager.helpers import format_checkpoint_summary
 
@@ -123,15 +123,15 @@
 
 ---
 
-## Checkpoint #2: Prima di `/seo-images-manager upload`
+## Checkpoint #2: Before `/seo-images-manager upload`
 
 ### Step-by-Step Logic
 
 ```
-1. User esegue: /seo-images-manager upload --all
-   (oppure --id 1, oppure --ids 1,2,3)
+1. User runs: /seo-images-manager upload --all
+   (or --id 1, or --ids 1,2,3)
 
-2. Leggi immagini pronte per upload:
+2. Read images ready for upload:
    ```python
    from skills.seo-images-manager.helpers import get_pending_images
 
@@ -139,7 +139,7 @@
    pending_images = get_pending_images(db_path, status="optimized")
    ```
 
-3. Se nessuna immagine pronta:
+3. If no images ready:
    ```python
    if not pending_images:
        print("❌ No images ready for upload")
@@ -147,7 +147,7 @@
        exit()
    ```
 
-4. Leggi configurazione WordPress:
+4. Read WordPress configuration:
    ```python
    env_path = Path(project_path) / ".env"
    if not env_path.exists():
@@ -162,18 +162,18 @@
    wp_folder = os.getenv("WP_MEDIA_FOLDER", "seo-optimized")
    ```
 
-5. Mostra warning e riepilogo:
+5. Show warning and summary:
    ```
-   ⚠️ CONFERMA UPLOAD SU WORDPRESS
+   ⚠️ CONFIRM WORDPRESS UPLOAD
 
-   Stai per caricare {len(pending_images)} immagini su:
+   You are about to upload {len(pending_images)} images to:
      WordPress: {wp_url}
      Media Folder: {wp_folder}/
 
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    ```
 
-6. Crea opzioni per AskUserQuestion:
+6. Create options for AskUserQuestion:
    ```python
    from skills.seo-images-manager.helpers import format_image_for_checkbox
 
@@ -183,19 +183,19 @@
        options.append(option)
    ```
 
-7. Usa AskUserQuestion con multiSelect (OBBLIGATORIO):
+7. Use AskUserQuestion with multiSelect (MANDATORY):
    ```python
    AskUserQuestion(
        questions=[{
-           "question": f"Confermi l'upload di {len(pending_images)} immagini su WordPress?",
-           "header": "Conferma",
+           "question": f"Confirm upload of {len(pending_images)} images to WordPress?",
+           "header": "Confirmation",
            "multiSelect": True,
            "options": options
        }]
    )
    ```
 
-8. Ricevi risposta dell'utente:
+8. Receive user response:
    user_answers = {
        "question_1": [
            "ID 1: hotels-in-rome-luxury-suite.jpg",
@@ -203,7 +203,7 @@
        ]
    }
 
-9. Estrai IDs confermati:
+9. Extract confirmed IDs:
    ```python
    from skills.seo-images-manager.helpers import extract_ids_from_labels
 
@@ -211,21 +211,21 @@
    # Result: [1, 2]
    ```
 
-10. Se nessuna immagine confermata:
+10. If no images confirmed:
     ```python
     if not confirmed_ids:
         print("❌ No images selected. Upload cancelled.")
         exit()
     ```
 
-11. Upload SOLO immagini confermate:
+11. Upload ONLY confirmed images:
     ```bash
     python scripts/image_manager.py upload \
       --project clients/{client}/{project} \
       --ids {','.join(map(str, confirmed_ids))}
     ```
 
-12. Ricevi risultati upload:
+12. Receive upload results:
     {
       "success": true,
       "uploaded": 2,
@@ -240,7 +240,7 @@
       ]
     }
 
-13. Mostra risultati all'utente:
+13. Show results to user:
     ```
     ⬆️ Uploading 2 images to WordPress...
 
@@ -257,7 +257,7 @@
     ✅ 2 images uploaded successfully
     ```
 
-14. Se alcune immagini sono state skippate:
+14. If some images were skipped:
     ```python
     total = len(pending_images)
     uploaded = len(confirmed_ids)
@@ -272,9 +272,9 @@
 
 ---
 
-## File di Aiuto Disponibili
+## Available Helper Files
 
-- **helpers.py**: Funzioni helper per checkpoint
+- **helpers.py**: Helper functions for checkpoints
   - `extract_ids_from_labels(labels)` → List[int]
   - `format_image_for_checkbox(img_data, mode)` → dict
   - `save_selected_plans(selected_ids, images, db_path)`
@@ -282,11 +282,11 @@
   - `format_checkpoint_summary(total, selected, action)` → str
   - `update_sync_status(image_id, synced, wp_data, db_path)`
 
-- **UX-CHECKPOINTS.md**: Esempi dettagliati con codice completo
+- **UX-CHECKPOINTS.md**: Detailed examples with complete code
 
 ---
 
-## Flowchart Completo
+## Complete Flowchart
 
 ```
 User: /seo-images-manager plan https://example.com/blog/post
@@ -331,7 +331,7 @@ Show: Warning + WordPress URL + list
 │ CHECKPOINT #2: AskUserQuestion      │
 │ Multi-select checkbox               │
 │ User confirms which images to upload│
-│ ⚠️ OBBLIGATORIO - SEMPRE ATTIVO    │
+│ ⚠️ MANDATORY - ALWAYS ACTIVE       │
 └─────────────────────────────────────┘
   ↓
 Extract: IDs from confirmed labels
@@ -345,24 +345,24 @@ Show: Results + skipped images info
 
 ## Best Practices
 
-1. **SEMPRE mostrare checkpoint prima di upload**
-   - Anche se user usa --id 1 (single image)
-   - Anche se c'è solo 1 immagine pending
-   - È una safety feature
+1. **ALWAYS show checkpoint before upload**
+   - Even if user uses --id 1 (single image)
+   - Even if there's only 1 pending image
+   - It's a safety feature
 
-2. **Formattare opzioni in modo leggibile**
-   - Label: breve e scannable (max 60 chars)
-   - Description: dettagli utili separati da `|`
-   - Warnings con emoji: ⚠️
+2. **Format options to be readable**
+   - Label: brief and scannable (max 60 chars)
+   - Description: useful details separated by `|`
+   - Warnings with emoji: ⚠️
 
-3. **Mostrare next steps dopo ogni checkpoint**
-   - Dopo plan: "Next: /seo-images-manager rename --ids 1,2,3"
-   - Dopo upload: "Upload later with: /seo-images-manager upload --ids 4,5"
+3. **Show next steps after each checkpoint**
+   - After plan: "Next: /seo-images-manager rename --ids 1,2,3"
+   - After upload: "Upload later with: /seo-images-manager upload --ids 4,5"
 
-4. **Gestire edge cases**
-   - Nessuna immagine selezionata → conferma cancellazione
-   - Tutte le immagini skippate → mostra come riprovare
-   - Errore upload → mantieni synced=false per retry
+4. **Handle edge cases**
+   - No images selected → confirm cancellation
+   - All images skipped → show how to retry
+   - Upload error → keep synced=false for retry
 
 ---
 

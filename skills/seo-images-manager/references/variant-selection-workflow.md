@@ -27,7 +27,7 @@ selections_data = format_variant_selection_data(plan_data)
 questions = []
 for img_data in selections_data:
     question = {
-        "question": f"Seleziona la variante migliore per {img_data['original_filename']}",
+        "question": f"Select the best variant for {img_data['original_filename']}",
         "header": f"Img {img_data['image_id']}",
         "multiSelect": False,
         "options": img_data['options']  # Already formatted with label + description
@@ -44,11 +44,11 @@ for img_data in selections_data:
     answer_key = f"img_{image_id}"  # Or however answers are keyed
 
     # Parse answer to get variant_rank (1, 2, or 3)
-    # If answer is "Proponi altra", ask follow-up question for custom keyword
+    # If answer is "Propose another", ask follow-up question for custom keyword
 
     selections[image_id] = {
         "variant_rank": variant_rank,  # 1, 2, or 3
-        "custom_keyword": None  # or custom keyword if "Proponi altra"
+        "custom_keyword": None  # or custom keyword if "Propose another"
     }
 
 # 5. Save selected variants to database
@@ -79,12 +79,12 @@ for img in result['saved_images']:
   {
     "image_id": 1,
     "original_filename": "IMG_1234.jpg",
-    "image_context": "Piscina Hotel",
+    "image_context": "Hotel Pool",
     "variants": [...],  // Original 3 variants with scores
     "options": [  // Formatted for AskUserQuestion
       {
-        "label": "Variante 1 (Score: 8.0): piscina-hotel-acuazul",
-        "description": "Filename: piscina-hotel-acuazul.jpg | Opportunity: 8/10 | Gap: 7/10 | SEO: 9/10"
+        "label": "Variant 1 (Score: 8.0): hotel-pool-acuazul",
+        "description": "Filename: hotel-pool-acuazul.jpg | Opportunity: 8/10 | Gap: 7/10 | SEO: 9/10"
       },
       // ... 2 more variants
     ]
@@ -100,7 +100,7 @@ for img in result['saved_images']:
   {
     1: {"variant_rank": 1, "custom_keyword": None},
     2: {"variant_rank": 2, "custom_keyword": None},
-    5: {"variant_rank": None, "custom_keyword": "animacion-piscina-hotel"}
+    5: {"variant_rank": None, "custom_keyword": "hotel-pool-activities"}
   }
   ```
 - `plan_data`: Original plan data (needed to get variant details)
@@ -115,9 +115,9 @@ for img in result['saved_images']:
   "saved_images": [
     {
       "image_id": 1,
-      "keyword": "piscina-hotel-acuazul",
-      "seo_filename": "piscina-hotel-acuazul.jpg",
-      "alt_text": "Piscina hotel acuazul | Hotel familiar"
+      "keyword": "hotel-pool-acuazul",
+      "seo_filename": "hotel-pool-acuazul.jpg",
+      "alt_text": "Hotel pool acuazul | Family hotel"
     }
   ],
   "skipped_images": [3]
@@ -140,31 +140,31 @@ For each image, create a question like this:
 
 ```python
 {
-  "question": "Seleziona la variante migliore per IMG_1234.jpg (context: Piscina Hotel)",
+  "question": "Select the best variant for IMG_1234.jpg (context: Hotel Pool)",
   "header": "Img 1",
   "multiSelect": False,
   "options": [
     {
-      "label": "Variante 1 (Score: 8.0): piscina-hotel-acuazul-peniscola",
-      "description": "Filename: piscina-hotel-acuazul-peniscola.jpg | Opportunity: 8/10 | Gap: 7/10 | SEO: 9/10"
+      "label": "Variant 1 (Score: 8.0): hotel-pool-acuazul-peniscola",
+      "description": "Filename: hotel-pool-acuazul-peniscola.jpg | Opportunity: 8/10 | Gap: 7/10 | SEO: 9/10"
     },
     {
-      "label": "Variante 2 (Score: 7.3): piscina-exterior-hotel-familiar",
-      "description": "Filename: piscina-exterior-hotel-familiar.jpg | Opportunity: 7/10 | Gap: 8/10 | SEO: 7/10"
+      "label": "Variant 2 (Score: 7.3): outdoor-pool-family-hotel",
+      "description": "Filename: outdoor-pool-family-hotel.jpg | Opportunity: 7/10 | Gap: 8/10 | SEO: 7/10"
     },
     {
-      "label": "Variante 3 (Score: 6.7): zona-bano-hotel-peniscola",
-      "description": "Filename: zona-bano-hotel-peniscola.jpg | Opportunity: 6/10 | Gap: 6/10 | SEO: 8/10"
+      "label": "Variant 3 (Score: 6.7): swimming-area-hotel-peniscola",
+      "description": "Filename: swimming-area-hotel-peniscola.jpg | Opportunity: 6/10 | Gap: 6/10 | SEO: 8/10"
     }
   ]
 }
 ```
 
-**Note:** "Proponi altra" option is automatically added by AskUserQuestion tool, so don't include it in options.
+**Note:** "Propose another" option is automatically added by AskUserQuestion tool, so don't include it in options.
 
 ---
 
-## Handling "Proponi altra" (Custom Keyword)
+## Handling "Propose another" (Custom Keyword)
 
 If user selects "Other" (custom keyword):
 
@@ -172,10 +172,10 @@ If user selects "Other" (custom keyword):
 2. Use AskUserQuestion again to get custom keyword:
    ```python
    {
-     "question": "Inserisci keyword personalizzata per IMG_1234.jpg",
+     "question": "Enter custom keyword for IMG_1234.jpg",
      "header": "Custom",
      "options": [
-       {"label": "Conferma", "description": "Usa la keyword inserita"}
+       {"label": "Confirm", "description": "Use the entered keyword"}
      ]
    }
    ```
@@ -213,7 +213,7 @@ Step 2: Generate 3 variants per image
 
 Step 3: Present checkpoint
   → AskUserQuestion for each image
-  → User selects best variant for each (or "Proponi altra")
+  → User selects best variant for each (or "Propose another")
 
 Step 4: Save selected variants
   → Generate metadata for selected variants
@@ -234,7 +234,7 @@ Next: /seo-images-manager rename
 - [ ] format_variant_selection_data() creates correct options
 - [ ] AskUserQuestion displays variants correctly
 - [ ] User can select variant 1, 2, or 3
-- [ ] User can select "Proponi altra" and enter custom keyword
+- [ ] User can select "Propose another" and enter custom keyword
 - [ ] save_selected_variants() generates correct metadata
 - [ ] Filename collision detection works
 - [ ] Cannibalization warnings are shown

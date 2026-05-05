@@ -1,73 +1,73 @@
-# UX Checkpoints: Implementazione Pratica
+# UX Checkpoints: Practical Implementation
 
-**Documento di riferimento per implementare i checkpoint interattivi nella skill seo-images-manager**
+**Reference document for implementing interactive checkpoints in the seo-images-manager skill**
 
 ---
 
 ## 1. Overview
 
-Questo documento fornisce esempi pratici di come usare `AskUserQuestion` con `multiSelect: true` per implementare i checkpoint di selezione nelle fasi:
-1. **Plan** → Selezione immagini da ottimizzare
-2. **Rename** → Verifica compressione (opzionale)
-3. **Upload** → Conferma upload WordPress (OBBLIGATORIO)
+This document provides practical examples of how to use `AskUserQuestion` with `multiSelect: true` to implement selection checkpoints in the following phases:
+1. **Plan** → Select images to optimize
+2. **Rename** → Verify compression (optional)
+3. **Upload** → Confirm WordPress upload (MANDATORY)
 
 ---
 
-## 2. Checkpoint #1: Selezione dopo Plan
+## 2. Checkpoint #1: Selection after Plan
 
-### 2.1 Quando Attivare
+### 2.1 When to Trigger
 
-**Trigger:** Dopo aver generato keyword proposals con `/seo-images-manager plan <url>`
+**Trigger:** After generating keyword proposals with `/seo-images-manager plan <url>`
 
-**Condizione:** Ci sono 2+ immagini con proposte di keyword
+**Condition:** There are 2+ images with keyword proposals
 
-### 2.2 Codice Implementazione
+### 2.2 Implementation Code
 
 ```python
-# Dopo aver eseguito: python scripts/image_manager.py plan --project <path> --url <url>
-# E ricevuto il JSON con le proposte
+# After executing: python scripts/image_manager.py plan --project <path> --url <url>
+# And receiving the JSON with proposals
 
 plan_result = json.loads(plan_output)
 images = plan_result['plan']['images']
 
-# Formatta opzioni per AskUserQuestion
+# Format options for AskUserQuestion
 options = []
 for img in images:
-    # Label: breve descrizione (max 60 chars)
+    # Label: brief description (max 60 chars)
     label = f"ID {img['id']}: {img['original_filename'][:30]}"
 
-    # Description: dettagli SEO proposti
+    # Description: proposed SEO details
     description = (
         f"Keyword: {img['selected_keyword']} | "
         f"Filename: {img['seo_metadata']['filename'][:40]} | "
         f"Alt: {img['seo_metadata']['alt_text'][:50]}..."
     )
 
-    # Aggiungi warning se c'è rischio cannibalization
+    # Add warning if there's cannibalization risk
     if img.get('cannibalization_risk'):
-        description += " ⚠️ Rischio cannibalization"
+        description += " ⚠️ Cannibalization risk"
 
     options.append({
         "label": label,
         "description": description
     })
 
-# Usa AskUserQuestion
+# Use AskUserQuestion
 AskUserQuestion(
     questions=[{
-        "question": "Quali immagini vuoi ottimizzare con queste keyword proposte?",
-        "header": "Selezione",
+        "question": "Which images do you want to optimize with these proposed keywords?",
+        "header": "Selection",
         "multiSelect": True,
         "options": options
     }]
 )
 ```
 
-### 2.3 Output Atteso (UI)
+### 2.3 Expected Output (UI)
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Quali immagini vuoi ottimizzare con queste keyword proposte?
+Which images do you want to optimize with these proposed keywords?
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ☑ ID 1: IMG_1234.jpg
@@ -77,34 +77,34 @@ Quali immagini vuoi ottimizzare con queste keyword proposte?
   Keyword: rome hotel breakfast buffet | Filename: rome-hotel-breakfas... | Alt: Rome hotel breakfast buffet - Top...
 
 ☐ ID 3: photo_01.png
-  Keyword: rome hotel rooftop | Filename: rome-hotel-rooftop... | Alt: Rome hotel rooftop terrace - Top... ⚠️ Rischio cannibalization
+  Keyword: rome hotel rooftop | Filename: rome-hotel-rooftop... | Alt: Rome hotel rooftop terrace - Top... ⚠️ Cannibalization risk
 
 ☑ ID 4: IMG_9999.jpg
   Keyword: rome hotel spa wellness | Filename: rome-hotel-spa-welln... | Alt: Rome hotel spa wellness center - Top...
 
-[Conferma selezione]
+[Confirm selection]
 ```
 
-### 2.4 Post-Selezione
+### 2.4 Post-Selection
 
 ```python
-# Ricevi la risposta dall'utente
-selected_labels = user_answers['question_1']  # Lista di label selezionati
+# Receive the response from user
+selected_labels = user_answers['question_1']  # List of selected labels
 
-# Estrai gli ID dalle label (formato: "ID 1: filename")
+# Extract IDs from labels (format: "ID 1: filename")
 selected_ids = []
 for label in selected_labels:
     match = re.match(r'ID (\d+):', label)
     if match:
         selected_ids.append(int(match.group(1)))
 
-# Aggiorna database SOLO per le immagini selezionate
+# Update database ONLY for selected images
 for img in images:
     if img['id'] in selected_ids:
-        # Salva seo_filename, alt_text, etc.
+        # Save seo_filename, alt_text, etc.
         save_seo_metadata_to_db(img['id'], img['seo_metadata'])
 
-# Conferma all'utente
+# Confirm to user
 print(f"✅ SEO plan saved for {len(selected_ids)} images")
 print(f"⏭️ Skipped {len(images) - len(selected_ids)} images")
 print(f"\nNext: /seo-images-manager rename --ids {','.join(map(str, selected_ids))}")
@@ -112,73 +112,73 @@ print(f"\nNext: /seo-images-manager rename --ids {','.join(map(str, selected_ids
 
 ---
 
-## 3. Checkpoint #2: Verifica Compressione (Opzionale)
+## 3. Checkpoint #2: Verify Compression (Optional)
 
-### 3.1 Quando Attivare
+### 3.1 When to Trigger
 
-**Trigger:** Dopo aver eseguito `/seo-images-manager rename`
+**Trigger:** After executing `/seo-images-manager rename`
 
-**Condizione:** Almeno 1 immagine ha compression_ratio > 85% (molto aggressivo)
+**Condition:** At least 1 image has compression_ratio > 85% (very aggressive)
 
-**Nota:** Questo checkpoint è OPZIONALE. Attivare solo se ci sono warning sulla compressione.
+**Note:** This checkpoint is OPTIONAL. Activate only if there are compression warnings.
 
-### 3.2 Codice Implementazione
+### 3.2 Implementation Code
 
 ```python
-# Dopo rename, controlla risultati
+# After rename, check results
 optimization_results = json.loads(rename_output)['results']
 
-# Filtra immagini con compressione molto aggressiva
+# Filter images with very aggressive compression
 high_compression = [
     img for img in optimization_results
-    if img['compression_ratio'] > 0.85  # >85% riduzione
+    if img['compression_ratio'] > 0.85  # >85% reduction
 ]
 
 if high_compression:
-    # Mostra warning e chiedi conferma
+    # Show warning and ask for confirmation
     options = []
     for img in high_compression:
         label = f"ID {img['id']}: {img['seo_filename']}"
         description = (
             f"Original: {img['original_size_mb']:.1f} MB → "
             f"Optimized: {img['optimized_size_mb']:.1f} MB | "
-            f"⚠️ {img['compression_ratio_percent']}% riduzione (molto aggressivo)"
+            f"⚠️ {img['compression_ratio_percent']}% reduction (very aggressive)"
         )
         options.append({"label": label, "description": description})
 
     AskUserQuestion(
         questions=[{
-            "question": "Alcune immagini hanno compressione molto aggressiva. Vuoi tenerle o escluderle?",
-            "header": "Verifica",
+            "question": "Some images have very aggressive compression. Do you want to keep them or exclude them?",
+            "header": "Verification",
             "multiSelect": True,
             "options": options
         }]
     )
 
-    # Se user deseleziona alcune immagini, eliminale da images/optimized/
-    # e rimuovi optimized_path dal database
+    # If user deselects some images, delete them from images/optimized/
+    # and remove optimized_path from database
 else:
-    # Nessun warning, procedi
+    # No warnings, proceed
     print("✅ All images optimized successfully")
 ```
 
-### 3.3 Output Atteso
+### 3.3 Expected Output
 
 ```
-⚠️ Alcune immagini hanno compressione molto aggressiva
+⚠️ Some images have very aggressive compression
 
-Vuoi tenerle o escluderle?
+Do you want to keep them or exclude them?
 
 ☑ ID 2: rome-hotel-breakfast-buffet.jpg
-  Original: 3.8 MB → Optimized: 0.5 MB | ⚠️ 86% riduzione (molto aggressivo)
+  Original: 3.8 MB → Optimized: 0.5 MB | ⚠️ 86% reduction (very aggressive)
 
 ☑ ID 5: rome-colosseum-hotel-view.jpg
-  Original: 1.5 MB → Optimized: 0.2 MB | ⚠️ 87% riduzione (molto aggressivo)
+  Original: 1.5 MB → Optimized: 0.2 MB | ⚠️ 87% reduction (very aggressive)
 
-[Conferma selezione]
+[Confirm selection]
 ```
 
-**Se user deseleziona ID 2:**
+**If user deselects ID 2:**
 ```
 ✅ Kept 1 image (ID 5)
 🗑️ Removed 1 image (ID 2) - you can re-optimize later with lower compression
@@ -186,21 +186,21 @@ Vuoi tenerle o escluderle?
 
 ---
 
-## 4. Checkpoint #3: Conferma Upload WordPress (OBBLIGATORIO)
+## 4. Checkpoint #3: Confirm WordPress Upload (MANDATORY)
 
-### 4.1 Quando Attivare
+### 4.1 When to Trigger
 
-**Trigger:** SEMPRE prima di `/seo-images-manager upload`
+**Trigger:** ALWAYS before `/seo-images-manager upload`
 
-**Condizione:** Ci sono 1+ immagini con `optimized_path` e `synced = false`
+**Condition:** There are 1+ images with `optimized_path` and `synced = false`
 
-**Nota:** Questo checkpoint è **SEMPRE OBBLIGATORIO** per evitare upload accidentali.
+**Note:** This checkpoint is **ALWAYS MANDATORY** to prevent accidental uploads.
 
-### 4.2 Codice Implementazione
+### 4.2 Implementation Code
 
 ```python
-# Prima di upload, SEMPRE chiedere conferma
-# Leggi immagini pronte per upload
+# Before upload, ALWAYS ask for confirmation
+# Read images ready for upload
 pending_uploads = get_pending_uploads(project_path)
 
 if not pending_uploads:
@@ -208,24 +208,24 @@ if not pending_uploads:
     print("Run /seo-images-manager list --filter optimized to see pending images")
     exit(1)
 
-# Leggi configurazione WordPress
+# Read WordPress configuration
 wp_config = load_wordpress_config(project_path)
 wp_url = wp_config['site_url']
 wp_folder = wp_config.get('media_folder', 'seo-optimized')
 
-# Mostra riepilogo
-print(f"⚠️ CONFERMA UPLOAD SU WORDPRESS\n")
-print(f"Stai per caricare {len(pending_uploads)} immagini su:")
+# Show summary
+print(f"⚠️ CONFIRM WORDPRESS UPLOAD\n")
+print(f"You are about to upload {len(pending_uploads)} images to:")
 print(f"  WordPress: {wp_url}")
 print(f"  Media Folder: {wp_folder}/\n")
 print("━" * 60 + "\n")
 
-# Formatta opzioni per checkbox
+# Format options for checkbox
 options = []
 for img in pending_uploads:
     label = f"ID {img['id']}: {img['seo_filename']}"
 
-    # Calcola dimensione in KB o MB
+    # Calculate size in KB or MB
     size_kb = img['filesize'] / 1024
     if size_kb > 1024:
         size_str = f"{size_kb/1024:.1f} MB"
@@ -239,29 +239,29 @@ for img in pending_uploads:
         "description": description
     })
 
-# CHECKPOINT OBBLIGATORIO
+# MANDATORY CHECKPOINT
 AskUserQuestion(
     questions=[{
-        "question": f"Confermi l'upload di queste {len(pending_uploads)} immagini su WordPress?",
-        "header": "Conferma",
+        "question": f"Confirm upload of these {len(pending_uploads)} images to WordPress?",
+        "header": "Confirmation",
         "multiSelect": True,
         "options": options
     }]
 )
 ```
 
-### 4.3 Output Atteso
+### 4.3 Expected Output
 
 ```
-⚠️ CONFERMA UPLOAD SU WORDPRESS
+⚠️ CONFIRM WORDPRESS UPLOAD
 
-Stai per caricare 4 immagini su:
+You are about to upload 4 images to:
   WordPress: https://example.com
   Media Folder: seo-optimized/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Confermi l'upload di queste 4 immagini su WordPress?
+Confirm upload of these 4 images to WordPress?
 
 ☑ ID 1: hotels-in-rome-luxury-suite.jpg
   450 KB | Alt: Hotels in rome luxury suite - Top 10 Hotels in Rome
@@ -275,23 +275,23 @@ Confermi l'upload di queste 4 immagini su WordPress?
 ☑ ID 5: rome-colosseum-hotel-view.jpg
   420 KB | Alt: Rome colosseum hotel view - Top 10 Hotels in Rome
 
-[Conferma selezione]
+[Confirm selection]
 ```
 
-### 4.4 Post-Conferma
+### 4.4 Post-Confirmation
 
 ```python
-# Ricevi selezione utente
+# Receive user selection
 selected_labels = user_answers['question_1']
 
-# Estrai ID selezionati
+# Extract selected IDs
 selected_ids = extract_ids_from_labels(selected_labels)
 
 if not selected_ids:
     print("❌ No images selected. Upload cancelled.")
     exit(0)
 
-# Upload solo delle immagini confermate
+# Upload only confirmed images
 print(f"\n⬆️ Uploading {len(selected_ids)} images to WordPress...\n")
 
 upload_results = []
@@ -304,13 +304,13 @@ for img_id in selected_ids:
         print(f"  WordPress Media ID: {result['wordpress_media_id']}")
         print(f"  URL: {result['wordpress_url']}\n")
 
-        # Aggiorna database: synced = true
+        # Update database: synced = true
         update_sync_status(img_id, True, result)
 
     except Exception as e:
         print(f"✗ Failed to upload ID {img_id}: {str(e)}\n")
 
-# Riepilogo
+# Summary
 print("━" * 60)
 print(f"\n✅ {len(upload_results)} images uploaded successfully")
 
@@ -323,28 +323,28 @@ if skipped > 0:
 
 ---
 
-## 5. Esempio Completo: Flusso con 3 Checkpoint
+## 5. Complete Example: Flow with 3 Checkpoints
 
 ```python
 # ═══════════════════════════════════════════════════════════
-# FASE 1: ANALYZE
+# PHASE 1: ANALYZE
 # ═══════════════════════════════════════════════════════════
 result = run_command("python scripts/image_manager.py analyze --project clients/prova/test")
 print(f"✅ Found {result['images_found']} new images")
 
 # ═══════════════════════════════════════════════════════════
-# FASE 2: LIST PENDING
+# PHASE 2: LIST PENDING
 # ═══════════════════════════════════════════════════════════
 result = run_command("python scripts/image_manager.py list --project clients/prova/test --filter pending")
 print(f"📊 {result['total']} images ready for planning")
 
 # ═══════════════════════════════════════════════════════════
-# FASE 3: PLAN + CHECKPOINT #1
+# PHASE 3: PLAN + CHECKPOINT #1
 # ═══════════════════════════════════════════════════════════
 result = run_command("python scripts/image_manager.py plan --project clients/prova/test --url https://example.com/blog/post")
 images = result['plan']['images']
 
-# CHECKPOINT: Selezione keyword
+# CHECKPOINT: Keyword selection
 options = [
     {
         "label": f"ID {img['id']}: {img['original_filename'][:30]}",
@@ -355,8 +355,8 @@ options = [
 
 selected = AskUserQuestion(
     questions=[{
-        "question": "Quali immagini vuoi ottimizzare?",
-        "header": "Selezione",
+        "question": "Which images do you want to optimize?",
+        "header": "Selection",
         "multiSelect": True,
         "options": options
     }]
@@ -366,29 +366,29 @@ selected_ids = extract_ids_from_labels(selected['answers']['question_1'])
 save_selected_plans(selected_ids, images)
 
 # ═══════════════════════════════════════════════════════════
-# FASE 4: RENAME
+# PHASE 4: RENAME
 # ═══════════════════════════════════════════════════════════
 result = run_command(f"python scripts/image_manager.py rename --project clients/prova/test --ids {','.join(map(str, selected_ids))}")
 print(f"✅ {result['processed']} images optimized")
 
-# CHECKPOINT #2 (opzionale): Solo se compressione > 85%
+# CHECKPOINT #2 (optional): Only if compression > 85%
 high_compression = [r for r in result['results'] if r['compression_ratio'] > 0.85]
 if high_compression:
-    # Mostra warning...
+    # Show warning...
     pass
 
 # ═══════════════════════════════════════════════════════════
-# FASE 5: LIST OPTIMIZED
+# PHASE 5: LIST OPTIMIZED
 # ═══════════════════════════════════════════════════════════
 result = run_command("python scripts/image_manager.py list --project clients/prova/test --filter optimized")
 print(f"📊 {result['total']} images ready for upload")
 
 # ═══════════════════════════════════════════════════════════
-# FASE 6: UPLOAD + CHECKPOINT #3 (OBBLIGATORIO)
+# PHASE 6: UPLOAD + CHECKPOINT #3 (MANDATORY)
 # ═══════════════════════════════════════════════════════════
 pending = get_pending_uploads("clients/prova/test")
 
-# CHECKPOINT: Conferma upload (SEMPRE)
+# CHECKPOINT: Confirm upload (ALWAYS)
 wp_config = load_wordpress_config("clients/prova/test")
 print(f"⚠️ Upload to: {wp_config['site_url']}\n")
 
@@ -402,8 +402,8 @@ options = [
 
 confirmed = AskUserQuestion(
     questions=[{
-        "question": f"Confermi l'upload di {len(pending)} immagini su WordPress?",
-        "header": "Conferma",
+        "question": f"Confirm upload of {len(pending)} images to WordPress?",
+        "header": "Confirmation",
         "multiSelect": True,
         "options": options
     }]
@@ -413,7 +413,7 @@ confirmed_ids = extract_ids_from_labels(confirmed['answers']['question_1'])
 upload_images(confirmed_ids)
 
 # ═══════════════════════════════════════════════════════════
-# FASE 7: STATUS FINALE
+# PHASE 7: FINAL STATUS
 # ═══════════════════════════════════════════════════════════
 result = run_command("python scripts/image_manager.py status --project clients/prova/test")
 print(f"📊 Synced: {result['synced']} | Pending: {result['pending']}")
@@ -423,14 +423,14 @@ print(f"📊 Synced: {result['synced']} | Pending: {result['pending']}")
 
 ## 6. Helper Functions
 
-### 6.1 Estrazione ID da Label
+### 6.1 Extract ID from Label
 
 ```python
 import re
 
 def extract_ids_from_labels(labels):
     """
-    Estrae gli ID dalle label selezionate dall'utente.
+    Extract IDs from user-selected labels.
 
     Input: ["ID 1: filename.jpg", "ID 5: other.jpg"]
     Output: [1, 5]
@@ -443,11 +443,11 @@ def extract_ids_from_labels(labels):
     return ids
 ```
 
-### 6.2 Formattazione Dimensione File
+### 6.2 Format File Size
 
 ```python
 def format_filesize(bytes):
-    """Formatta dimensione file in KB o MB."""
+    """Format file size in KB or MB."""
     kb = bytes / 1024
     if kb > 1024:
         return f"{kb/1024:.1f} MB"
@@ -455,16 +455,16 @@ def format_filesize(bytes):
         return f"{kb:.0f} KB"
 ```
 
-### 6.3 Salvataggio Piano SEO
+### 6.3 Save SEO Plan
 
 ```python
 def save_selected_plans(selected_ids, all_images):
     """
-    Salva seo_filename, alt_text, etc. SOLO per le immagini selezionate.
+    Save seo_filename, alt_text, etc. ONLY for selected images.
 
     Args:
-        selected_ids: Lista di ID selezionati dall'utente
-        all_images: Lista completa di immagini con proposte
+        selected_ids: List of user-selected IDs
+        all_images: Complete list of images with proposals
     """
     conn = sqlite3.connect(db_path)
 
@@ -509,54 +509,54 @@ def save_selected_plans(selected_ids, all_images):
 ### 7.1 Label Format
 
 **DO:**
-- Breve e scannable: `ID 1: filename.jpg`
-- Include ID per tracciabilità
-- Max 60 caratteri
+- Brief and scannable: `ID 1: filename.jpg`
+- Include ID for traceability
+- Max 60 characters
 
 **DON'T:**
-- Troppo lungo: `ID 1: IMG_1234_final_version_edited_compressed.jpg → hotels-in-rome-luxury-suite-top-10-best-hotels.jpg`
-- Senza ID: `filename.jpg` (impossibile estrarre ID dopo)
+- Too long: `ID 1: IMG_1234_final_version_edited_compressed.jpg → hotels-in-rome-luxury-suite-top-10-best-hotels.jpg`
+- Without ID: `filename.jpg` (impossible to extract ID after)
 
 ### 7.2 Description Format
 
 **DO:**
-- Informazioni chiave separate da `|`
-- Preview troncati con `...`
-- Warning con emoji: `⚠️`
+- Key information separated by `|`
+- Truncated previews with `...`
+- Warnings with emoji: `⚠️`
 
 **DON'T:**
-- Troppo verboso
-- Informazioni ridondanti
+- Too verbose
+- Redundant information
 
 ### 7.3 Checkpoint Frequency
 
-**SEMPRE:**
-- Prima di upload WordPress (modifiche remote)
-- Quando ci sono alternative da valutare (keyword cannibalization)
+**ALWAYS:**
+- Before WordPress upload (remote changes)
+- When there are alternatives to evaluate (keyword cannibalization)
 
-**MAI:**
-- Dopo operazioni reversibili (list, status)
-- Quando c'è solo 1 opzione possibile
+**NEVER:**
+- After reversible operations (list, status)
+- When there's only 1 possible option
 
-**OPZIONALE:**
-- Dopo compressione (solo se warning)
-- Prima di batch operations (solo se >10 items)
+**OPTIONAL:**
+- After compression (only if warnings)
+- Before batch operations (only if >10 items)
 
 ---
 
 ## 8. Testing Checklist
 
-- [ ] Checkpoint #1 mostra tutte le immagini pianificate
-- [ ] Label formato: `ID {id}: {filename}`
-- [ ] Description include keyword, filename, alt (troncati)
-- [ ] Selezione multipla funziona (2+ checkbox)
-- [ ] Deselezionare alcune immagini funziona
-- [ ] ID estratti correttamente dalle label
-- [ ] Database aggiornato SOLO per immagini selezionate
-- [ ] Checkpoint #3 SEMPRE attivo prima upload
-- [ ] URL WordPress mostrato prima conferma
-- [ ] Upload procede SOLO per immagini confermate
-- [ ] Immagini skipped tracciate correttamente
+- [ ] Checkpoint #1 shows all planned images
+- [ ] Label format: `ID {id}: {filename}`
+- [ ] Description includes keyword, filename, alt (truncated)
+- [ ] Multiple selection works (2+ checkboxes)
+- [ ] Deselecting some images works
+- [ ] IDs extracted correctly from labels
+- [ ] Database updated ONLY for selected images
+- [ ] Checkpoint #3 ALWAYS active before upload
+- [ ] WordPress URL shown before confirmation
+- [ ] Upload proceeds ONLY for confirmed images
+- [ ] Skipped images tracked correctly
 
 ---
 

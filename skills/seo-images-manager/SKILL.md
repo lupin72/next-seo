@@ -19,9 +19,9 @@ Complete image SEO optimization workflow with **Google Search Console integratio
 
 **v1.3 Features (NEW):**
 - 🤖 **Interactive Questions**: Skill asks 3 questions at start of plan:
-  - "Analizzare i competitor?" (analyze competitor GSC image queries)
-  - "Fare analisi visiva delle immagini?" (AI visual descriptions)
-  - "Lingua target per metadata?" (target language for alt text/title/caption)
+  - "Analyze competitors?" (analyze competitor GSC image queries)
+  - "Perform visual analysis of images?" (AI visual descriptions)
+  - "Target language for metadata?" (target language for alt text/title/caption)
 - 🖼️ **GSC Image Search**: Queries Google Search Console with `search_type='image'` in addition to `web`
 - 🌍 **Multilingual Metadata**: Generates alt text, captions in target language (es, it, en, fr, de, pt, nl)
 - 👁️ **Visual Context**: AI describes image content (e.g. "children playing in hotel pool") for richer keywords
@@ -163,7 +163,7 @@ images/original/          images/optimized/        WordPress
     |                          |                        |
     | 3. Upload                |                        |
     | 🔘 CHECKPOINT #2 ⚠️      |                 -----> ✓
-    | (OBBLIGATORIO)           |                        |
+    | (MANDATORY)              |                        |
     | Select images to upload  |                        |
     |                          |                        |
     | (synced = true)          |                        |
@@ -190,10 +190,10 @@ This skill uses **interactive checkpoints** to give you full control over which 
 **Purpose:** Select best keyword variant for each image (or propose custom keyword)
 
 **UI:** For each image, choose from:
-- **Variante 1** (Score: X.X): keyword + scoring breakdown
-- **Variante 2** (Score: X.X): keyword + scoring breakdown
-- **Variante 3** (Score: X.X): keyword + scoring breakdown
-- **Proponi altra**: Enter custom keyword
+- **Variant 1** (Score: X.X): keyword + scoring breakdown
+- **Variant 2** (Score: X.X): keyword + scoring breakdown
+- **Variant 3** (Score: X.X): keyword + scoring breakdown
+- **Propose another**: Enter custom keyword
 
 **Scoring Breakdown (shown for each variant):**
 - Filename: `seo-friendly-name.jpg`
@@ -206,47 +206,47 @@ This skill uses **interactive checkpoints** to give you full control over which 
 
 **Example:**
 ```
-🔘 Immagine 1: IMG_1234.jpg (context: Piscina Hotel)
+🔘 Image 1: IMG_1234.jpg (context: Hotel Pool)
 
-Seleziona la variante migliore:
+Select the best variant:
 
-☑ Variante 1 (Score: 8.0): piscina-hotel-acuazul-peniscola
-  Filename: piscina-hotel-acuazul-peniscola.jpg
+☑ Variant 1 (Score: 8.0): hotel-pool-acuazul-peniscola
+  Filename: hotel-pool-acuazul-peniscola.jpg
   Opportunity: 8/10 | Gap: 7/10 | SEO: 9/10
 
-☐ Variante 2 (Score: 7.3): piscina-exterior-hotel-familiar
-  Filename: piscina-exterior-hotel-familiar.jpg
+☐ Variant 2 (Score: 7.3): outdoor-pool-family-hotel
+  Filename: outdoor-pool-family-hotel.jpg
   Opportunity: 7/10 | Gap: 8/10 | SEO: 7/10
 
-☐ Variante 3 (Score: 6.7): zona-bano-hotel-peniscola
-  Filename: zona-bano-hotel-peniscola.jpg
+☐ Variant 3 (Score: 6.7): swimming-area-hotel-peniscola
+  Filename: swimming-area-hotel-peniscola.jpg
   Opportunity: 6/10 | Gap: 6/10 | SEO: 8/10
 
-☐ Proponi altra keyword
+☐ Propose another keyword
 
-[Conferma selezione]
+[Confirm selection]
 ```
 
-**If "Proponi altra" selected:**
+**If "Propose another" selected:**
 ```
-Inserisci keyword personalizzata per IMG_1234.jpg:
-> animacion-infantil-piscina-hotel
+Enter custom keyword for IMG_1234.jpg:
+> children-activities-hotel-pool
 ```
 
 **After selection, full metadata generated:**
 ```
-✅ Variante salvata per IMG_1234.jpg
+✅ Variant saved for IMG_1234.jpg
 
-Keyword: piscina-hotel-acuazul-peniscola
-Filename: piscina-hotel-acuazul-peniscola.jpg
-Alt text: Piscina hotel acuazul peñíscola | Hotel familiar con piscina
-Title: Piscina Hotel Acuazul Peñíscola
-Caption: Piscina hotel acuazul peñíscola en Hotel Familiar Peñíscola
+Keyword: hotel-pool-acuazul-peniscola
+Filename: hotel-pool-acuazul-peniscola.jpg
+Alt text: Hotel pool acuazul peñíscola | Family hotel with pool
+Title: Hotel Pool Acuazul Peñíscola
+Caption: Hotel pool acuazul peñíscola at Family Hotel Peñíscola
 ```
 
 ---
 
-### Checkpoint #2: Before Upload (OBBLIGATORIO) 🔄 v1.6
+### Checkpoint #2: Before Upload (MANDATORY) 🔄 v1.6
 
 **When:** ALWAYS before `/seo-images-manager upload`
 
@@ -263,7 +263,7 @@ Caption: Piscina hotel acuazul peñíscola en Hotel Familiar Peñíscola
 
 **Example:**
 ```
-⚠️ CONFERMA UPLOAD SU WORDPRESS
+⚠️ CONFIRM WORDPRESS UPLOAD
 
 WordPress: https://hotelacuazul.com
 REST API: /wp-json/wp/v2/media
@@ -271,41 +271,41 @@ Folder: seo-optimized/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔘 Seleziona le immagini da caricare (4 pronte):
+🔘 Select the images to upload (4 ready):
 
-☑ ID 1: piscina-hotel-acuazul-peniscola.jpg (450 KB)
-  Alt: Piscina hotel acuazul peñíscola | Hotel familiar... | Keyword: piscina-hotel-acuazul-peniscola
+☑ ID 1: hotel-pool-acuazul-peniscola.jpg (450 KB)
+  Alt: Hotel pool acuazul peñíscola | Family hotel... | Keyword: hotel-pool-acuazul-peniscola
 
-☑ ID 2: ristorante-buffet-colazione-hotel.jpg (520 KB)
-  Alt: Ristorante buffet colazione hotel | Desayuno h... | Keyword: ristorante-buffet-colazione
+☑ ID 2: restaurant-breakfast-buffet-hotel.jpg (520 KB)
+  Alt: Restaurant breakfast buffet hotel | Hotel br... | Keyword: restaurant-breakfast-buffet
 
-☐ ID 4: animacion-infantil-piscina.jpg (320 KB)
-  Alt: Animación infantil piscina | Actividades niño... | Keyword: animacion-infantil-piscina
-  (Voglio rivedere questa prima)
+☐ ID 4: children-activities-pool.jpg (320 KB)
+  Alt: Children activities pool | Activities for ki... | Keyword: children-activities-pool
+  (I want to review this one first)
 
-☑ ID 5: vistas-mar-habitacion-hotel.jpg (420 KB)
-  Alt: Vistas mar habitación hotel | Habitaciones con... | Keyword: vistas-mar-habitacion
+☑ ID 5: sea-view-hotel-room.jpg (420 KB)
+  Alt: Sea view hotel room | Rooms with view... | Keyword: sea-view-hotel-room
 
-[Conferma selezione: 3/4]
+[Confirm selection: 3/4]
 ```
 
 **After confirmation:**
 ```
 ⬆️ Uploading 3 images to WordPress...
 
-✓ piscina-hotel-acuazul-peniscola.jpg
+✓ hotel-pool-acuazul-peniscola.jpg
   WordPress Media ID: 123
-  URL: https://hotelacuazul.com/wp-content/uploads/2026/05/piscina-hotel-acuazul-peniscola.jpg
+  URL: https://hotelacuazul.com/wp-content/uploads/2026/05/hotel-pool-acuazul-peniscola.jpg
   Alt text set ✓ | Title set ✓ | Caption set ✓
 
-✓ ristorante-buffet-colazione-hotel.jpg
+✓ restaurant-breakfast-buffet-hotel.jpg
   WordPress Media ID: 124
-  URL: https://hotelacuazul.com/wp-content/uploads/2026/05/ristorante-buffet-colazione-hotel.jpg
+  URL: https://hotelacuazul.com/wp-content/uploads/2026/05/restaurant-breakfast-buffet-hotel.jpg
   Alt text set ✓ | Title set ✓ | Caption set ✓
 
-✓ vistas-mar-habitacion-hotel.jpg
+✓ sea-view-hotel-room.jpg
   WordPress Media ID: 125
-  URL: https://hotelacuazul.com/wp-content/uploads/2026/05/vistas-mar-habitacion-hotel.jpg
+  URL: https://hotelacuazul.com/wp-content/uploads/2026/05/sea-view-hotel-room.jpg
   Alt text set ✓ | Title set ✓ | Caption set ✓
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -344,9 +344,9 @@ images/original/
   ├── SPA Hotel/                      # Context: "SPA Hotel"
   │   ├── IMG_0002.jpg
   │   └── IMG_0003.jpg
-  ├── Animazione infantile/           # Context: "Animazione infantile"
+  ├── Children Activities/            # Context: "Children Activities"
   │   └── IMG_0004.jpg
-  └── Ristorante/                     # Context: "Ristorante"
+  └── Restaurant/                     # Context: "Restaurant"
       ├── IMG_0005.jpg
       └── IMG_0006.jpg
 ```
@@ -408,7 +408,7 @@ List all images with status badges for visual inspection.
 
 **Output:**
 ```
-📊 Immagini da pianificare
+📊 Images to plan
 
 📸 ID 1 | IMG_1234.jpg | 2.5 MB
 📸 ID 2 | IMG_5678.jpg | 3.8 MB
@@ -820,14 +820,14 @@ clients/{client-slug}/{project-slug}/
   │   │   ├── SPA Hotel/         # Subfolder = context "SPA Hotel"
   │   │   │   ├── IMG_0002.jpg
   │   │   │   └── IMG_0003.jpg
-  │   │   ├── Ristorante/        # Subfolder = context "Ristorante"
+  │   │   ├── Restaurant/        # Subfolder = context "Restaurant"
   │   │   │   └── IMG_0004.jpg
-  │   │   └── Animazione/        # Subfolder = context "Animazione"
+  │   │   └── Activities/        # Subfolder = context "Activities"
   │   │       └── IMG_0005.jpg
   │   ├── optimized/             # SEO-optimized images (generated)
-  │   │   ├── hotel-spa-wellness-centro.jpg
-  │   │   ├── ristorante-colazione-buffet.jpg
-  │   │   └── animazione-bambini-piscina.jpg
+  │   │   ├── hotel-spa-wellness-center.jpg
+  │   │   ├── restaurant-breakfast-buffet.jpg
+  │   │   └── children-activities-pool.jpg
   │   └── images.db              # SQLite database
   ├── wordpress/
   │   ├── config.json            # WordPress connection metadata
@@ -900,14 +900,14 @@ cp ~/Photos/*.jpg clients/prova/test/images/original/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔘 CHECKPOINT #1: Seleziona la variante migliore per ogni immagine
+🔘 CHECKPOINT #1: Select the best variant for each image
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📸 Immagine 1: IMG_1234.jpg
+📸 Image 1: IMG_1234.jpg
    Context: Piscina Hotel
 
-Seleziona variante:
+Select variant:
 
 ☑ Variante 1 (Score: 8.0): piscina-hotel-acuazul-peniscola
   Filename: piscina-hotel-acuazul-peniscola.jpg
@@ -921,17 +921,17 @@ Seleziona variante:
   Filename: zona-bano-hotel-peniscola.jpg
   Opportunity: 6/10 | Gap: 6/10 | SEO: 8/10
 
-☐ Proponi altra
+☐ Propose another
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📸 Immagine 2: IMG_5678.jpg
-   Context: Ristorante
+📸 Image 2: IMG_5678.jpg
+   Context: Restaurant
 
-Seleziona variante:
+Select variant:
 
-☑ Variante 1 (Score: 7.5): ristorante-buffet-colazione-hotel
-  Filename: ristorante-buffet-colazione-hotel.jpg
+☑ Variant 1 (Score: 7.5): restaurant-breakfast-buffet-hotel
+  Filename: restaurant-breakfast-buffet-hotel.jpg
   Opportunity: 8/10 | Gap: 7/10 | SEO: 8/10
 
 ☐ Variante 2 (Score: 6.8): desayuno-buffet-hotel-peniscola
@@ -942,13 +942,13 @@ Seleziona variante:
   Filename: comedor-hotel-acuazul.jpg
   Opportunity: 5/10 | Gap: 7/10 | SEO: 7/10
 
-☐ Proponi altra
+☐ Propose another
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 [... Immagini 3, 4, 5 ...]
 
-[Conferma selezioni: 4/5 immagini]
+[Confirm selections: 4/5 images]
 ```
 
 **User selects variants for 4/5 images (skips ID 3):**
@@ -959,8 +959,8 @@ Seleziona variante:
 ID 1: piscina-hotel-acuazul-peniscola.jpg
   Alt: Piscina hotel acuazul peñíscola | Hotel familiar con piscina
 
-ID 2: ristorante-buffet-colazione-hotel.jpg
-  Alt: Ristorante buffet colazione hotel | Desayuno hotel
+ID 2: restaurant-breakfast-buffet-hotel.jpg
+  Alt: Restaurant breakfast buffet hotel | Hotel breakfast
 
 ID 4: animacion-infantil-piscina.jpg
   Alt: Animación infantil piscina | Actividades niños hotel
@@ -1042,12 +1042,12 @@ Media Folder: seo-optimized/
 
 ☐ ID 4: rome-hotel-spa-wellness.jpg | 320 KB
   Alt: Rome hotel spa wellness center - Top 10 Hotels in Rome
-  (Voglio rivedere questa prima)
+  (I want to review this one first)
 
 ☑ ID 5: rome-colosseum-hotel-view.jpg | 420 KB
   Alt: Rome colosseum hotel view - Top 10 Hotels in Rome
 
-[Conferma selezione: 3/4]
+[Confirm selection: 3/4]
 ```
 
 **User confirms 3/4 images (temporarily skips ID 4):**
@@ -1240,7 +1240,7 @@ For detailed checkpoint implementation with code examples, see:
 - ✅ **Variant Selection Checkpoint (Step 2)**: Interactive selection of best keyword from 3 scored variants
   - Choose Variante 1, 2, or 3 per image
   - See full scoring breakdown (Opportunity/Gap/SEO)
-  - Option "Proponi altra" for custom keywords
+  - Option "Propose another" for custom keywords
   - Metadata generated only for selected variants
 - 📤 **Upload Checkpoint (Step 3)**: Enhanced WordPress upload confirmation
   - Multi-select checkbox with detailed preview
