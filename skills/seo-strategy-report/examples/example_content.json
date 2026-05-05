@@ -1,0 +1,262 @@
+{
+  "report_title": "Estrategia SEO Hotel Castillo Peñíscola 2026",
+  "hotel_name": "Hotel Castillo de Peñíscola",
+  "hotel_tagline": "Hotel & SPA ★★★★ SUP — Primera Línea de Playa — Peñíscola",
+  "year": "2026",
+  "report_subtitle": "Análisis basado en navegación real en Google.es y sitemap de competidores",
+  "report_date": "Junio 2026",
+  "hotel_domain": "hotelcastillodepeniscola.com",
+  "client_group": "Hoteles Mediterráneo",
+
+  "hotel_profile": "Hotel & SPA Castillo de Peñíscola, 4★★★★ SUP, primera línea de playa frente al Castillo Papa Luna y el paseo marítimo. 80 habitaciones \"palco\" con vistas directas al Mediterráneo. Materiales Porcelanosa Grupo, Wellness SPA, piscina exterior, restaurante showcooking, terraza ático Lounge Bar. Gestionado por Hoteles Mediterráneo. Público objetivo: adultos (sin niños preferiblemente), parejas, viajeros de nivel adquisitivo medio-alto.",
+
+  "key_findings": [
+    "La web actual tiene solo 17 páginas + 10 posts de blog. La competencia principal tiene hasta 308 URLs indexadas.",
+    "No existen landing pages para habitaciones, SPA, restaurante ni ofertas/escapadas.",
+    "El hotel aparece en el AI Overview de Google para \"hotel primera línea Peñíscola vistas castillo\" — una enorme ventaja a potenciar.",
+    "Rating Google Maps: 4.5★ con 834+ reseñas — mejor que todos los competidores directos.",
+    "Gran oportunidad en keywords de temporada (puentes, Navidad, Semana Santa, verano) y de experiencia (escapada romántica, spa, wellness).",
+    "Los alt-text de imágenes son \"Sin-título-1\" — pérdida de SEO de imagen importante.",
+    "El blog necesita al menos 2 publicaciones mensuales y mejor estrategia de keywords."
+  ],
+
+  "sitemap_pages": [
+    {"url": "/", "title": "Hotel de lujo en Peñíscola 4**** SUP | Vistas inigualables", "rating": "✓ Bien optimizado"},
+    {"url": "/servicios/", "title": "Hotel en Peñíscola con Spa, piscina y terraza ático Lounge Bar", "rating": "⚠ Demasiado genérico"},
+    {"url": "/entorno/", "title": "La escapada perfecta a Peñíscola | 1ª línea mar | Frente al Castillo", "rating": "✓ Buena keyword"},
+    {"url": "/contacto/", "title": "Contacto", "rating": "⚠ Sin keywords"},
+    {"url": "/noticias/", "title": "Noticias y actualidad", "rating": "✗ Mejorar el naming"},
+    {"url": "/en/", "title": "Versión inglesa", "rating": "⚠ Poco contenido EN"},
+    {"url": "/fr/", "title": "Versión francesa", "rating": "⚠ Poco contenido FR"}
+  ],
+
+  "critical_gap_summary": "No existen páginas independientes para Habitaciones, SPA/Wellness, Restaurante, Ofertas/Escapadas. Esto significa que el hotel no puede posicionar en ninguna de esas búsquedas transaccionales de alto volumen que sí captura la competencia.",
+
+  "blog_articles": [
+    {"title": "Septiembre: el mes perfecto para redescubrir Peñíscola", "section": "Con N de Peñíscola", "keyword": "peñiscola en septiembre / temporada baja", "seo": "✓"},
+    {"title": "Peñíscola en luz dorada: ¿dónde ver el atardecer?", "section": "Con N de Peñíscola", "keyword": "atardecer en peñiscola / donde ver el atardecer", "seo": "✓"},
+    {"title": "Relax mode on: ¿por qué pasar un día en el spa?", "section": "Vivir bien o mejor", "keyword": "spa en peñiscola / día de spa peñiscola", "seo": "✓"},
+    {"title": "Peñíscola, donde el cine cobra vida", "section": "Ficción con sabor a sal", "keyword": "rodajes cine peñiscola / series peñiscola", "seo": "✓"},
+    {"title": "El tic-tac de los dos", "section": "Descansar siendo dos", "keyword": "Sin keyword clara (muy genérico)", "seo": "✗"},
+    {"title": "Cambiar de lugar / síndrome rest-it-out", "section": "Vivir bien o mejor", "keyword": "burnout vacaciones / escapada desconectar", "seo": "⚠"},
+    {"title": "Dinamarca en Peñíscola (hygge)", "section": "Vivir bien o mejor", "keyword": "hygge peñiscola / bienestar mediterráneo", "seo": "⚠"},
+    {"title": "Gimnasio en vacaciones", "section": "Vivir bien o mejor", "keyword": "gimnasio hotel peñiscola", "seo": "⚠"}
+  ],
+
+  "competitors": [
+    {"name": "Gran Hotel Peñíscola ★★★★ — granhotelpeniscola.com", "positioning": "🔴 Muy alto: domina \"escapada romántica spa\", \"hotel parejas\", \"atardecer\", \"puentes\"", "urls": "308+ URLs", "rating": "4.1★ (10.000 reseñas)", "price_from": "49€", "audience": "Familiar + Adultos"},
+    {"name": "Hotel RH Boutique Portocristo ★★★★ — hotelrhportocristo.com", "positioning": "🔴 Alto: \"hotel boutique peñiscola\", \"wellness peñiscola\", \"hotel adultos\"", "urls": "~30 URLs", "rating": "4.4★ (1.820 reseñas)", "price_from": "95€", "audience": "Adultos, parejas"},
+    {"name": "ZT Hotel & Spa Peñíscola Plaza Suites ★★★★", "positioning": "🟡 Medio: aparece en búsquedas genéricas de hotel + spa", "urls": "~20 URLs", "rating": "4.2★ (9.000 reseñas)", "price_from": "64€", "audience": "Mixto"},
+    {"name": "Hotel Servigroup Papa Luna ★★★★", "positioning": "🟡 Medio: fuerte en \"hotel Peñíscola primera línea\"", "urls": "~50 URLs", "rating": "4.4★ (5.600 reseñas)", "price_from": "106€", "audience": "Mixto"},
+    {"name": "Palasiet Wellness & Thalasso (Benicàssim) — palasiet.com", "positioning": "🔴 Alto para keywords de wellness/thalasso premium", "urls": "~80 URLs", "rating": "4.2★ (690 reseñas)", "price_from": "189€", "audience": "Adultos salud"},
+    {"name": "Hotel Barra Alta ★★★★", "positioning": "🟡 Medio: \"hotel adultos peñiscola casco histórico\"", "urls": "~15 URLs", "rating": "4.7★ (301 reseñas)", "price_from": "75€", "audience": "Adultos boutique"},
+    {"name": "🚀 NUESTRO HOTEL — Hotel Castillo Peñíscola", "positioning": "🟢 Medio-Bajo: aparece en maps + AI Overview pero sin landing pages dedicadas", "urls": "17 páginas + 10 posts", "rating": "4.5★ (834 reseñas)", "price_from": "101€", "audience": "Adultos premium"}
+  ],
+
+  "competitor_insights": [
+    "Gran Hotel Peñíscola: Página \"Escapada Romántica Spa\" específica que posiciona en #1 para esa búsqueda. Blog activo. Ofertas de temporada con páginas dedicadas. Webcam en vivo del mar. FAQ. Tours virtuales. Sección \"Ciclismo\". 6 idiomas.",
+    "Hotel RH Portocristo: Sección \"Experiencias\" destacada. Página \"Wellness Peñíscola\" posicionada. Apartado \"Porto Rico\" como diferencial local. Sección de opiniones. Sistema de reserva directo con descuentos.",
+    "Palasiet: Keywords de salud/bienestar de muy alto valor. Programas específicos de wellness. Tienda online de productos. Blog muy activo."
+  ],
+
+  "swot": {
+    "strengths": [
+      "Mejor rating de su segmento: 4.5★",
+      "Primera línea playa con vistas al Castillo Papa Luna",
+      "Materiales premium Porcelanosa Grupo",
+      "80 \"palcos\" — concepto diferencial único",
+      "Lounge bar ático — diferencial de producto",
+      "Showcooking — cocina a la vista",
+      "Aparece en AI Overview de Google",
+      "Más barato que Palasiet pero similar segmento",
+      "Ubicación: paseo marítimo + castillo a pie",
+      "Promoción Hoteles Mediterráneo"
+    ],
+    "weaknesses": [
+      "Solo 17 URLs vs 308 de la competencia",
+      "Sin páginas de habitaciones individuales",
+      "Sin landing de SPA/Wellness",
+      "Sin landing de restaurante",
+      "Sin páginas de ofertas/escapadas",
+      "Blog insuficiente (10 posts en 1 año)",
+      "Nombres de imágenes no descriptivos",
+      "Solo 3 idiomas (falta DE)",
+      "Sin sección de preguntas frecuentes propia",
+      "Sin webcam en directo del mar",
+      "Sin páginas de temporada/festivos",
+      "Sin página de mascotas (pet-friendly)"
+    ],
+    "opportunities": [
+      "Crear landing \"Escapada romántica Peñíscola\"",
+      "Posicionar keywords spa en Peñíscola",
+      "Blog de destino (qué hacer en Peñíscola)",
+      "Captación público adulto sin niños",
+      "Keywords de temporada sin explotar",
+      "Gastronomía: restaurante con terraza mar",
+      "Turismo extranjero (UK, FR, alemania)",
+      "Actividades: senderismo, bici, pesca",
+      "Review schema markup (mejor CTR)",
+      "Google Discover con imágenes optimizadas",
+      "Peñiscola fuera de temporada alta"
+    ],
+    "threats": [
+      "Gran Hotel Peñíscola con 308 URLs y blog activo",
+      "OTAs (Booking, Expedia) acaparan resultados",
+      "Hotel Barra Alta con mejor rating (4.7★)",
+      "Palasiet para segmento wellness puro",
+      "Saturación del destino en verano",
+      "Incremento precios vs competencia más barata"
+    ]
+  },
+
+  "keywords": [
+    {"keyword": "hotel peñiscola 4 estrellas spa", "type": "Transaccional", "volume": "Alto (1K-5K/mes)", "difficulty": "Alta", "current_position": "Maps pack + Ad", "action": "Mejorar landing"},
+    {"keyword": "hotel lujo peñiscola", "type": "Transaccional", "volume": "Alto", "difficulty": "Alta", "current_position": "Orgánico", "action": "Optimizar home"},
+    {"keyword": "hotel peñiscola primera linea playa", "type": "Transaccional", "volume": "Alto", "difficulty": "Media-Alta", "current_position": "Maps + AI", "action": "Crear landing"},
+    {"keyword": "hotel peñiscola vistas castillo", "type": "Transaccional", "volume": "Medio", "difficulty": "Media", "current_position": "AI Overview", "action": "Potenciar"},
+    {"keyword": "escapada romántica peñiscola spa", "type": "Transaccional", "volume": "Medio (500-1K)", "difficulty": "Media", "current_position": "NO aparece", "action": "Crear landing 🔴"},
+    {"keyword": "hotel parejas peñiscola sin niños", "type": "Transaccional", "volume": "Medio", "difficulty": "Media", "current_position": "NO aparece", "action": "Crear landing 🔴"},
+    {"keyword": "hotel adultos peñiscola", "type": "Transaccional", "volume": "Medio", "difficulty": "Media", "current_position": "NO aparece", "action": "Crear landing 🔴"},
+    {"keyword": "spa peñiscola hotel", "type": "Transaccional", "volume": "Medio (300-500)", "difficulty": "Media", "current_position": "NO aparece", "action": "Crear página SPA 🔴"},
+    {"keyword": "wellness peñiscola", "type": "Transaccional", "volume": "Bajo-Medio", "difficulty": "Baja", "current_position": "NO aparece", "action": "Blog + landing"},
+    {"keyword": "que hacer en peñiscola en pareja", "type": "Informacional", "volume": "Alto", "difficulty": "Media", "current_position": "NO aparece", "action": "Crear guía blog"},
+    {"keyword": "hotel peñiscola semana santa", "type": "Estacional", "volume": "Alto (pico)", "difficulty": "Media", "current_position": "NO aparece", "action": "Crear landing oferta"},
+    {"keyword": "hotel peñiscola navidad / fin año", "type": "Estacional", "volume": "Medio", "difficulty": "Media", "current_position": "NO aparece", "action": "Crear landing oferta"}
+  ],
+
+  "gaps": [
+    {"level": "critical", "title": "🔴 GAP CRÍTICO 1: Sin página de escapada romántica.", "text": "El Gran Hotel Peñíscola posiciona en #1 orgánico con /escapada-romantica-spa/. Es la búsqueda de mayor intención de compra para el segmento adulto-pareja. El hotel Castillo de Peñíscola no tiene ninguna página para capturar este tráfico."},
+    {"level": "critical", "title": "🔴 GAP CRÍTICO 2: Sin páginas de habitaciones.", "text": "No existe ninguna URL tipo /habitaciones/suite-vistas-mar/ ni similar. El usuario que busca \"suite hotel peñiscola vistas mar\" no llega al hotel."},
+    {"level": "critical", "title": "🔴 GAP CRÍTICO 3: Sin página dedicada al SPA/Wellness.", "text": "El RH Portocristo posiciona con \"Wellness en Peñíscola\". Esta keyword es directamente del segmento objetivo del hotel."},
+    {"level": "important", "title": "🟡 GAP IMPORTANTE 4: Sin contenido estacional.", "text": "\"Hotel peñiscola semana santa\", \"peñiscola puente de mayo\", \"navidad peñiscola\" generan picos de búsqueda que la competencia captura con ofertas dedicadas."},
+    {"level": "important", "title": "🟡 GAP IMPORTANTE 5: Sin guía de destino.", "text": "\"Qué hacer en Peñíscola en pareja\" tiene alto volumen y la competencia se lleva ese tráfico informacional que idealmente debería aterrizar en el blog del hotel."}
+  ],
+
+  "opportunities": [
+    {"opportunity": "Crear landing \"Escapada romántica Peñíscola con SPA\"", "keywords": "escapada romantica peniscola spa; hotel parejas peniscola", "impact": "🔴 Muy alto", "difficulty": "Media"},
+    {"opportunity": "Crear páginas individuales de habitaciones (Suite + Class)", "keywords": "suite hotel peniscola vistas mar; habitacion vistas castillo", "impact": "🔴 Muy alto", "difficulty": "Baja"},
+    {"opportunity": "Crear página de SPA/Wellness independiente", "keywords": "spa peniscola; wellness peniscola hotel", "impact": "🔴 Muy alto", "difficulty": "Media"},
+    {"opportunity": "Crear página de Restaurante con terraza", "keywords": "restaurante peniscola vistas mar; restaurante paseo maritimo", "impact": "🟡 Alto", "difficulty": "Media"},
+    {"opportunity": "Crear landings de oferta estacional (Semana Santa, Navidad, Puentes)", "keywords": "hotel peniscola semana santa; navidad peniscola hotel", "impact": "🟡 Alto", "difficulty": "Baja-Media"},
+    {"opportunity": "Ampliar blog con guías de destino", "keywords": "que hacer en peniscola en pareja; playas peniscola", "impact": "🟡 Alto", "difficulty": "Baja"},
+    {"opportunity": "Página \"hotel adultos / sin niños\"", "keywords": "hotel adultos peniscola; hotel sin niños peniscola", "impact": "🟡 Alto", "difficulty": "Baja"},
+    {"opportunity": "Optimizar imágenes (alt-text descriptivos)", "keywords": "palco vistas mar peniscola; suite hotel peniscola interior", "impact": "🟡 Medio", "difficulty": "Baja"},
+    {"opportunity": "Añadir alemán (idioma)", "keywords": "Keywords DE para turismo alemán", "impact": "🟡 Medio", "difficulty": "Alta"},
+    {"opportunity": "Página pet-friendly / con mascotas", "keywords": "hotel peniscola mascotas; hotel peniscola con perro", "impact": "🟢 Bajo-Medio", "difficulty": "Baja"}
+  ],
+
+  "brand_opportunities": [
+    {"type": "ok", "title": "🌟 6.2 Oportunidad de marca: \"Los 80 Palcos\"", "text": "Diferencial único del hotel: La expresión \"80 palcos al Mediterráneo\" es una propuesta de valor completamente diferenciada en el mercado. Ningún competidor usa este concepto. Se debería explotar como keyword de marca y crear contenido visual alrededor de ella."},
+    {"type": "ok", "title": "6.3 Lounge Bar Ático — Oportunidad gastronómica", "text": "El ático Lounge Bar frente al paseo marítimo es un asset de alto valor no explotado en SEO. Keywords como \"lounge bar peñiscola con vistas\", \"terraza bar peñiscola atardecer\", \"coctel peñiscola paseo maritimo\" pueden atraer no solo huéspedes sino público local."}
+  ],
+
+  "structural_pages": [
+    {"page": "Habitaciones - Suite Palco", "slug": "/habitaciones/suite-palco-vistas-mar/", "h1_keyword": "Suite con vistas al mar en Peñíscola", "content": "Descripción suite, fotos calidad, amenities, Porcelanosa, prismáticos ópera, CTA reserva. FAQ schema."},
+    {"page": "Habitaciones - Class", "slug": "/habitaciones/habitacion-class-peniscola/", "h1_keyword": "Habitación Class con vistas al Mediterráneo", "content": "Descripción hab. clásica, fotos, detalles premium, cama gigante, CTA reserva."},
+    {"page": "Habitaciones - listado", "slug": "/habitaciones/", "h1_keyword": "Habitaciones hotel Peñíscola — Vistas al Mar", "content": "Listado de tipos, comparativa, filtro por tipo, fotos, precios orientativos."},
+    {"page": "SPA & Wellness", "slug": "/spa-wellness-peniscola/", "h1_keyword": "SPA en Peñíscola — Wellness Hotel Castillo", "content": "Instalaciones SPA, tratamientos, precios, circuit spa, fotos, horarios, reserva online. FAQ schema."},
+    {"page": "Restaurante", "slug": "/restaurante-peniscola-vistas-mar/", "h1_keyword": "Restaurante en Peñíscola con vistas al mar y terraza", "content": "Carta, showcooking, terraza, fotos, menú degustación, reservas de mesa, desayunos."},
+    {"page": "Lounge Bar Ático", "slug": "/lounge-bar-atico-peniscola/", "h1_keyword": "Lounge Bar ático Peñíscola — Terraza con vistas", "content": "Fotos del bar, cócteles, horario, vista panorámica, atardecer desde el ático, cómo llegar."},
+    {"page": "Piscina exterior", "slug": "/piscina-exterior-peniscola/", "h1_keyword": "Piscina exterior hotel Peñíscola primera línea", "content": "Fotos piscina, horarios, servicios pool, bar de piscina, ambiente adultos."}
+  ],
+
+  "experience_pages": [
+    {"page": "Escapada Romántica Spa", "slug": "/escapada-romantica-peniscola/", "h1_keyword": "Escapada romántica en Peñíscola con SPA", "content": "Pack: alojamiento + spa + detalles románticos + cena. Precios, fotos de pareja, CTA fuerte. Schema Offer."},
+    {"page": "Hotel Adultos / Sin Niños", "slug": "/hotel-adultos-peniscola/", "h1_keyword": "Hotel para adultos en Peñíscola — Ambiente tranquilo", "content": "Propuesta de valor: sin ruido, descanso real, bienestar, público exigente, ambiente sereno."},
+    {"page": "Escapada de Bienestar", "slug": "/escapada-bienestar-wellness-peniscola/", "h1_keyword": "Escapada de bienestar y wellness en Peñíscola", "content": "Pack spa + masaje + piscina + comida saludable. Orientado a público que busca desconexión."},
+    {"page": "Semana Santa en Peñíscola", "slug": "/oferta-semana-santa-peniscola/", "h1_keyword": "Hotel Peñíscola Semana Santa — Oferta", "content": "Fechas, precio, inclusiones, actividades, disponibilidad, urgencia temporal. Schema Event + Offer."},
+    {"page": "Puente de Diciembre", "slug": "/puente-diciembre-peniscola/", "h1_keyword": "Puente de Diciembre en Peñíscola — Hotel con Spa", "content": "Fechas 6-8 diciembre, ambiente off-season, tranquilidad, precios especiales."},
+    {"page": "Navidad y Fin de Año", "slug": "/navidad-fin-de-ano-peniscola/", "h1_keyword": "Navidad en Peñíscola — Hotel con Spa y cenas", "content": "Programa Nochebuena, Nochevieja, menús especiales, ambiente íntimo adultos."},
+    {"page": "Pet Friendly", "slug": "/hotel-mascotas-peniscola/", "h1_keyword": "Hotel con mascotas en Peñíscola — Admitimos perros", "content": "Política mascotas, servicios pet-friendly, zonas paseables, información útil para dueños de mascotas."}
+  ],
+
+  "blog_guides": [
+    {"article": "Guía completa Peñíscola en pareja", "slug": "/guia-peniscola-en-pareja/", "h1_keyword": "Qué hacer en Peñíscola en pareja — Guía completa", "intent": "Informacional / captación"},
+    {"article": "Mejores playas de Peñíscola", "slug": "/playas-peniscola/", "h1_keyword": "Las mejores playas de Peñíscola — Guía 2026", "intent": "Informacional alta búsqueda"},
+    {"article": "Castillo Papa Luna — historia", "slug": "/castillo-papa-luna-peniscola/", "h1_keyword": "Castillo Papa Luna Peñíscola: historia y visita", "intent": "Informacional / Turismo"},
+    {"article": "Qué ver en Peñíscola en un fin de semana", "slug": "/que-ver-peniscola-fin-de-semana/", "h1_keyword": "Qué ver en Peñíscola en un fin de semana", "intent": "Informacional"},
+    {"article": "Peñíscola en octubre — por qué visitarla", "slug": "/peniscola-en-octubre/", "h1_keyword": "Peñíscola en octubre: clima, actividades y consejos", "intent": "Informacional / temporada baja"},
+    {"article": "Restaurantes con terraza y vistas al mar Peñíscola", "slug": "/restaurantes-peniscola-vistas-mar/", "h1_keyword": "Mejores restaurantes con vistas al mar en Peñíscola", "intent": "Informacional gastro"},
+    {"article": "Senderismo y rutas activas en Peñíscola", "slug": "/senderismo-rutas-peniscola/", "h1_keyword": "Senderismo y rutas activas cerca de Peñíscola", "intent": "Informacional activo"},
+    {"article": "Peñíscola y el cine: rodajes y series", "slug": "/peniscola-cine-series-rodajes/", "h1_keyword": "Peñíscola en el cine: series y películas rodadas", "intent": "Informacional viral"}
+  ],
+
+  "editorial_calendar": [
+    {
+      "month_label": "Enero 2026 — Arranque tras Navidad, captar enero y Reyes",
+      "rows": [
+        {"week": "S1", "type": "Página nueva", "title": "Lanzamiento: Habitaciones Suite Palco", "slug": "/habitaciones/suite-palco-vistas-mar/", "keyword": "suite hotel peñiscola vistas mar"},
+        {"week": "S2", "type": "Blog", "title": "Peñíscola en enero: el secreto mejor guardado del invierno mediterráneo", "slug": "/peniscola-en-enero/", "keyword": "peñiscola en enero hotel"},
+        {"week": "S3", "type": "Página nueva", "title": "Lanzamiento: Habitaciones Class", "slug": "/habitaciones/habitacion-class-peniscola/", "keyword": "habitación peñiscola vistas mediterráneo"},
+        {"week": "S4", "type": "Blog", "title": "Hygge mediterráneo: cómo el bienestar escandinavo se vive en la costa valenciana", "slug": "/hygge-peniscola-bienestar-mediterraneo/", "keyword": "bienestar Peñíscola / hygge mediterráneo"}
+      ]
+    },
+    {
+      "month_label": "Febrero 2026 — San Valentín, escapadas de pareja",
+      "rows": [
+        {"week": "S1", "type": "Página nueva", "title": "Landing Escapada Romántica Peñíscola con Spa", "slug": "/escapada-romantica-peniscola/", "keyword": "escapada romántica peñiscola spa"},
+        {"week": "S2", "type": "Blog", "title": "San Valentín en Peñíscola: propuestas para enamorar", "slug": "/san-valentin-peniscola/", "keyword": "san valentín peñiscola hotel pareja"},
+        {"week": "S3", "type": "Página nueva", "title": "Landing SPA & Wellness", "slug": "/spa-wellness-peniscola/", "keyword": "spa hotel peñiscola / wellness peñiscola"},
+        {"week": "S4", "type": "Blog", "title": "Los 5 rituales de spa que debes vivir al menos una vez", "slug": "/rituales-spa-peniscola/", "keyword": "spa peñiscola tratamientos / ritual spa"}
+      ]
+    }
+  ],
+
+  "quick_wins": [
+    {"action": "Renombrar todos los archivos de imagen con nombres descriptivos (ej: \"suite-palco-vistas-mar-peniscola.jpg\")", "where": "Todas las páginas", "impact": "Alto (Google Images, SEO)", "effort": "Bajo"},
+    {"action": "Añadir alt-text descriptivos con keywords a TODAS las imágenes", "where": "Home, Servicios, Entorno", "impact": "Alto", "effort": "Bajo"},
+    {"action": "Añadir Schema Markup de tipo Hotel a la página principal", "where": "Home", "impact": "Alto (rich snippets)", "effort": "Medio"},
+    {"action": "Ampliar la sección FAQ en la home con 5 preguntas más + añadir FAQ en /servicios/ y /habitaciones/", "where": "Home, Servicios", "impact": "Alto (PAA de Google)", "effort": "Bajo"},
+    {"action": "Añadir Schema Review Aggregate (valoración 4.5★) a la home", "where": "Home", "impact": "Alto (CTR SERP)", "effort": "Bajo"},
+    {"action": "Cambiar nombre de sección \"/noticias/\" a \"/blog/\" y optimizar el H1 del listado", "where": "Blog", "impact": "Medio", "effort": "Bajo"},
+    {"action": "Añadir breadcrumbs en todas las páginas (Yoast SEO puede generarlos)", "where": "Global", "impact": "Medio", "effort": "Bajo"},
+    {"action": "Crear enlazado interno: cada post de blog debe enlazar a al menos 2-3 páginas del sitio", "where": "Blog", "impact": "Alto", "effort": "Bajo"},
+    {"action": "Optimizar meta descriptions de todas las páginas existentes (incluir CTA + keyword)", "where": "Global", "impact": "Medio (CTR)", "effort": "Bajo"},
+    {"action": "Verificar y mejorar Core Web Vitals (velocidad de carga, LCP, CLS)", "where": "Técnico", "impact": "Alto", "effort": "Medio"}
+  ],
+
+  "url_architecture": "hotelcastillodepeniscola.com/\n├─ /habitaciones/\n│   ├─ /habitaciones/suite-palco-vistas-mar/\n│   └─ /habitaciones/habitacion-class-peniscola/\n├─ /spa-wellness-peniscola/\n├─ /restaurante-peniscola-vistas-mar/\n├─ /lounge-bar-atico-peniscola/\n├─ /piscina-exterior-peniscola/\n├─ /escapada-romantica-peniscola/\n├─ /hotel-adultos-peniscola/\n├─ /escapada-bienestar-wellness-peniscola/\n├─ /ofertas/\n│   ├─ /oferta-semana-santa-peniscola/\n│   ├─ /puente-mayo-peniscola/\n│   ├─ /puente-pilar-peniscola/\n│   ├─ /puente-diciembre-peniscola/\n│   └─ /navidad-fin-de-ano-peniscola/\n├─ /entorno/ [mejorar existente]\n│   ├─ /playas-peniscola/\n│   ├─ /castillo-papa-luna-peniscola/\n│   └─ /que-ver-peniscola-fin-de-semana/\n├─ /blog/\n│   └─ [todos los artículos del calendario editorial]\n├─ /servicios/ [mejorar existente]\n├─ /hotel-mascotas-peniscola/\n└─ /contacto/",
+
+  "reoptimize": [
+    {"page": "/servicios/", "problem": "Una sola página cubre SPA + restaurante + piscina + lounge bar — ninguno posiciona bien por separado", "solution": "Dividir en páginas individuales con enlazado desde /servicios/ como hub"},
+    {"page": "/entorno/", "problem": "Texto genérico sobre Peñíscola sin keywords específicas ni estructura clara", "solution": "Enriquecer con subsecciones: playas, castillo, gastronomia, vida nocturna. Añadir imágenes geoetiquetadas."},
+    {"page": "/", "problem": "Buen meta title pero la densidad de keywords principales podría aumentarse", "solution": "Añadir más menciones de \"SPA\", \"wellness\", \"parejas\", \"primera línea playa\" en el contenido del home"}
+  ],
+
+  "phase1_period": "Enero — Febrero 2026",
+  "phase1_tasks": [
+    {"task": "1. Crear página /habitaciones/ con subpáginas suite y class", "responsible": "Web + Redacción", "deadline": "Semana 1", "kpi": "Indexación en 2 semanas, keywords de habitaciones en top 20 en 2 meses"},
+    {"task": "2. Crear página /spa-wellness-peniscola/", "responsible": "Web + Redacción", "deadline": "Semana 2", "kpi": "Posicionamiento \"spa peñiscola\" en top 10 en 3 meses"},
+    {"task": "3. Optimizar alt-text e imágenes en toda la web", "responsible": "Web", "deadline": "Semana 1-2", "kpi": "+20% tráfico Google Images"},
+    {"task": "4. Añadir Schema Markup Hotel + Review en home", "responsible": "Web/Dev", "deadline": "Semana 2", "kpi": "Rich snippets en SERP, +CTR"},
+    {"task": "5. Crear landing /escapada-romantica-peniscola/", "responsible": "Web + Marketing", "deadline": "Semana 3", "kpi": "Capturar tráfico \"escapada romántica peñiscola\""}
+  ],
+
+  "phase2_period": "Marzo — Junio 2026",
+  "phase2_tasks": [
+    {"task": "6. Crear página /restaurante-peniscola-vistas-mar/", "responsible": "Web + Redacción", "deadline": "Marzo S1", "kpi": "Keywords de restaurante Peñíscola top 20"},
+    {"task": "7. Landing Semana Santa + Puente Mayo", "responsible": "Marketing", "deadline": "Febrero S4", "kpi": "Reservas directas por esas fechas"},
+    {"task": "8. Blog: Guía Peñíscola en pareja + Mejores playas", "responsible": "Redacción", "deadline": "Marzo-Abril", "kpi": "Tráfico informacional de alta intención"},
+    {"task": "9. Página hotel adultos sin niños", "responsible": "Web + Redacción", "deadline": "Abril S3", "kpi": "Keywords \"hotel adultos peñiscola\""},
+    {"task": "10. Página Lounge Bar ático", "responsible": "Web + Fotos", "deadline": "Mayo S2", "kpi": "Keywords locales bar terraza Peñíscola"}
+  ],
+
+  "phase3_period": "Julio — Diciembre 2026",
+  "phase3_tasks": [
+    {"task": "11. Blog: 2 artículos/mes (ver calendario)", "responsible": "Redacción", "deadline": "Continuo", "kpi": "+50 URLs indexadas a fin de año"},
+    {"task": "12. Landings estacionales: Pilar, Diciembre, Navidad", "responsible": "Marketing", "deadline": "Sep-Nov", "kpi": "Reservas directas festivos"},
+    {"task": "13. Evaluar añadir idioma alemán (DE)", "responsible": "Web + Traducción", "deadline": "Q3", "kpi": "Capturar mercado germánico"},
+    {"task": "14. Webcam en directo del mar (diferencial de engagement)", "responsible": "Técnico", "deadline": "Q3", "kpi": "+Tiempo en página, diferencial vs competencia"},
+    {"task": "15. Optimizar velocidad web (Core Web Vitals)", "responsible": "Desarrollo", "deadline": "Q2-Q3", "kpi": "Mejora posicionamiento general Google"}
+  ],
+
+  "kpis": [
+    {"metric": "URLs indexadas", "tool": "Google Search Console", "frequency": "Mensual", "target": "De 17 a 60+ páginas"},
+    {"metric": "Tráfico orgánico total", "tool": "Google Analytics / GSC", "frequency": "Mensual", "target": "+150% vs actual"},
+    {"metric": "Posición media keywords principales", "tool": "GSC / Semrush", "frequency": "Mensual", "target": "Top 10 en 5+ keywords objetivo"},
+    {"metric": "Clics orgánicos desde Google", "tool": "Google Search Console", "frequency": "Semanal", "target": "+200% en 12 meses"},
+    {"metric": "Reservas directas (vs OTA)", "tool": "PMS / Analytics", "frequency": "Mensual", "target": "Incremento reservas directas +30%"},
+    {"metric": "Tasa de conversión web", "tool": "Google Analytics", "frequency": "Mensual", "target": "Benchmark industria: 2-4%"},
+    {"metric": "Velocidad página (LCP)", "tool": "PageSpeed Insights", "frequency": "Trimestral", "target": "<2.5s en móvil"}
+  ]
+}

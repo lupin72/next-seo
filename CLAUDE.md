@@ -4,13 +4,13 @@
 
 This repository contains **Claude SEO**, a Tier 4 Claude Code skill for comprehensive
 SEO analysis across all industries. It follows the Agent Skills open standard and the
-3-layer architecture (directive, orchestration, execution). 20 core sub-skills (+ 3
+3-layer architecture (directive, orchestration, execution). 21 core sub-skills (+ 3
 extensions), 15 core subagents (+ 2 extension agents, 17 total), and an extensible reference
 system cover technical SEO, content quality,
 schema markup, image optimization, sitemap architecture, AI search optimization,
 local SEO (GBP, citations, reviews, map pack), maps intelligence, semantic topic
 clustering, search experience optimization (SXO), SEO drift monitoring, e-commerce
-SEO, and international SEO with cultural adaptation profiles.
+SEO, international SEO with cultural adaptation profiles, and client-ready strategy reports.
 
 ## Architecture
 
@@ -22,7 +22,7 @@ claude-seo/
   .claude-plugin/
     plugin.json                    # Plugin manifest (v1.9.0)
     marketplace.json               # Marketplace catalog for distribution
-  skills/                            # 25 skills (auto-discovered)
+  skills/                            # 26 skills (auto-discovered)
     seo/                           # Main orchestrator skill
       SKILL.md                     # Entry point, routing table, core rules
       references/                  # On-demand knowledge files (12 files)
@@ -39,6 +39,10 @@ claude-seo/
     seo-local/SKILL.md           # Local SEO (GBP, citations, reviews, map pack)
     seo-maps/SKILL.md            # Maps intelligence (geo-grid, GBP audit, reviews, competitors)
     seo-plan/SKILL.md            # Strategic SEO planning
+    seo-strategy-report/         # Client-ready strategy reports (multilingual)
+      SKILL.md
+      references/                # Industry templates, synthesis guide
+      assets/                    # HTML templates
     seo-programmatic/SKILL.md    # Programmatic SEO at scale
     seo-competitor-pages/SKILL.md # Competitor comparison pages
     seo-hreflang/SKILL.md       # International SEO / hreflang
@@ -87,7 +91,7 @@ claude-seo/
     .clients.db                  # SQLite database (clients, projects, audits)
     {client-slug}/               # Individual client folders
       {project-slug}/            # Project folders with reports, images, data
-  scripts/                         # Python execution scripts (29 tracked + 2 dev-only)
+  scripts/                         # Python execution scripts (31 tracked + 2 dev-only)
     client_manager.py            # Client/project CRUD operations (SQLite)
     google_auth.py               # Credential management (OAuth, SA, API key, 4-tier detection)
     backlinks_auth.py            # Backlink API credential management (Moz, Bing)
@@ -102,6 +106,8 @@ claude-seo/
     indexing_notify.py           # Indexing API v3 (URL_UPDATED/URL_DELETED)
     ga4_report.py                # GA4 organic traffic reports
     google_report.py             # PDF/HTML report generator (WeasyPrint + matplotlib)
+    strategy_report_builder.py  # Strategy report HTML/Word generator (multilingual)
+    site_crawler.py              # Website crawler with industry detection
     youtube_search.py            # YouTube Data API v3
     nlp_analyze.py               # Cloud Natural Language API
     keyword_planner.py           # Google Ads Keyword Planner
@@ -147,6 +153,7 @@ claude-seo/
 | `/seo images <url or optimize>` | Image SEO: on-page audit, SERP analysis, file optimization |
 | `/seo geo <url>` | AI search / Generative Engine Optimization |
 | `/seo plan <type>` | Strategic SEO planning by industry |
+| `/seo-strategy-report <domain>` | Client-ready strategy report (multilingual, multi-industry) |
 | `/seo programmatic` | Programmatic SEO analysis and planning |
 | `/seo competitor-pages` | Competitor comparison page generation |
 | `/seo local <url>` | Local SEO analysis (GBP, citations, reviews, map pack) |

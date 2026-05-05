@@ -1,7 +1,7 @@
 {
   "name": "claude-seo",
-  "version": "1.9.0",
-  "description": "Comprehensive SEO analysis skill for Claude Code. 20 core sub-skills covering technical SEO, content quality (E-E-A-T), schema markup, image optimization, sitemap architecture, AI search optimization (GEO), local SEO, maps intelligence, semantic topic clustering, search experience optimization (SXO), SEO drift monitoring, e-commerce SEO, international SEO with cultural profiles, and strategic planning across all industries.",
+  "version": "1.10.0",
+  "description": "Comprehensive SEO analysis skill for Claude Code. 21 core sub-skills covering technical SEO, content quality (E-E-A-T), schema markup, image optimization, sitemap architecture, AI search optimization (GEO), local SEO, maps intelligence, semantic topic clustering, search experience optimization (SXO), SEO drift monitoring, e-commerce SEO, international SEO with cultural profiles, strategic planning, and client-ready multilingual strategy reports across all industries.",
   "author": {
     "name": "AgriciDaniel",
     "url": "https://github.com/AgriciDaniel"
@@ -41,7 +41,13 @@
     "ecommerce-seo",
     "google-shopping",
     "cultural-profiles",
-    "content-parity"
+    "content-parity",
+    "strategy-report",
+    "client-deliverable",
+    "multilingual-reports",
+    "competitor-analysis",
+    "swot-analysis",
+    "editorial-calendar"
   ],
   "skills": {
     "seo-client": {
@@ -121,6 +127,22 @@
         {
           "label": "status",
           "description": "Show image SEO status (total, synced, optimized, pending) with recent activity"
+        }
+      ]
+    },
+    "seo-strategy-report": {
+      "args": [
+        {
+          "label": "<domain>",
+          "description": "Generate client-ready SEO strategy report (auto-detects language, asks for industry)"
+        },
+        {
+          "label": "<domain> --language <lang>",
+          "description": "Generate report in specific language (en, es, it, fr, de)"
+        },
+        {
+          "label": "<domain> --industry <type>",
+          "description": "Generate report for specific industry (hospitality, ecommerce, saas, local, professional)"
         }
       ]
     }

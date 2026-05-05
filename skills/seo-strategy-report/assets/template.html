@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{REPORT_TITLE}}</title>
+<style>
+body{font-family:Arial,sans-serif;font-size:11pt;margin:2cm;color:#2c3e50}
+h1{font-size:19pt;color:#005580;border-bottom:3px solid #005580;padding-bottom:7px;margin-top:30px}
+h2{font-size:14pt;color:#1a6fa8;background:#eaf4fb;padding:7px 12px;border-left:5px solid #1a6fa8;margin-top:22px}
+h3{font-size:12pt;color:#2c3e50;border-bottom:1px solid #bdc3c7;padding-bottom:3px;margin-top:16px}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:9.5pt}
+th{background:#005580;color:white;padding:7px;text-align:left;border:1px solid #999}
+td{padding:5px 7px;border:1px solid #ccc;vertical-align:top}
+tr:nth-child(even) td{background:#f4f9fd}
+.hl{background:#fef9e7;border-left:4px solid #f39c12;padding:9px;margin:10px 0}
+.ok{background:#eafaf1;border-left:4px solid #27ae60;padding:9px;margin:10px 0}
+.alert{background:#fdecea;border-left:4px solid #c0392b;padding:9px;margin:10px 0}
+ul,ol{margin:6px 0;padding-left:22px}
+li{margin:3px 0}
+p{margin:5px 0;line-height:1.5}
+.cover{text-align:center;padding:50px 30px;background:#003f5c;color:white;margin-bottom:30px}
+.slug{font-family:monospace;background:#f0f0f0;padding:1px 5px;border:1px solid #ddd;border-radius:3px;color:#c0392b;font-size:9pt}
+.green{color:green}
+.orange{color:orange}
+.red{color:red}
+</style>
+</head>
+<body>
+
+<div class="cover">
+<h1 style="color:white;border-color:rgba(255,255,255,.4);font-size:26pt;margin-top:0">SEO STRATEGY & CONTENT PLAN</h1>
+<p style="font-size:18pt;margin:8px 0">{{BUSINESS_NAME}}</p>
+<p style="font-size:13pt;opacity:.9">{{BUSINESS_TAGLINE}}</p>
+<hr style="border-color:rgba(255,255,255,.3);margin:18px 0">
+<p>Competitive Analysis • Keywords • Gaps • Opportunities • Editorial Calendar {{YEAR}}</p>
+<p style="font-size:9pt;opacity:.75">{{REPORT_SUBTITLE}} — {{REPORT_DATE}}</p>
+</div>
+
+<h1 style="margin-top:0">1. EXECUTIVE SUMMARY</h1>
+
+<div class="ok">
+<p><strong>Business Profile:</strong> {{BUSINESS_PROFILE}}</p>
+</div>
+
+<div class="hl">
+<p><strong>🔍 Key Findings:</strong></p>
+<ul>
+{{KEY_FINDINGS}}
+</ul>
+</div>
+
+<h1>2. CURRENT WEBSITE ANALYSIS</h1>
+
+<h2>2.1 Page Structure (Sitemap)</h2>
+
+<table>
+<thead><tr><th>URL</th><th>Meta Title</th><th>Rating</th></tr></thead>
+<tbody>
+{{SITEMAP_ROWS}}
+</tbody>
+</table>
+
+<div class="alert">
+<p><strong>🚧 Critical Gap:</strong> {{CRITICAL_GAP_SUMMARY}}</p>
+</div>
+
+<h2>2.2 Existing Blog — Content Assessment</h2>
+
+<table>
+<thead><tr><th>Article Title</th><th>Section</th><th>Potential Keyword</th><th>SEO</th></tr></thead>
+<tbody>
+{{BLOG_ROWS}}
+</tbody>
+</table>
+
+<h1>3. COMPETITIVE LANDSCAPE</h1>
+
+<h2>3.1 Identified Competitors (real search results)</h2>
+
+<table>
+<thead><tr><th>Business</th><th>Positioning</th><th>Indexed URLs</th><th>Rating</th><th>Price From</th><th>Audience</th></tr></thead>
+<tbody>
+{{COMPETITORS_ROWS}}
+</tbody>
+</table>
+
+<h2>3.2 What Competitors Do Well (lessons learned)</h2>
+
+<ul>
+{{COMPETITORS_INSIGHTS}}
+</ul>
+
+<h1>4. SWOT ANALYSIS vs COMPETITION</h1>
+
+<table>
+<thead><tr>
+<th>✅ STRENGTHS</th>
+<th>❌ WEAKNESSES</th>
+<th>💡 OPPORTUNITIES</th>
+<th>⚠️ THREATS</th>
+</tr></thead>
+<tbody><tr>
+<td>{{SWOT_STRENGTHS}}</td>
+<td>{{SWOT_WEAKNESSES}}</td>
+<td>{{SWOT_OPPORTUNITIES}}</td>
+<td>{{SWOT_THREATS}}</td>
+</tr></tbody>
+</table>
+
+<h1>5. KEYWORD RESEARCH & GAPS</h1>
+
+<h2>5.1 Primary Keywords — Volume & Difficulty</h2>
+
+<table>
+<thead><tr><th>Keyword</th><th>Type</th><th>Est. Volume</th><th>Difficulty</th><th>Current Position</th><th>Action</th></tr></thead>
+<tbody>
+{{KEYWORDS_ROWS}}
+</tbody>
+</table>
+
+<h2>5.2 Main GAPS vs Competition</h2>
+
+{{GAPS_BLOCKS}}
+
+<h1>6. IDENTIFIED SEO OPPORTUNITIES</h1>
+
+<h2>6.1 High-Priority Opportunities</h2>
+
+<table>
+<thead><tr><th>#</th><th>Opportunity</th><th>Target Keywords</th><th>Impact</th><th>Difficulty</th></tr></thead>
+<tbody>
+{{OPPORTUNITIES_ROWS}}
+</tbody>
+</table>
+
+{{BRAND_OPPORTUNITY_BLOCKS}}
+
+<h1>7. PAGES TO CREATE: SLUGS & CONTENT</h1>
+
+<p>Below are all new pages to create, with recommended slug, primary keyword, search intent, and proposed content.</p>
+
+<h2>7.1 Structural Pages (urgent)</h2>
+
+<table>
+<thead><tr><th>Page</th><th>Recommended Slug</th><th>H1 Keyword</th><th>Key Content</th></tr></thead>
+<tbody>
+{{STRUCTURAL_PAGES_ROWS}}
+</tbody>
+</table>
+
+<h2>7.2 Experience / Package Landing Pages</h2>
+
+<table>
+<thead><tr><th>Page</th><th>Recommended Slug</th><th>H1 Keyword</th><th>Key Content</th></tr></thead>
+<tbody>
+{{EXPERIENCE_PAGES_ROWS}}
+</tbody>
+</table>
+
+<h2>7.3 Informational Guides (SEO Blog)</h2>
+
+<table>
+<thead><tr><th>Blog Article</th><th>Recommended Slug</th><th>H1 Keyword</th><th>Intent</th></tr></thead>
+<tbody>
+{{BLOG_GUIDES_ROWS}}
+</tbody>
+</table>
+
+<h1>8. EDITORIAL CALENDAR {{YEAR}} (12 MONTHS)</h1>
+
+<p>The calendar is designed for the target audience and synchronized with seasonal trends. <strong>Recommended frequency: 2 posts/month + quarterly updates to static pages.</strong></p>
+
+{{EDITORIAL_CALENDAR}}
+
+<h1>9. TECHNICAL SEO RECOMMENDATIONS</h1>
+
+<h2>9.1 Urgent Optimizations (Quick Wins)</h2>
+
+<table>
+<thead><tr><th>#</th><th>Action</th><th>Where</th><th>Impact</th><th>Effort</th></tr></thead>
+<tbody>
+{{QUICK_WINS_ROWS}}
+</tbody>
+</table>
+
+<h2>9.2 Recommended URL Structure (content architecture)</h2>
+
+<div class="ok">
+<pre style="font-family:monospace;font-size:9pt;line-height:1.7;">
+{{URL_ARCHITECTURE}}
+</pre>
+</div>
+
+<h2>9.3 Existing Content Optimization (re-optimize)</h2>
+
+<table>
+<thead><tr><th>Page</th><th>Problem</th><th>Solution</th></tr></thead>
+<tbody>
+{{REOPTIMIZE_ROWS}}
+</tbody>
+</table>
+
+<h1>10. PRIORITIZED ACTION PLAN</h1>
+
+<h2>10.1 Phase 1: Foundations ({{PHASE1_PERIOD}})</h2>
+
+<div class="alert">
+<p><strong>Maximum Priority:</strong> Build the foundational structure the site currently lacks.</p>
+</div>
+
+<table>
+<thead><tr><th>Task</th><th>Responsible</th><th>Deadline</th><th>Expected KPI</th></tr></thead>
+<tbody>
+{{PHASE1_ROWS}}
+</tbody>
+</table>
+
+<h2>10.2 Phase 2: Growth ({{PHASE2_PERIOD}})</h2>
+
+<div class="hl">
+<p><strong>Objective:</strong> Expand content architecture and capture seasonal keywords.</p>
+</div>
+
+<table>
+<thead><tr><th>Task</th><th>Responsible</th><th>Deadline</th><th>Expected KPI</th></tr></thead>
+<tbody>
+{{PHASE2_ROWS}}
+</tbody>
+</table>
+
+<h2>10.3 Phase 3: Consolidation ({{PHASE3_PERIOD}})</h2>
+
+<div class="ok">
+<p><strong>Objective:</strong> Scale blog content, capture seasonal keywords, improve internationalization.</p>
+</div>
+
+<table>
+<thead><tr><th>Task</th><th>Responsible</th><th>Deadline</th><th>Expected KPI</th></tr></thead>
+<tbody>
+{{PHASE3_ROWS}}
+</tbody>
+</table>
+
+<h2>10.4 Recommended Tracking KPIs</h2>
+
+<table>
+<thead><tr><th>Metric</th><th>Tool</th><th>Frequency</th><th>12-Month Target</th></tr></thead>
+<tbody>
+{{KPIS_ROWS}}
+</tbody>
+</table>
+
+<hr>
+
+<div style="text-align:center;background:#f8f9fa;padding:20px;border:1px solid #dee2e6;">
+<p><em>Report prepared through analysis of Google Search Console data, search engine results, competitor sitemap review, and technical audit of {{BUSINESS_DOMAIN}} — {{REPORT_DATE}}</em></p>
+<p>This document is confidential and prepared exclusively for the team at {{BUSINESS_NAME}} / {{CLIENT_GROUP}}.</p>
+</div>
+
+</body>
+</html>
